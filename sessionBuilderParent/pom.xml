@@ -7,6 +7,10 @@
 	    <version>0.0.1-SNAPSHOT</version>
 		<relativePath>../bom/pom.xml</relativePath>
   	</parent>
+  	
+  	<modules>
+  		<module>sessionBuilder-core</module>
+  	</modules>
 	
 	<artifactId>sessionBuilder</artifactId>
 	<packaging>pom</packaging>
