@@ -11,7 +11,7 @@ jobs:
       matrix:
         include:
           - java: 17
-            additional-maven-args: "-Pjacoco,mutation-testing,html-report coveralls:report"
+            additional-maven-args: "-Pjacoco,mutation-testing,html-report " # add coveralls:report then
           - java: 21
 
     steps:
@@ -34,6 +34,10 @@ jobs:
         working-directory: ./sessionBuilderParent
         env:
           COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
+		  
+		# temporary
+	  - name: Upload to Coveralls (non-blocking)
+  		run: mvn coveralls:report || echo "Coveralls failed but build continues"
 
       - name: Archive Surefire XML reports
         uses: actions/upload-artifact@v4

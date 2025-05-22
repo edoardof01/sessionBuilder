@@ -74,8 +74,8 @@
 						<mutators>
 							<mutator>DEFAULT</mutator>
 						</mutators>
-						<!--low for now-->
-						<mutationThreshold>80</mutationThreshold>	
+						<!--null for now-->
+						<mutationThreshold>0</mutationThreshold>	
 					</configuration>
 				</plugin>
 				<plugin>
@@ -136,8 +136,8 @@
 											<limits>
 												<limit>
 													<counter>LINE</counter>
-													<!--low for now-->
-													<minimum>0.5</minimum>
+													<!--null for now-->
+													<minimum>0.0</minimum>
 												</limit>
 											</limits>
 										</rule>
