@@ -5,7 +5,7 @@
 	    <groupId>com.sessionBuilder</groupId>
 	    <artifactId>sessionBuilder-bom</artifactId>
 	    <version>0.0.1-SNAPSHOT</version>
-		<relativePath>../bom/pom.xml</relativePath>
+		<relativePath>../sessionBuilder-bom/pom.xml</relativePath>
   	</parent>
   	
   	<modules>
