@@ -6,7 +6,7 @@
 	<packaging>pom</packaging>
 	
 	<modules>
-		<module>sessionBuilderParent</module>
+		<module>sessionBuilder</module>
 		<module>sessionBuilder-bom</module>
 	</modules>
 	
