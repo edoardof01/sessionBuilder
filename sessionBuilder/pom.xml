@@ -2,22 +2,22 @@
 	<modelVersion>4.0.0</modelVersion>
 	
 	<parent>
-	    <groupId>com.sessionBuilder</groupId>
-	    <artifactId>sessionBuilder-bom</artifactId>
-	    <version>0.0.1-SNAPSHOT</version>
+		<groupId>com.sessionBuilder</groupId>
+		<artifactId>sessionBuilder-bom</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
 		<relativePath>../sessionBuilder-bom/pom.xml</relativePath>
-  	</parent>
-  	
+	</parent>
+	
   	<modules>
   		<module>sessionBuilder-core</module>
   	</modules>
-	
+ 
 	<artifactId>sessionBuilder</artifactId>
 	<packaging>pom</packaging>
 	<properties>
 		<junit.version>4.13.2</junit.version>
 		<compiler.version>3.13.0</compiler.version>
-		<java.version>21</java.version>
+		<java.version>17</java.version>
 		<assertj.version>3.27.0</assertj.version>
 		<mockito.version>5.14.2</mockito.version>
 		<pitest.version>1.16.0</pitest.version>
@@ -29,16 +29,19 @@
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>${junit.version}</version>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.assertj</groupId>
 			<artifactId>assertj-core</artifactId>
 			<version>${assertj.version}</version>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
 			<version>${mockito.version}</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
@@ -65,23 +68,36 @@
 					<version>${pitest.version}</version>
 					<configuration>
 						<targetClasses>
-							<param>com.sessionbuilder.core.*</param>
+							<param>com.sessionBuilder.core.*</param>
 						</targetClasses>
 						<!-- exclude the main class -->
+						<excludedClasses>
+							<param>**.*Test</param>
+						</excludedClasses>
 						<targetTests>
-							<param>com.sessionbuilder.core.*Test</param>
+							<param>com.sessionBuilder.core.*Test</param>
 						</targetTests>
 						<mutators>
-							<mutator>DEFAULT</mutator>
+							<mutator>DEFAULTS</mutator>
 						</mutators>
 						<!--null for now-->
-						<mutationThreshold>0</mutationThreshold>	
+						<mutationThreshold>50</mutationThreshold>
+						<outputFormats>
+							<outputFormat>HTML</outputFormat>
+							<outputFormat>XML</outputFormat>
+						</outputFormats>	
+						<reportsDirectory>${project.build.directory}/pit-reports</reportsDirectory>
 					</configuration>
 				</plugin>
 				<plugin>
 					<groupId>org.jacoco</groupId>
 					<artifactId>jacoco-maven-plugin</artifactId>
 					<version>${jacoco.version}</version>
+						<configuration>
+							<excludes>
+								<exclude>**.*Test</exclude>
+							</excludes>
+						</configuration>
 				</plugin>
 				<plugin>
 					<groupId>com.github.hazendaz.maven</groupId>
