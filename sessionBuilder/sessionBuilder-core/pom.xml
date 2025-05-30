@@ -6,11 +6,4 @@
     <version>0.0.1-SNAPSHOT</version>
   </parent>
   <artifactId>sessionBuilder-core</artifactId>
-  <dependencies>
-  	<dependency>
-  		<groupId>com.sessionBuilder</groupId>
-  		<artifactId>sessionBuilder</artifactId>
-  		<version>0.0.1-SNAPSHOT</version>
-  	</dependency>
-  </dependencies>
 </project>
