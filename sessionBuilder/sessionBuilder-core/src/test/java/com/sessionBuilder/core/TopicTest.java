@@ -64,7 +64,6 @@ public class TopicTest {
 		Topic topic = new Topic(name1, description1, -1, sessionList);
 	}
 	
-	
 	@Test(expected = IllegalArgumentException.class)
 	public void testCreatingTopicWithDifficultyFieldExceedingMaxFailure() {
 		Topic topic = new Topic(name1, description1, 6, sessionList);

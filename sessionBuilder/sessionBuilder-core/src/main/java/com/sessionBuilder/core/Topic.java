@@ -3,14 +3,26 @@ package com.sessionBuilder.core;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.IntPredicate;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 
+@Entity
 public class Topic {
+	
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private long id;
 	
 	private String name;
 	private String description;
 	private int difficulty;
+	
+	@ManyToMany
 	private List<StudySession> sessionList = new ArrayList<StudySession>();
+	
 	private int masteryLevel = 0;
 
 	public Topic(String name, String description, int difficulty, List<StudySession> sessionList) {
@@ -40,11 +52,11 @@ public class Topic {
 		return this.masteryLevel;
 	}
 	
+	
+	
 	void setSessions(ArrayList<StudySession> arrayList) {
 		this.sessionList = arrayList;
 	}
-
-	
 	void setMasteryLevel(int level) {
 		this.masteryLevel = level;
 	}
@@ -72,12 +84,12 @@ public class Topic {
 						count())/(this.getSessionList().size())*100);
 	}
 
-	public void increaseMasteryLevel(int points) {
+	void increaseMasteryLevel(int points) {
 		this.masteryLevel += points;
 	}
 
 	
-	public void decreaseMasteryLevel(int points) {
+	void decreaseMasteryLevel(int points) {
 		if(points < 0) throw new IllegalArgumentException("il valore dei punti da rimuovere deve essere positivo");
 		if(masteryLevel < points) masteryLevel = 0; //NOPIT
 		else this.masteryLevel -= points;
@@ -96,6 +108,10 @@ public class Topic {
 	@Override
 	public int hashCode() {
 		return Objects.hash(name, description, difficulty, sessionList);
+	}
+
+	void setId(long id) {
+		this.id = id;
 	}
 
 	

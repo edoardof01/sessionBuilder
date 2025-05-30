@@ -5,20 +5,36 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
+
+@Entity
 public class StudySession {
+	
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private long id;
 	
 	private LocalDate date;
 	private int duration;
 	private String note;
+	
+	@ManyToMany(mappedBy="sessionList")
 	private List<Topic> topicList = new ArrayList<Topic>();
+	
 	private boolean isComplete;
 	
 
 	public StudySession(LocalDate date, int duration, String note, ArrayList<Topic> topicList) {
-		if(date == null) throw new IllegalArgumentException("la date non può essere nulla");
+		if(date == null) throw new IllegalArgumentException("la date non può essere null");
+		if(date.isBefore(LocalDate.now())) throw new IllegalArgumentException("la date non può essere nel passato");
 		this.date = date;
 		if(duration<=0) throw new IllegalArgumentException("la durata deve essere positiva");
 		this.duration = duration;
+		if(note == null) throw new IllegalArgumentException("la note non può essere null");
 		this.note = note;
 		if(topicList == null) throw new IllegalArgumentException("deve esserci almeno un topic");
 		if(topicList.stream().anyMatch(Objects::isNull)) throw new IllegalArgumentException("almeno un Topic è null");
@@ -41,6 +57,9 @@ public class StudySession {
 	}
 	public boolean isComplete() {
 		return this.isComplete;
+	}
+	void setId(long id) {
+		this.id = id;
 	}
 	
 	void setIsComplete(boolean value) {
