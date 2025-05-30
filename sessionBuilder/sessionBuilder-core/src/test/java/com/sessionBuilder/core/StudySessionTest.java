@@ -35,9 +35,19 @@ public class StudySessionTest {
 	}
 
 	@Test
-	public void testSessionCreationWithValidFields() {
+	public void testSessionCreationSuccess() {
 		StudySession studySession = new StudySession(date ,60, note, topics);
 		assertThat(studySession.getDate()).isEqualTo(date);
+		assertThat(studySession.getDuration()).isEqualTo(60);
+		assertThat(studySession.getNote()).isEqualTo(note);
+		assertThat(studySession.getTopicList()).containsAll(topics);
+		assertThat(studySession.isComplete()).isFalse();
+	}
+	
+	@Test
+	public void testSessionCreationWIthDateNowSuccess() {
+		StudySession studySession = new StudySession(LocalDate.now() ,60, note, topics);
+		assertThat(studySession.getDate()).isEqualTo(LocalDate.now());
 		assertThat(studySession.getDuration()).isEqualTo(60);
 		assertThat(studySession.getNote()).isEqualTo(note);
 		assertThat(studySession.getTopicList()).containsAll(topics);
@@ -50,8 +60,19 @@ public class StudySessionTest {
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
+	public void testSessionCreationWithPastDateFailure() {
+		StudySession studySession = new StudySession(LocalDate.now().minusDays(1) , 60 ,note, topics);
+	}
+	
+	
+	@Test(expected = IllegalArgumentException.class)
 	public void testSessionCreationInstantaneuosDurationFailure() {
 		StudySession studySession = new StudySession(date , 0 ,note, topics);
+	}
+	
+	@Test( expected = IllegalArgumentException.class)
+	public void testSessionCreationWithNullNoteFailure() {
+		StudySession studySession = new StudySession(date , 60 , null, topics);
 	}
 
 	
@@ -70,11 +91,6 @@ public class StudySessionTest {
 		ArrayList<Topic> nullTopics = new ArrayList<Topic>();
 		nullTopics.add(null);
 		StudySession studySession = new StudySession(date ,60 , note, nullTopics);	
-	}
-	
-	@Test
-	public void testSessionCreationWhenTopicListContainsNullElement() {
-    	
 	}
 
 	
@@ -318,20 +334,6 @@ public class StudySessionTest {
 		assertThat(session1.equals(session2)).isTrue();
 	}
 	
-	
-	@Test
-	public void testEqualsBothNullNotes() {
-		StudySession session1 = new StudySession(date, 60, null, topics);
-		StudySession session2 = new StudySession(date, 60, null, topics);
-		assertThat(session1.equals(session2));
-	}
-	
-	@Test
-	public void tesEqualsOneNullNote() {
-		StudySession other = new StudySession(date, 60, null, topics);
-		assertThat(s1.equals(other)).isFalse();
-	}
-	
 	@Test
 	public void testEqualsDifferentNote() {
 		StudySession other = new StudySession(date, 30, "una nota diversa", topics);
@@ -341,6 +343,13 @@ public class StudySessionTest {
 	@Test
 	public void testEqualsDifferentTopics() {
 		StudySession other = new StudySession(date, 60, note, new ArrayList<>(List.of(fullTopic)));
+		fullTopic.setSessions(new ArrayList<>(List.of(other)));
+		assertThat(s1.equals(other)).isFalse();
+	}
+	
+	@Test
+	public void testEqualsDifferentNoteAndTopics() {
+		StudySession other = new StudySession(date, 60, "nota diversa", new ArrayList<>(List.of(fullTopic)));
 		fullTopic.setSessions(new ArrayList<>(List.of(other)));
 		assertThat(s1.equals(other)).isFalse();
 	}
