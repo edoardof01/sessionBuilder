@@ -17,6 +17,8 @@ public class StudySessionTest {
 	private LocalDate date;
 	private ArrayList<Topic> topics;
 	private Topic fullTopic;
+	private StudySession session;
+	
 	//campi per l'equals
 	private StudySession s1;
 	private StudySession s2;
@@ -24,11 +26,12 @@ public class StudySessionTest {
 
 	@Before
 	public void setup() {
-		topic1 = new Topic();
+		topic1 = new Topic("Mercato immobiliare", "case a Firenze", 1, new ArrayList<>());
 		note = "this is a note about the session";
 		date = LocalDate.now().plusDays(1);
 		topics = new ArrayList<Topic>(List.of(topic1));
 		fullTopic = new Topic("scacchi","impara nuove aperture", 5, new ArrayList<StudySession>());
+		session = new StudySession(date, 60, note, topics);
 		//Campi per l'equals 
 		s1 = new StudySession(date, 60, note, topics);
 		s2 = new StudySession(date, 60, note, topics);
@@ -37,11 +40,14 @@ public class StudySessionTest {
 	@Test
 	public void testSessionCreationSuccess() {
 		StudySession studySession = new StudySession(date ,60, note, topics);
+		studySession.setId(1L);
 		assertThat(studySession.getDate()).isEqualTo(date);
 		assertThat(studySession.getDuration()).isEqualTo(60);
 		assertThat(studySession.getNote()).isEqualTo(note);
 		assertThat(studySession.getTopicList()).containsAll(topics);
 		assertThat(studySession.isComplete()).isFalse();
+		assertThat(studySession.getId()).isEqualTo(1);
+	
 	}
 	
 	@Test
@@ -113,6 +119,17 @@ public class StudySessionTest {
 	}
 	
 	@Test
+	public void testAddingTopicThatAlreadyContainsSession() {
+	   Topic newTopic = new Topic("Nuovo Topic", "Descrizione", 3, new ArrayList<>());
+	   newTopic.getSessionList().add(session);
+	   assertThat(session.getTopicList()).containsExactly(topic1);
+	   assertThat(newTopic.getSessionList()).containsExactly(session);
+	   session.addTopic(newTopic);   
+	   assertThat(session.getTopicList()).containsExactly(topic1, newTopic);
+	   assertThat(newTopic.getSessionList()).containsExactly(session);
+	}
+	
+	@Test
 	public void testAddingTopicToCompletedSessionFailure() {
 		Topic topic2 = new Topic();
 		StudySession studySession = new StudySession(date ,60, note, topics);
@@ -120,6 +137,24 @@ public class StudySessionTest {
 		IllegalStateException e = assertThrows(IllegalStateException.class,
 				()-> studySession.addTopic(topic2));
 		assertThat(e.getMessage()).isEqualTo("non si possono aggiungere topic alle sessioni completate");
+	}
+	
+	@Test
+	public void testAddingTopicThatDoesNotContainSession() {
+		Topic newTopic = new Topic("Nuovo Topic", "Descrizione", 3, new ArrayList<>());
+		
+		assertThat(newTopic.getSessionList()).doesNotContain(session);
+		assertThat(session.getTopicList()).containsExactly(topic1);
+		session.addTopic(newTopic);
+		assertThat(session.getTopicList()).containsExactly(topic1, newTopic);
+		assertThat(newTopic.getSessionList()).contains(session);
+	}
+	
+	@Test
+	public void testAddingTopicAlreadyOwningTheSessionSuccess(){
+		fullTopic.setSessions(new ArrayList<>(List.of(session)));
+		session.addTopic(fullTopic);
+		assertThat(session.getTopicList()).containsExactly(topic1, fullTopic);
 	}
 
 	@Test
@@ -129,7 +164,6 @@ public class StudySessionTest {
 		topics.add(topic1);
 		
 		StudySession studySession = new StudySession(date ,60, note, topics);
-		
 		studySession.addTopic(topic2);
 		assertThat(studySession.getTopicList()).containsAll(new ArrayList<Topic>(List.of(topic1,topic2)));
 	}
@@ -140,6 +174,18 @@ public class StudySessionTest {
 		IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
 				()-> studySession.removeTopic(topic1));
 		assertThat(e.getMessage()).isEqualTo("Una sessione deve avere almeno un Topic");
+	}
+	
+	@Test
+	public void testRemoveTopicAlsoRemovesSessionFromTopic() {
+		Topic topic2 = new Topic("Secondo Topic", "Descrizione", 3, new ArrayList<>());
+		topics.add(topic2);
+		StudySession studySession = new StudySession(date, 60, note, topics);
+		assertThat(studySession.getTopicList()).contains(topic2);
+		assertThat(topic2.getSessionList()).contains(studySession);
+		studySession.removeTopic(topic2);
+		assertThat(studySession.getTopicList()).doesNotContain(topic2);
+		assertThat(topic2.getSessionList()).doesNotContain(studySession);
 	}
 	
 	@Test
@@ -344,7 +390,7 @@ public class StudySessionTest {
 	public void testEqualsDifferentTopics() {
 		StudySession other = new StudySession(date, 60, note, new ArrayList<>(List.of(fullTopic)));
 		fullTopic.setSessions(new ArrayList<>(List.of(other)));
-		assertThat(s1.equals(other)).isFalse();
+		assertThat(s1.equals(other)).isTrue();
 	}
 	
 	@Test
@@ -369,6 +415,42 @@ public class StudySessionTest {
 	public void testHashCodeDifferentObjects() {
 		StudySession other = new StudySession(date.plusDays(1), 60, note, topics);
 		assertThat(s1.hashCode()).isNotEqualTo(other.hashCode());
+	}
+	
+	@Test
+	public void testToStringWithEmptyTopicList() {
+		LocalDate date = LocalDate.of(2025, 6, 10);
+		StudySession session = new StudySession(date, 60, "test note", new ArrayList<>());
+		String expected = "StudySession(2025-06-10, 60, test note, topics{})";
+		assertThat(session.toString()).isEqualTo(expected);
+	}
+
+	@Test
+	public void testToStringWithSingleTopic() {
+		LocalDate date = LocalDate.of(2025, 6, 10);
+		ArrayList<Topic> topics = new ArrayList<>();
+		Topic topic = new Topic("Java", "Programming", 3, new ArrayList<>());
+		topics.add(topic);
+		
+		StudySession session = new StudySession(date, 90, "Study session", topics);
+		String expected = "StudySession(2025-06-10, 90, Study session, topics{Java})";
+		assertThat(session.toString()).isEqualTo(expected);
+	}
+
+	@Test
+	public void testToStringWithMultipleTopics() {
+		LocalDate date = LocalDate.of(2025, 6, 10);
+		ArrayList<Topic> topics = new ArrayList<>();
+		Topic topic1 = new Topic("Java", "Programming", 3, new ArrayList<>());
+		Topic topic2 = new Topic("Matematica", "studia integrali", 4, new ArrayList<>());
+		Topic topic3 = new Topic("Fisica", "meccanica", 5, new ArrayList<>());
+		topics.add(topic1);
+		topics.add(topic2);
+		topics.add(topic3);
+		
+		StudySession session = new StudySession(date, 120, "più topics", topics);
+		String expected = "StudySession(2025-06-10, 120, più topics, topics{Java, Matematica, Fisica})";
+		assertThat(session.toString()).isEqualTo(expected);
 	}
 	
 	

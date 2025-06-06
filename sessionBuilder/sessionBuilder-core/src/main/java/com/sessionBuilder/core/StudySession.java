@@ -4,6 +4,9 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
+
+import javax.annotation.processing.Generated;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -38,6 +41,11 @@ public class StudySession {
 		this.note = note;
 		if(topicList == null) throw new IllegalArgumentException("deve esserci almeno un topic");
 		if(topicList.stream().anyMatch(Objects::isNull)) throw new IllegalArgumentException("almeno un Topic è null");
+		for(Topic topic : topicList) {
+			if(!topic.getSessionList().contains(this)) {
+				topic.addSession(this);
+			}
+		}
 		this.topicList = topicList;
 		this.isComplete = false;
 	}
@@ -58,11 +66,17 @@ public class StudySession {
 	public boolean isComplete() {
 		return this.isComplete;
 	}
-	void setId(long id) {
+	
+	//NOSONAR
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
 		this.id = id;
 	}
 	
-	void setIsComplete(boolean value) {
+	public void setIsComplete(boolean value) {
 		this.isComplete = value;
 	}
 
@@ -70,6 +84,9 @@ public class StudySession {
 		if(topic == null) throw new IllegalArgumentException("null Topic");
 		if(this.isComplete()) throw new IllegalStateException("non si possono aggiungere topic alle sessioni completate");
 		this.getTopicList().add(topic);
+		if(!topic.getSessionList().contains(this)) {
+			topic.addSession(this);
+		}
 	}
 
 	public void removeTopic(Topic topic) {
@@ -79,6 +96,7 @@ public class StudySession {
 		boolean found = topicList.contains(topic);
 		if (!found) throw new IllegalArgumentException("il topic non è presente nella lista");
 		this.getTopicList().remove(topic);
+		topic.removeSession(this);
 	}
 
 	public void complete() {
@@ -93,20 +111,30 @@ public class StudySession {
 		this.setIsComplete(true);
 	}
 	
-	
 	@Override
 	public boolean equals(Object obj) {
 		if(this == obj) return true;
 		if(obj == null || getClass() != obj.getClass()) return false;
 		StudySession other = (StudySession) obj;
 		return Objects.equals(this.date, other.getDate()) && this.duration == other.getDuration() &&
-				Objects.equals(this.note, other.note) && Objects.equals(this.topicList, other.topicList);
+				Objects.equals(this.note, other.note);
 	}
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(date, duration, note, topicList);
+		return Objects.hash(date, duration, note);
 	}
+	
+	void setTopics (ArrayList<Topic> topics) {
+		this.topicList = topics;
+	}
+	
+	@Override
+	public String toString() {
+		String topicNames = topicList.stream().map(Topic::getName).collect(Collectors.joining(", "));
+		return "StudySession("+ date + ", "+ duration + ", " + note + ", topics{" + topicNames + "})";
+	}
+
 
 	
 

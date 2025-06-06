@@ -24,7 +24,7 @@ public class TopicService {
 	public Topic getTopicById(long topicId) {
 		return tm.doInTopicTransaction(topicRepository -> {
 			Topic topic = topicRepository.findById(topicId);
-			if(topic == null) throw new IllegalArgumentException("la sessione cercata non esiste");
+			if(topic == null) throw new IllegalArgumentException("il topic cercato non esiste");
 			return topic;
 		});
 	}
@@ -39,7 +39,15 @@ public class TopicService {
 			topicRepository.update(topic);
 			return null;
 		});
-		
+	}
+	
+	public void deleteTopic(long topicId) {
+		tm.doInTopicTransaction(topicRepository -> {
+			Topic topic = topicRepository.findById(topicId);
+			if(topic == null) throw new IllegalArgumentException("il topic passato è null");
+			topicRepository.delete(topicId);
+			return null;
+		});
 	}
 
 	public void removeSessionFromTopic(long topicId, long sessionId) {
@@ -61,7 +69,6 @@ public class TopicService {
 			topic.totalTime();
 			return null;
 		});
-		
 	}
 
 	public void calculatePercentageOfCompletion(long topicId) {
