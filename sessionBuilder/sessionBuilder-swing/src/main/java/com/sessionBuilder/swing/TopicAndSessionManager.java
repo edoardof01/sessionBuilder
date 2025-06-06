@@ -4,6 +4,8 @@ package com.sessionBuilder.swing;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
+import java.awt.FlowLayout;
+
 import com.sessionBuilder.core.Topic;
 import com.sessionBuilder.core.TopicController;
 import com.sessionBuilder.core.StudySession;
@@ -21,6 +23,7 @@ import javax.swing.JSplitPane;
 import javax.swing.ListSelectionModel;
 
 import java.awt.GridLayout;
+
 import javax.swing.JLabel;
 import javax.swing.JList;
 
@@ -92,6 +95,7 @@ public class TopicAndSessionManager extends JFrame {
 	    splitPane.setLeftComponent(topicPanel);
 	    
 	    JLabel topicLabel = new JLabel("Topics");
+	    topicLabel.setBorder(new EmptyBorder(0, 5, 0, 0));
 	    topicLabel.setName("topicLabel");
 	    topicLabel.setFont(new Font("Dialog", Font.BOLD, 23));
 	    topicPanel.add(topicLabel, BorderLayout.NORTH);
@@ -103,7 +107,7 @@ public class TopicAndSessionManager extends JFrame {
 	    topicPanel.add(topicScrollPane, BorderLayout.CENTER);
 	    topicList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 	    
-	    JPanel topicButtonPanel = new JPanel(new GridLayout(1, 3, 10, 0));
+	    JPanel topicButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
 	    JButton deleteTopicButton = new JButton("delete");
 	    deleteTopicButton.setFont(new Font("Dialog", Font.BOLD, 13));
 	    deleteTopicButton.setName("deleteTopicButton");
@@ -124,10 +128,10 @@ public class TopicAndSessionManager extends JFrame {
 	    
 	    JPanel sessionPanel = new JPanel();  
 	    sessionPanel.setLayout(new BorderLayout());
-	    sessionPanel.setBorder(new EmptyBorder(10,10,10,10));
 	    splitPane.setRightComponent(sessionPanel);
 	    
 	    JLabel sessionLabel = new JLabel("Sessions");
+	    sessionLabel.setBorder(new EmptyBorder(0, 5, 0, 0));
 	    sessionLabel.setName("sessionLabel");
 	    sessionLabel.setFont(new Font("Dialog", Font.BOLD, 23));
 	    sessionPanel.add(sessionLabel, BorderLayout.NORTH);
@@ -139,8 +143,7 @@ public class TopicAndSessionManager extends JFrame {
 	    sessionPanel.add(sessionScrollPane, BorderLayout.CENTER);
 	    sessionList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 	    
-	    JPanel sessionButtonPanel = new JPanel(new GridLayout(1, 2, 10, 0));
-	    sessionPanel.setBorder(new EmptyBorder(10,10,10,10));
+	    JPanel sessionButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
 	    sessionPanel.add(sessionButtonPanel, BorderLayout.SOUTH);
 	    
 	    JButton completeSessionButton = new JButton("Complete");
