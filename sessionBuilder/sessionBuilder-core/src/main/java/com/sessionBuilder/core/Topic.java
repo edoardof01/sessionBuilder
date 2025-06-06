@@ -3,6 +3,9 @@ package com.sessionBuilder.core;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import javax.annotation.processing.Generated;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -36,6 +39,13 @@ public class Topic {
 	
 	public Topic() {}
 
+	public void setId(long id) {
+		this.id = id;
+	}
+
+	public long getId() {
+		return id; 
+	}
 	public String getName() {
 		return this.name;
 	}
@@ -54,7 +64,7 @@ public class Topic {
 	
 	
 	
-	void setSessions(ArrayList<StudySession> arrayList) {
+	public void setSessions(ArrayList<StudySession> arrayList) {
 		this.sessionList = arrayList;
 	}
 	void setMasteryLevel(int level) {
@@ -64,12 +74,16 @@ public class Topic {
 	public void addSession(StudySession session) {
 		if(session == null) throw new IllegalArgumentException("la sessione non può essere nulla");
 		this.sessionList.add(session);
+		if(!session.getTopicList().contains(this)) {
+			session.getTopicList().add(this);
+		}
 	}
 	
 	public void removeSession(StudySession session) {
 		if(session == null) throw new IllegalArgumentException("la sessione da rimuovere è null");
 		if(!this.sessionList.contains(session)) throw new IllegalArgumentException("sessione da rimuovere non trovata");
 		this.sessionList.remove(session);
+		session.getTopicList().remove(this);
 	}
 	
 	public int totalTime() {
@@ -101,18 +115,25 @@ public class Topic {
 		if(obj == null || getClass() != obj.getClass()) return false;
 		Topic other = (Topic) obj;
 		return Objects.equals(this.name, other.name) && Objects.equals(this.description, other.description)
-				&& this.difficulty == other.getDifficulty()
-				&& Objects.equals(this.sessionList, other.sessionList);
+				&& this.difficulty == other.getDifficulty();
 	}
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(name, description, difficulty, sessionList);
+		return Objects.hash(name, description, difficulty);
+	}
+	
+	@Override
+	public String toString() {
+		int sessionCount = sessionList != null ? sessionList.size() : 0;
+		return "Topic( name: "+ name + ", description: "+ description + ", difficulty: " + difficulty + ", numSessions: " + sessionCount +")";
 	}
 
-	void setId(long id) {
-		this.id = id;
-	}
+
+	
+	
+	
+	
 
 	
 

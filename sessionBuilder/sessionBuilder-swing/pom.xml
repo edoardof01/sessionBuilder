@@ -5,36 +5,33 @@
     <artifactId>sessionBuilder</artifactId>
     <version>0.0.1-SNAPSHOT</version>
   </parent>
-  <artifactId>sessionBuilder-core</artifactId>
+  <artifactId>sessionBuilder-swing</artifactId>
   <dependencies>
   	<dependency>
-  		<groupId>org.postgresql</groupId>
-		<artifactId>postgresql</artifactId>
+  		<groupId>org.assertj</groupId>
+  		<artifactId>assertj-swing-junit</artifactId>
   	</dependency>
   	<dependency>
-  		<groupId>jakarta.persistence</groupId>
-		<artifactId>jakarta.persistence-api</artifactId>
+  		<groupId>com.toedter</groupId>
+  		<artifactId>jcalendar</artifactId>
+  		<version>1.4</version>
   	</dependency>
   	<dependency>
-		<groupId>org.hibernate.orm</groupId>
-		<artifactId>hibernate-core</artifactId>
-	</dependency>
+  		<groupId>com.sessionBuilder</groupId>
+  		<artifactId>sessionBuilder-core</artifactId>
+  		<version>0.0.1-SNAPSHOT</version>
+  	</dependency>
   </dependencies>
   <build>
-	  <plugins>
-	  	<plugin>
-	  		<groupId>org.pitest</groupId>
-			<artifactId>pitest-maven</artifactId>
-	  	</plugin>
-	  	<plugin>
-		  	<groupId>org.jacoco</groupId>
-			<artifactId>jacoco-maven-plugin</artifactId>
-	  	</plugin>
-	  	<plugin>
-	  		<groupId>com.github.hazendaz.maven</groupId>
-			<artifactId>coveralls-maven-plugin</artifactId>
-	  	</plugin>	
-	  </plugins>
+  	<plugins>
+  		<plugin>
+  			<groupId>org.pitest</groupId>
+  			<artifactId>pitest-maven</artifactId>
+  			<configuration>
+  				<skip>true</skip>
+  			</configuration>
+  		</plugin>
+  	</plugins>
   </build>
   <profiles>
 		<profile>
@@ -61,5 +58,5 @@
 				</plugins>
 			</build>
 		</profile>
-   </profiles>
+	</profiles>
 </project>

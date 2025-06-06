@@ -95,9 +95,11 @@ public class TopicTest {
 	public void testRemoveSessionFromTopicSuccess() {
 		StudySession session = new StudySession(LocalDate.now(), 60, "una nota", new ArrayList<>());
 		Topic topic = new Topic("arte", "rinascimento", 3, new ArrayList<>());
+		topic.setId(1L);
 		topic.setSessions(new ArrayList<>(List.of(session)));
 		topic.removeSession(session);
 		assertThat(topic.getSessionList()).doesNotContain(session);
+		assertThat(topic.getId()).isEqualTo(1L);
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
@@ -203,7 +205,7 @@ public class TopicTest {
 	
 	
 	
-	// TEST PER EQUALS & HASHCODE
+	// TEST PER EQUALS, HASHCODE & TOSTRING
 	@Test
 	public void testEquals() {
 		assertTrue(topicA.equals(topicA));
@@ -244,14 +246,14 @@ public class TopicTest {
 	}
 	
 	@Test
-	public void testNotEqualsDifferentSessionList() {
+	public void testEqualsDifferentSessionList() {
 		List<StudySession> sessions1 = new ArrayList<>();
 		List<StudySession> sessions2 = new ArrayList<>();
 		StudySession s = new StudySession(LocalDate.now(), 30, "Note", new ArrayList<>());
 		sessions2.add(s);
 		Topic t1 = new Topic("matematica", "Studia matematica", 3, sessions1);
 		Topic t2 = new Topic("matematica", "Studia matematica", 3, sessions2);
-		assertFalse(t1.equals(t2));
+		assertTrue(t1.equals(t2));
 	}
 	
 	@Test
@@ -275,6 +277,38 @@ public class TopicTest {
 	@Test
 	public void testHashCodeNotZeroForValidTopic() {
 		assertThat(topicA.hashCode()).isNotEqualTo(0);
+	}
+	
+	@Test
+	public void testToStringWithNonNullSessionList() {
+		Topic topic = new Topic("Java", "Programming language", 3, new ArrayList<>());
+		String expected = "Topic( name: Java, description: Programming language, difficulty: 3, numSessions: 0)";
+		assertThat(topic.toString()).isEqualTo(expected);
+	}
+
+	@Test
+	public void testToStringWithNullSessionList() {
+		Topic topic = new Topic();
+		topic.setSessions(null);
+		String result = topic.toString();
+		assertThat(result).contains("numSessions: 0");
+	}
+
+	@Test
+	public void testToStringWithMultipleSessions() {
+		ArrayList<StudySession> sessions = new ArrayList<>();
+		LocalDate date = LocalDate.of(2025, 6, 10);
+		ArrayList<Topic> topics = new ArrayList<>();
+		
+		StudySession session1 = new StudySession(date, 60, "Session 1", topics);
+		StudySession session2 = new StudySession(date.plusDays(1), 90, "Session 2", topics);
+		
+		sessions.add(session1);
+		sessions.add(session2);
+		
+		Topic topic = new Topic("Chimica", "reazioni chimiche", 4, sessions);
+		String expected = "Topic( name: Chimica, description: reazioni chimiche, difficulty: 4, numSessions: 2)";
+		assertThat(topic.toString()).isEqualTo(expected);
 	}
 	
 	

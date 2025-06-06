@@ -7,8 +7,6 @@ import com.google.inject.Inject;
 
 public class StudySessionService {
 	
-	@Inject
-	private StudySessionRepositoryInterface sessionRepository;
 	
 	@Inject
 	private TopicRepositoryInterface topicRepository;

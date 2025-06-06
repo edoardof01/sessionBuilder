@@ -45,9 +45,14 @@ public class TopicServiceTest {
 	private int difficulty;
 	
 	private final long idt1 = 1L;
+	private final long idt2 = 2L;
 	private Topic topic;
+	private Topic topic2;
 	private StudySession session;
-	private final long ids1 = 2L;
+	private StudySession session2;
+	private final long ids1 = 1L;
+	private final long ids2 = 2L;
+	
 	
 	@Before
 	public void setup() {
@@ -60,16 +65,28 @@ public class TopicServiceTest {
 		difficulty = 3;
 		topic = new Topic(name, description, difficulty, new ArrayList<>());
 		topic.setId(idt1);
+		topic2 = new Topic("Enologia", "Studia la cantina del Chianti", 3, new ArrayList<>());
+		topic2.setId(idt2);
 		session = new StudySession(LocalDate.now().plusDays(2), 90, "una nota", new ArrayList<>(List.of(topic)));
 		session.setId(ids1);
+		session2 = new StudySession(LocalDate.now().plusDays(3), 100, "una nuova nota", new ArrayList<>(List.of(topic2)));
+		session2.setId(ids2);
 	}
 	
 	@Test
-	public void getTopicById(){
+	public void getTopicByIdSuccess(){
 		when(topicRepository.findById(idt1)).thenReturn(topic);
 		Topic result = service.getTopicById(idt1);
 		assertThat(result.equals(topic)).isTrue();
 	}
+	
+	@Test
+	public void getTopicByIdFailure() {
+		when(topicRepository.findById(idt1)).thenReturn(null);
+		IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> service.getTopicById(idt1));
+		assertThat(e.getMessage()).isEqualTo("il topic cercato non esiste");
+	}
+	
 	
 	@Test
 	public void testCreateTopicSuccess() {
@@ -82,12 +99,25 @@ public class TopicServiceTest {
 	}
 	
 	@Test
-	public void testAddSessionSuccess() {
+	public void testDeleteTopicSuccess() {
 		when(topicRepository.findById(idt1)).thenReturn(topic);
+		service.deleteTopic(idt1);
+		verify(topicRepository).delete(idt1);
+	}
+	
+	@Test
+	public void testDeleteTopicFailure() {
+		IllegalArgumentException e = assertThrows(IllegalArgumentException.class, ()-> service.deleteTopic(10L));
+		assertThat(e.getMessage()).isEqualTo("il topic passato è null");
+	}
+	
+	@Test
+	public void testAddSessionSuccess() {
+		when(topicRepository.findById(idt2)).thenReturn(topic2);
 		when(sessionRepository.findById(ids1)).thenReturn(session);
-		service.addSessionToTopic(idt1, ids1);
-		assertThat(topic.getSessionList()).containsExactly(session);
-		verify(topicRepository, times(1)).update(topic);
+		service.addSessionToTopic(idt2, ids1);
+		assertThat(topic2.getSessionList()).containsExactly(session2, session);
+		verify(topicRepository, times(1)).update(topic2);
 	}
 	
 	@Test
@@ -143,6 +173,13 @@ public class TopicServiceTest {
 	}
 	
 	@Test
+	public void testTotalTimeFailure() {
+		when(topicRepository.findById(idt1)).thenReturn(null);
+		IllegalArgumentException e = assertThrows(IllegalArgumentException.class, ()-> service.calculateTotalTime(idt1));
+		assertThat(e.getMessage()).isEqualTo("il topic passato è null");
+	}
+	
+	@Test
 	public void testPercentageOfCompletionSuccess() {
 		when(topicRepository.findById(idt1)).thenReturn(topic);
 		StudySession session1 = new StudySession(LocalDate.now().plusDays(1), 60, "una nota", new ArrayList<>(List.of(topic)));
@@ -151,6 +188,13 @@ public class TopicServiceTest {
 		topic.setSessions(new ArrayList<>(List.of(session,session1)));
 		service.calculatePercentageOfCompletion(idt1);
 		assertThat(topic.percentageOfCompletion()).isEqualTo(50);
+	}
+	
+	@Test
+	public void testPercentageOfCompletionFailure() {
+		when(topicRepository.findById(idt1)).thenReturn(null);
+		IllegalArgumentException e = assertThrows(IllegalArgumentException.class, ()-> service.calculatePercentageOfCompletion(idt1));
+		assertThat(e.getMessage()).isEqualTo("il topic passato è null");
 	}
 	
 	@Test
