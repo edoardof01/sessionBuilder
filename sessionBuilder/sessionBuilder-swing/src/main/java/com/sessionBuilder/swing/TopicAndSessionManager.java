@@ -83,11 +83,12 @@ public class TopicAndSessionManager extends JFrame {
 	    contentPane.add(mainContent, BorderLayout.CENTER);
 	    JSplitPane splitPane = new JSplitPane();
 	    splitPane.setResizeWeight(0.5);
+	    splitPane.setDividerLocation(0.5);
+	    splitPane.setOneTouchExpandable(true);
 	    mainContent.add(splitPane);
 	    
 	    JPanel topicPanel = new JPanel();
 	    topicPanel.setLayout(new BorderLayout());
-	    topicPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 	    splitPane.setLeftComponent(topicPanel);
 	    
 	    JLabel topicLabel = new JLabel("Topics");
@@ -102,18 +103,28 @@ public class TopicAndSessionManager extends JFrame {
 	    topicPanel.add(topicScrollPane, BorderLayout.CENTER);
 	    topicList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 	    
-	    JPanel topicButtonPanel = new JPanel();
+	    JPanel topicButtonPanel = new JPanel(new GridLayout(1, 3, 10, 0));
 	    JButton deleteTopicButton = new JButton("delete");
 	    deleteTopicButton.setFont(new Font("Dialog", Font.BOLD, 13));
 	    deleteTopicButton.setName("deleteTopicButton");
 	    deleteTopicButton.setEnabled(false);
 	    topicButtonPanel.add(deleteTopicButton);
+	    JButton totalTimeButton = new JButton("totalTime");
+	    totalTimeButton.setEnabled(false);
+	    totalTimeButton.setFont(new Font("Dialog", Font.BOLD, 12));
+	    topicButtonPanel.add(totalTimeButton);
+	    JButton percentageButton = new JButton("%Completion");
+	    percentageButton.setFont(new Font("Dialog", Font.BOLD, 12));
+	    percentageButton.setEnabled(false);
+	    topicButtonPanel.add(percentageButton);
+	    
 	    topicPanel.add(topicButtonPanel, BorderLayout.SOUTH);
+	    
 	    
 	    
 	    JPanel sessionPanel = new JPanel();  
 	    sessionPanel.setLayout(new BorderLayout());
-	    sessionPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+	    sessionPanel.setBorder(new EmptyBorder(10,10,10,10));
 	    splitPane.setRightComponent(sessionPanel);
 	    
 	    JLabel sessionLabel = new JLabel("Sessions");
@@ -128,8 +139,8 @@ public class TopicAndSessionManager extends JFrame {
 	    sessionPanel.add(sessionScrollPane, BorderLayout.CENTER);
 	    sessionList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 	    
-	    JPanel sessionButtonPanel = new JPanel(new GridLayout(2,2,20,10));
-	    sessionButtonPanel.setBorder(new EmptyBorder(5,0,0,0));
+	    JPanel sessionButtonPanel = new JPanel(new GridLayout(1, 2, 10, 0));
+	    sessionPanel.setBorder(new EmptyBorder(10,10,10,10));
 	    sessionPanel.add(sessionButtonPanel, BorderLayout.SOUTH);
 	    
 	    JButton completeSessionButton = new JButton("Complete");
@@ -140,16 +151,8 @@ public class TopicAndSessionManager extends JFrame {
 	    deleteSessionButton.setName("deleteSessionButton");
 	    deleteSessionButton.setEnabled(false);
 	    deleteSessionButton.setFont(new Font("Dialog", Font.BOLD, 12));
-	    JButton totalTimeButton = new JButton("totalTime");
-	    totalTimeButton.setEnabled(false);
-	    totalTimeButton.setFont(new Font("Dialog", Font.BOLD, 12));
-	    JButton percentageButton = new JButton("%Completion");
-	    percentageButton.setFont(new Font("Dialog", Font.BOLD, 12));
-	    percentageButton.setEnabled(false);
 	    
 	    sessionButtonPanel.add(completeSessionButton);
-	    sessionButtonPanel.add(totalTimeButton);
-	    sessionButtonPanel.add(percentageButton);
 	    sessionButtonPanel.add(deleteSessionButton);
 	    
 	    
