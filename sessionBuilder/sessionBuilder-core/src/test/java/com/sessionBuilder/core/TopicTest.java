@@ -51,7 +51,7 @@ public class TopicTest {
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void testCreatingTopicWithNullNameFieldFailure() {
-		Topic topic = new Topic(null,description1, difficulty1, sessionList);
+		Topic topic = new Topic(null, description1, difficulty1, sessionList);
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
@@ -311,7 +311,13 @@ public class TopicTest {
 		assertThat(topic.toString()).isEqualTo(expected);
 	}
 	
-	
+	@Test
+	public void testSetName() {
+		Topic topic = new Topic("Original Name", "Description", 3, new ArrayList<>());
+		assertThat(topic.getName()).isEqualTo("Original Name");
+		topic.setName("New Name");
+		assertThat(topic.getName()).isEqualTo("New Name");
+	}
 	
 	
 	

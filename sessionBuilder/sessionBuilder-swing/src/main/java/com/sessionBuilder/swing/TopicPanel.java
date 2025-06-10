@@ -148,11 +148,11 @@ public class TopicPanel extends JPanel {
 		
 	}
 	
-	void setManagerView (TopicAndSessionManager managerView) {
+	public void setManagerView (TopicAndSessionManager managerView) {
 		this.managerView = managerView;
 	}
 	
-	DefaultListModel<StudySession> getSessionModel(){
+	public DefaultListModel<StudySession> getSessionModel(){
 		return sessionModel;
 	}
 	
@@ -164,7 +164,7 @@ public class TopicPanel extends JPanel {
 		errorLbl.setText(string);
 	}
 	
-	void setTopicController(TopicController controller) {
+	public void setTopicController(TopicController controller) {
 		this.topicController = controller;
 	}
 	

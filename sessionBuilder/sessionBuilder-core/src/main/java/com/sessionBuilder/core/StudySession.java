@@ -125,6 +125,10 @@ public class StudySession {
 		return Objects.hash(date, duration, note);
 	}
 	
+	void setDuration(int duration) {
+		this.duration = duration;
+	}
+	
 	void setTopics (ArrayList<Topic> topics) {
 		this.topicList = topics;
 	}

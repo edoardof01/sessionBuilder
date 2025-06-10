@@ -3,9 +3,6 @@ package com.sessionBuilder.core;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
-import javax.annotation.processing.Generated;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -127,6 +124,15 @@ public class Topic {
 	public String toString() {
 		int sessionCount = sessionList != null ? sessionList.size() : 0;
 		return "Topic( name: "+ name + ", description: "+ description + ", difficulty: " + difficulty + ", numSessions: " + sessionCount +")";
+	}
+
+	void setName(String name) {
+		this.name = name;
+	}
+
+	void setDescription(String description) {
+		this.description = description;
+		
 	}
 
 

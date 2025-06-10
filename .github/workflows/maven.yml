@@ -25,6 +25,10 @@ jobs:
           key: ${{ runner.os }}-m2-jdk-${{ matrix.java }}-${{ hashFiles('**/pom.xml') }}
       - name: Build with Maven
         run: xvfb-run mvn clean verify ${{ matrix.additional-maven-args }}
+		env: 
+		  POSTGRES_TEST_DB: ${{ secrets.POSTGRES_TEST_DB }}
+		  POSTGRES_TEST_USER: ${{ secrets.POSTGRES_TEST_USER }}
+		  POSTGRES_TEST_PASSWORD: ${{ secrets.POSTGRES_TEST_PASSWORD }}
       - name: Upload to Coveralls (non blocking)
         run: mvn coveralls:report || echo "Coveralls failed but build continues"
         env:

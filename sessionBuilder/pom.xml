@@ -11,6 +11,7 @@
   	<modules>
   		<module>sessionBuilder-core</module>
   		<module>sessionBuilder-swing</module>
+  		<module>sessionBuilder-it</module>
   	</modules>
  
 	<artifactId>sessionBuilder</artifactId>
@@ -21,8 +22,11 @@
 		<java.version>17</java.version>
 		<assertj.version>3.27.0</assertj.version>
 		<mockito.version>5.14.2</mockito.version>
+		<report.version>3.5.2</report.version>
 		<pitest.version>1.16.0</pitest.version>
 		<jacoco.version>0.8.12</jacoco.version>
+		<coveralls.version>4.5.0-M6</coveralls.version>
+		<testcontainer.version>1.20.4</testcontainer.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -55,6 +59,7 @@
 				<groupId>org.postgresql</groupId>
 				<artifactId>postgresql</artifactId>
 				<version>42.7.3</version>
+				<scope>runtime</scope>
 			</dependency>
 			<dependency>
 				<groupId>jakarta.persistence</groupId>
@@ -70,6 +75,12 @@
 				<groupId>org.assertj</groupId>
 				<artifactId>assertj-swing-junit</artifactId>
 				<version>3.17.1</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.testcontainers</groupId>
+				<artifactId>postgresql</artifactId>
+				<version>${testcontainer.version}</version>
 				<scope>test</scope>
 			</dependency>
 		</dependencies>
@@ -89,7 +100,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-report-plugin</artifactId>
-				<version>3.5.2</version>
+				<version>${report.version}</version>
 			</plugin>
 		</plugins>
 		<pluginManagement>
@@ -105,15 +116,17 @@
 						<!-- exclude the main class -->
 						<excludedClasses>
 							<param>**.*Test</param>
-							<param>com.sessionBuilder.swing.*</param>
+							<param>**.*It</param>
 						</excludedClasses>
 						<targetTests>
 							<param>com.sessionBuilder.core.*Test</param>
 						</targetTests>
+						<excludedGroups>
+							<param>integration</param>
+						</excludedGroups>
 						<mutators>
 							<mutator>DEFAULTS</mutator>
 						</mutators>
-						<!--null for now-->
 						<mutationThreshold>85</mutationThreshold>
 						<outputFormats>
 							<outputFormat>HTML</outputFormat>
@@ -138,11 +151,87 @@
 				<plugin>
 					<groupId>com.github.hazendaz.maven</groupId>
 					<artifactId>coveralls-maven-plugin</artifactId>
-					<version>4.5.0-M6</version>
+					<version>${coveralls.version}</version>
 					<configuration>
 						<repoToken>${env.COVERALLS_REPO_TOKEN}</repoToken>
 					</configuration>
 				</plugin>
+				<plugin>
+  					<groupId>org.codehaus.mojo</groupId>
+  					<artifactId>build-helper-maven-plugin</artifactId>
+  					<version>3.6.0</version>
+  					<executions>
+  						<execution>
+  							<id>add-test-source</id>
+  							<phase>generate-test-sources</phase>
+  							<goals>
+  								<goal>add-test-source</goal>
+  							</goals>
+  							<configuration>
+  								<sources>
+  									<source>src/it/java</source>
+  								</sources>
+  							</configuration>
+  						</execution>
+  					</executions>
+  				</plugin>
+  				<plugin>
+  					<groupId>org.apache.maven.plugins</groupId>
+  					<artifactId>maven-failsafe-plugin</artifactId>
+  					<version>3.5.2</version>
+  					<executions>
+  						<execution>
+  							<goals>
+  								<goal>integration-test</goal>
+  								<goal>verify</goal>
+  							</goals>
+  						</execution>
+  					</executions>
+  					<configuration>
+  						<systemPropertyVariables>
+  							<postgres.mapped.port>${postgres.mapped.port}</postgres.mapped.port>
+  						</systemPropertyVariables>
+  					</configuration>
+  				</plugin>
+  				<plugin>
+  					<groupId>io.fabric8</groupId>
+  					<artifactId>docker-maven-plugin</artifactId>
+  					<version>0.45.1</version>
+  					<configuration>
+  						<images>
+  							<image>
+  								<name>postgres:15-alpine</name>
+  								<alias>sessionbuilder-postgres</alias>
+  								<run>
+									<ports>
+  										<port>postgres.mapped.port:5432</port>
+  									</ports>
+  									<env>
+  										<POSTGRES_DB>${env.POSTGRES_TEST_DB}</POSTGRES_DB>
+  										<POSTGRES_USER>${env.POSTGRES_TEST_USER}</POSTGRES_USER>
+  										<POSTGRES_PASSWORD>${env.POSTGRES_TEST_PASSWORD}</POSTGRES_PASSWORD>
+  									</env>
+  								</run>
+  							</image>
+  						</images>
+  					</configuration>
+  					<executions>
+  						<execution>
+  							<id>docker-start</id>
+  							<phase>pre-integration-test</phase>
+  							<goals>
+  								<goal>start</goal>
+  							</goals>
+  						</execution>
+  						<execution>
+  							<id>docker-stop</id>
+  							<phase>post-integration-test</phase>
+  							<goals>
+  								<goal>stop</goal>
+  							</goals>
+  						</execution>
+  					</executions>
+  				</plugin>
 			</plugins>
 		</pluginManagement>
 	</build>

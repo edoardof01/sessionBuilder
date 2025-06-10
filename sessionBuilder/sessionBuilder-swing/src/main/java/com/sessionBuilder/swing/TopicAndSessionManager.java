@@ -8,6 +8,8 @@ import java.awt.FlowLayout;
 
 import com.sessionBuilder.core.Topic;
 import com.sessionBuilder.core.TopicController;
+import com.sessionBuilder.core.TopicViewCallback;
+import com.sessionBuilder.core.SessionViewCallback;
 import com.sessionBuilder.core.StudySession;
 import com.sessionBuilder.core.StudySessionController;
 
@@ -29,7 +31,7 @@ import javax.swing.JList;
 
 import java.awt.Font;
 
-public class TopicAndSessionManager extends JFrame {
+public class TopicAndSessionManager extends JFrame implements TopicViewCallback,SessionViewCallback {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
@@ -161,36 +163,44 @@ public class TopicAndSessionManager extends JFrame {
 	    
 	    completeSessionButton.addActionListener(e -> {
 	    	int selectedIndex = sessionList.getSelectedIndex();
-    		StudySession selectedSession = studySessionModel.getElementAt(selectedIndex);
-    		sessionController.handleCompleteSession(selectedSession.getId());
-	    	
+	    	if (selectedIndex != -1 && sessionController != null) { 
+	    		StudySession selectedSession = studySessionModel.getElementAt(selectedIndex);
+	    		sessionController.handleCompleteSession(selectedSession.getId());
+	    	}
 	    });
 	    
 	    deleteTopicButton.addActionListener(e -> {
 	    	int selectedIndex = topicList.getSelectedIndex();
-    		Topic selectedTopic = topicModel.getElementAt(selectedIndex);
-    		topicController.handleDeleteTopic(selectedTopic.getId());
+	    	if (selectedIndex != -1 && topicController != null) { 
+	    		Topic selectedTopic = topicModel.getElementAt(selectedIndex);
+	    		topicController.handleDeleteTopic(selectedTopic.getId());
+	    	}
 	    });
 	    
 	    deleteSessionButton.addActionListener(e -> {
 	    	int selectedIndex = sessionList.getSelectedIndex();
-    		StudySession selectedSession = studySessionModel.getElementAt(selectedIndex);
-    		sessionController.handleDeleteSession(selectedSession.getId());
-	    	
+	    	if (selectedIndex != -1 && sessionController != null) { 
+	    		StudySession selectedSession = studySessionModel.getElementAt(selectedIndex);
+	    		sessionController.handleDeleteSession(selectedSession.getId());
+	    	}
 	    });
 	    
 	    totalTimeButton.addActionListener(e ->{
 	    	int selectedIndex = topicList.getSelectedIndex();
-    		Topic selectedTopic = topicModel.getElementAt(selectedIndex);
-    		topicController.handleTotalTime(selectedTopic.getId());
-    		resetErrorLabels();
+    		if (selectedIndex != -1 && topicController != null) { 
+    			Topic selectedTopic = topicModel.getElementAt(selectedIndex);
+	    		topicController.handleTotalTime(selectedTopic.getId());
+	    		resetErrorLabels();
+    		}
 	    });
 	    
 	    percentageButton.addActionListener(e -> {
 	    	int selectedIndex = topicList.getSelectedIndex();
-    		Topic selectedTopic = topicModel.getElementAt(selectedIndex);
-    		resetErrorLabels();
-    		topicController.handlePercentageOfCompletion(selectedTopic.getId());
+	    	if (selectedIndex != -1 && topicController != null) { 
+	    		Topic selectedTopic = topicModel.getElementAt(selectedIndex);
+	    		resetErrorLabels();
+	    		topicController.handlePercentageOfCompletion(selectedTopic.getId());
+	    	}
 	    });
 	    
 	    topicList.addListSelectionListener(new ListSelectionListener() {
@@ -242,12 +252,22 @@ public class TopicAndSessionManager extends JFrame {
 		return this.sessionPanel;
 	}
 	
-	void setTopicController(TopicController controller) {
-		this.topicController = controller;
+	public TopicController getTopicController() {
+		return topicController;
 	}
 	
-	void setSessionController(StudySessionController controller) {
+	public void setTopicController(TopicController controller) {
+		this.topicController = controller;
+		if (controller != null) {
+			controller.setViewCallback(this);
+		}
+	}
+	
+	public void setSessionController(StudySessionController controller) {
 		this.sessionController = controller;
+		if (controller != null) {
+			controller.setViewCallBack(this);
+		}
 	}
 	
 	public void sessionAdded(StudySession session) {
@@ -286,11 +306,11 @@ public class TopicAndSessionManager extends JFrame {
 		cardLayout.show(mainPanel, MAIN_VIEW);
 	}
 
-	DefaultListModel<Topic> getTopicModel(){
+	public DefaultListModel<Topic> getTopicModel(){
 		return this.topicModel;
 	}
 	
-	DefaultListModel<StudySession> getStudySessionModel(){
+	public DefaultListModel<StudySession> getStudySessionModel(){
 		return this.studySessionModel;
 	}
 
@@ -307,6 +327,57 @@ public class TopicAndSessionManager extends JFrame {
 
 	public void showGeneralError(String string) {
 		lblErrorMessage.setText(string);
+	}
+	
+	
+	// IMPLEMENTAZIONE METODI DI INTERFACCIA
+
+	@Override
+	public void onTopicAdded(Topic topic) {
+		topicAdded(topic);	
+	}
+
+	@Override
+	public void onTopicRemoved(Topic topic) {
+		topicRemoved(topic);
+	}
+
+	@Override
+	public void onTopicError(String message) {
+		lblErrorMessage.setText(message);
+		
+	}
+
+	@Override
+	public void onTotalTimeCalculated(Integer totalTime) {
+		lblErrorMessage.setText("Tempo totale: " + totalTime + " minuti");
+	}
+
+	@Override
+	public void onPercentageCalculated(Integer percentage) {
+		lblErrorMessage.setText("Percentuale di completamento: " + percentage + "%");
+	}
+
+	@Override
+	public void onSessionAdded(StudySession session) {
+		sessionAdded(session);
+		
+	}
+
+	@Override
+	public void onSessionRemoved(StudySession session) {
+		sessionRemoved(session);
+		
+	}
+
+	@Override
+	public void onSessionError(String message) {
+		lblErrorMessage.setText(message);
+		
+	}
+
+	public StudySessionController getSessionController() {
+		return sessionController;
 	}
 	
 
