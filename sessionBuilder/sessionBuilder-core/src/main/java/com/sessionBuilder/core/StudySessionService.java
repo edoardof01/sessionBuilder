@@ -5,11 +5,7 @@ import java.util.ArrayList;
 
 import com.google.inject.Inject;
 
-public class StudySessionService {
-	
-	
-	@Inject
-	private TopicRepositoryInterface topicRepository;
+public class StudySessionService implements StudySessionInterface {
 	
 	@Inject
 	private TransactionManager tm;
@@ -22,6 +18,7 @@ public class StudySessionService {
 		});
 	}
 
+	@Override
 	public StudySession createSession(LocalDate date, int duration, String note, ArrayList<Topic> topicList) {
 		return tm.doInSessionTransaction(sessionRepository -> {
 			StudySession session = new StudySession(date, duration, note, topicList);
@@ -30,6 +27,7 @@ public class StudySessionService {
 		});
 	}
 	
+	@Override
 	public void completeSession(long sessionId) {
 		tm.doInSessionTransaction(sessionRepository ->{
 			StudySession session = sessionRepository.findById(sessionId);
@@ -40,30 +38,33 @@ public class StudySessionService {
 		});
 	}
 	
+	@Override
 	public void addTopic(long sessionId, long topicId) {
-		tm.doInSessionTransaction(sessionRepository -> {
-			StudySession session = sessionRepository.findById(sessionId);
-			Topic topic = topicRepository.findById(topicId);
+		tm.doInMultiRepositoryTransaction(context -> {
+			StudySession session = context.getSessionRepository().findById(sessionId);
+			Topic topic = context.getTopicRepository().findById(topicId);
 			if(session == null) throw new IllegalArgumentException("la sessione passata è null");
 			if(topic == null) throw new IllegalArgumentException("il topic passato è null");
 			session.addTopic(topic);
-			sessionRepository.update(session);
-			return null;
-		});
-	}
-
-	public void removeTopic(long sessionId, long topicId) {
-		tm.doInSessionTransaction(sessionRepository -> {
-			StudySession session = sessionRepository.findById(sessionId);
-			Topic topic = topicRepository.findById(topicId);
-			if(session == null) throw new IllegalArgumentException("la sessione passata è null");
-			if(topic == null) throw new IllegalArgumentException("il topic passato è null");
-			session.removeTopic(topic);
-			sessionRepository.update(session);
+			context.getSessionRepository().update(session);
 			return null;
 		});
 	}
 	
+	@Override
+	public void removeTopic(long sessionId, long topicId) {
+		tm.doInMultiRepositoryTransaction(context -> {
+			StudySession session = context.getSessionRepository().findById(sessionId);
+			Topic topic = context.getTopicRepository().findById(topicId);
+			if(session == null) throw new IllegalArgumentException("la sessione passata è null");
+			if(topic == null) throw new IllegalArgumentException("il topic passato è null");
+			session.removeTopic(topic);
+			context.getSessionRepository().update(session);
+			return null;
+		});
+	}
+	
+	@Override
 	public void deleteSession(long sessionId) {
 		tm.doInSessionTransaction(sessionRepository -> {
 			StudySession session = sessionRepository.findById(sessionId);

@@ -1,14 +1,16 @@
 package com.sessionBuilder.core;
 
+import com.google.inject.Inject;
+
 public class TopicRepository implements TopicRepositoryInterface{
+	
 	
 	private TransactionManager tm;
 	
+	@Inject
 	public TopicRepository(TransactionManager tm) {
 		this.tm = tm;
 	}
-	
-	public TopicRepository() {}
 
 	@Override
 	public Topic findById(long id) {

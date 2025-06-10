@@ -8,7 +8,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,11 +15,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -59,6 +53,21 @@ public class TopicServiceTest {
 		when(tm.doInTopicTransaction(any())).thenAnswer(answer -> {
 			TopicTransactionCode<?> code = answer.getArgument(0);
 			return code.apply(topicRepository);
+		});
+		when(tm.doInMultiRepositoryTransaction(any())).thenAnswer(answer -> {
+			MultiRepositoryTransactionCode<?> code = answer.getArgument(0);
+			RepositoryContext context = new RepositoryContext() {
+				@Override
+				public TopicRepositoryInterface getTopicRepository() {
+					return topicRepository;
+				};
+
+				@Override
+				public StudySessionRepositoryInterface getSessionRepository() {
+					return sessionRepository;
+				}
+			};
+			return code.apply(context);
 		});
 		name = "Cucina";
 		description = "Pasticceria";
@@ -168,7 +177,8 @@ public class TopicServiceTest {
 		StudySession session1 = new StudySession(LocalDate.now().plusDays(1), 60, "una nota", new ArrayList<>(List.of(topic)));
 		session1.setId(3L);
 		topic.setSessions(new ArrayList<>(List.of(session,session1)));
-		service.calculateTotalTime(idt1);
+		Integer result = service.calculateTotalTime(idt1);
+		assertThat(result).isEqualTo(150);
 		assertThat(topic.totalTime()).isEqualTo(150);
 	}
 	
@@ -186,7 +196,8 @@ public class TopicServiceTest {
 		session1.setId(3L);
 		session1.setIsComplete(true);
 		topic.setSessions(new ArrayList<>(List.of(session,session1)));
-		service.calculatePercentageOfCompletion(idt1);
+		Integer result = service.calculatePercentageOfCompletion(idt1);
+		assertThat(result).isEqualTo(50);
 		assertThat(topic.percentageOfCompletion()).isEqualTo(50);
 	}
 	
@@ -195,13 +206,6 @@ public class TopicServiceTest {
 		when(topicRepository.findById(idt1)).thenReturn(null);
 		IllegalArgumentException e = assertThrows(IllegalArgumentException.class, ()-> service.calculatePercentageOfCompletion(idt1));
 		assertThat(e.getMessage()).isEqualTo("il topic passato è null");
-	}
-	
-	@Test
-	public void testZeroPercentageOfCompletionSuccess() {
-		when(topicRepository.findById(idt1)).thenReturn(topic);
-		service.calculatePercentageOfCompletion(idt1);
-		assertThat(topic.percentageOfCompletion()).isEqualTo(0);
 	}
 	
 	

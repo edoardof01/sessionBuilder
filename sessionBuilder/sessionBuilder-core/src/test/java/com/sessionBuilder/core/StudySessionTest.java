@@ -453,6 +453,14 @@ public class StudySessionTest {
 		assertThat(session.toString()).isEqualTo(expected);
 	}
 	
+	@Test
+	public void testSetDuration() {
+		StudySession session = new StudySession(LocalDate.now().plusDays(1), 60, "Test note", new ArrayList<>());
+		assertThat(session.getDuration()).isEqualTo(60);
+		session.setDuration(90);
+		assertThat(session.getDuration()).isEqualTo(90);
+	}
+	
 	
 	
 	

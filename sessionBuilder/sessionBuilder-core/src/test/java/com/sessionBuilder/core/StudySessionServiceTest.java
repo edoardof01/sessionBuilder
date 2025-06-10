@@ -56,6 +56,21 @@ public class StudySessionServiceTest {
 			StudySessionTransactionCode<?> code = answer.getArgument(0);
 			return code.apply(sessionRepository);
 		});
+		when(tm.doInMultiRepositoryTransaction(any())).thenAnswer(answer -> {
+			MultiRepositoryTransactionCode<?> code = answer.getArgument(0);
+			RepositoryContext context = new RepositoryContext() {
+				@Override
+				public TopicRepositoryInterface getTopicRepository() {
+					return topicRepository;
+				};
+
+				@Override
+				public StudySessionRepositoryInterface getSessionRepository() {
+					return sessionRepository;
+				}
+			};
+			return code.apply(context);
+		});
 		session1 = new StudySession();
 		session1.setId(ids1);
 		topic1 = new Topic("tennis", "dritto e rovescio", 2, new ArrayList<>());
