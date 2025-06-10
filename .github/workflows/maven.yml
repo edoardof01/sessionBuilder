@@ -1,7 +1,9 @@
 name: Java CI Build with Maven
+
 on:
   push:
   pull_request:
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -11,28 +13,36 @@ jobs:
           - java: 17
             additional-maven-args: "-Pjacoco,mutation-testing,html-report"
           - java: 21
+
     steps:
       - uses: actions/checkout@v4
+
       - name: Set up JDK ${{ matrix.java }}
         uses: actions/setup-java@v4
         with:
           java-version: ${{ matrix.java }}
           distribution: 'temurin'
+
       - name: Cache Maven packages
         uses: actions/cache@v4
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-jdk-${{ matrix.java }}-${{ hashFiles('**/pom.xml') }}
+
       - name: Build with Maven
         run: xvfb-run mvn clean verify ${{ matrix.additional-maven-args }}
-		env: 
-		  POSTGRES_TEST_DB: ${{ secrets.POSTGRES_TEST_DB }}
-		  POSTGRES_TEST_USER: ${{ secrets.POSTGRES_TEST_USER }}
-		  POSTGRES_TEST_PASSWORD: ${{ secrets.POSTGRES_TEST_PASSWORD }}
+        working-directory: ./sessionBuilder
+        env:
+          POSTGRES_TEST_DB: ${{ secrets.POSTGRES_TEST_DB }}
+          POSTGRES_TEST_USER: ${{ secrets.POSTGRES_TEST_USER }}
+          POSTGRES_TEST_PASSWORD: ${{ secrets.POSTGRES_TEST_PASSWORD }}
+
       - name: Upload to Coveralls (non blocking)
         run: mvn coveralls:report || echo "Coveralls failed but build continues"
+        working-directory: ./sessionBuilder
         env:
-          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_TOKEN }}  
+          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
+
       - name: Archive Surefire XML reports
         uses: actions/upload-artifact@v4
         if: ${{ always() }}
