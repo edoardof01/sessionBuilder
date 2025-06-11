@@ -1,0 +1,26 @@
+version: '2'
+
+services:
+  sessionbuilder-app:
+    image: sessionbuilder-app:0.0.1-SNAPSHOT
+    networks:
+      - my-network
+    depends_on:
+      - postgresdb
+    environment:
+      DB_HOST: postgresdb
+      DB_PORT: 5432
+
+  postgresdb:
+    image: postgres:15-alpine
+    container_name: postgres-container
+    environment:
+      POSTGRES_DB: ${POSTGRES_TEST_DB:-test}
+      POSTGRES_USER: ${POSTGRES_TEST_USER:-test}
+      POSTGRES_PASSWORD: ${POSTGRES_TEST_PASSWORD:-test}
+    networks:
+      - my-network
+
+networks:
+  my-network:
+    driver: bridge
