@@ -8,6 +8,14 @@
 	<modules>
 		<module>sessionBuilder</module>
 		<module>sessionBuilder-bom</module>
-		<module>sessionBuilder-app</module>
 	</modules>
+	
+	<profiles>
+		<profile>
+			<id>app-docker</id>
+			<modules>
+				<module>sessionBuilder-app</module>
+			</modules>
+		</profile>
+	</profiles>
 </project>
