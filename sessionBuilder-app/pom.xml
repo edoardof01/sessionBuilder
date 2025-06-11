@@ -1,8 +1,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.sessionBuilder</groupId>
 	<artifactId>sessionBuilder-app</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<parent>
+		<groupId>com.sessionBuilder</groupId>
+		<artifactId>sessionBuilder-aggregator</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
 	
  	<dependencyManagement>
  		<dependencies>
@@ -16,14 +19,69 @@
  		</dependencies>
  	</dependencyManagement>
  	
+ 	<properties>
+ 		<docker.version>0.45.1</docker.version>
+ 	</properties>
+ 	
  	<dependencies>
 	 	<dependency>
 	  		<groupId>org.apache.logging.log4j</groupId>
 	  		<artifactId>log4j-core</artifactId>
 		</dependency>
+		<dependency>
+ 			<groupId>com.sessionBuilder</groupId>
+ 			<artifactId>sessionBuilder-swing</artifactId>
+ 			<version>0.0.1-SNAPSHOT</version>
+ 		</dependency>
  	</dependencies>
  	
  	<build>
+ 		<pluginManagement>
+ 			<plugins>
+	 			<plugin>
+					<groupId>io.fabric8</groupId>
+					<artifactId>docker-maven-plugin</artifactId>
+					<version>${docker.version}</version>
+					<configuration>
+						<showLogs>true</showLogs>
+						<verbose>build</verbose>
+						<images>
+							<image>
+								<name>sessionbuilder-app:${project.version}</name>
+								<build>
+									<dockerFile>Dockerfile</dockerFile>
+									<contextDir>${project.basedir}</contextDir>
+									<args>
+										<jarToCopy>${project.artifactId}-${project.version}-jar-with-dependencies.jar</jarToCopy>
+									</args>
+								</build>
+							</image>
+							<image>
+								<name>postgres:15-alpine</name>
+								<alias>postgres-container</alias>
+							</image>
+						</images>
+					</configuration>
+					<executions>
+						<execution>
+							<id>docker-build-image</id>
+							<phase>package</phase>
+							<goals>
+								<goal>build</goal>
+							</goals>
+						</execution>
+						<execution>
+							<id>docker-verify</id>
+							<phase>verify</phase>
+							<goals>
+								<goal>start</goal>
+								<goal>stop</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+ 			</plugins>
+ 		</pluginManagement>
  		<plugins>
  			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -36,10 +94,11 @@
 				        	<goal>shade</goal>
 				      	</goals>
 				    <configuration>
+				    	<finalName>${project.artifactId}-${project.version}-jar-with-dependencies</finalName>
 		     			<createDependencyReducedPom>true</createDependencyReducedPom>
 				        <transformers>
 				        	<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-				            	<mainClass>com.sessionbuilder.Main</mainClass> <!-- sostituisci con main vero -->
+				            	<mainClass>com.sessionBuilder.swing.SessionBuilderApplication</mainClass> 
 				          	</transformer>
 			        	</transformers>
 		    		</configuration>
@@ -68,7 +127,22 @@
 	  				</execution>
 	  			</executions>
  			</plugin>
- 			
  		</plugins>
  	</build> 
+ 	
+ 	<profiles>
+ 		<profile>
+ 			<id>docker</id>
+ 			<build>
+ 				<plugins>
+ 					<plugin>
+ 						<groupId>io.fabric8</groupId>
+ 						<artifactId>docker-maven-plugin</artifactId>
+ 					</plugin>
+ 				</plugins>
+ 			</build>
+ 		</profile>
+ 	</profiles>
+ 	
+ 	
 </project>

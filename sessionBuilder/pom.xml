@@ -193,45 +193,6 @@
   						</systemPropertyVariables>
   					</configuration>
   				</plugin>
-  				<plugin>
-  					<groupId>io.fabric8</groupId>
-  					<artifactId>docker-maven-plugin</artifactId>
-  					<version>0.45.1</version>
-  					<configuration>
-  						<images>
-  							<image>
-  								<name>postgres:15-alpine</name>
-  								<alias>sessionbuilder-postgres</alias>
-  								<run>
-									<ports>
-  										<port>postgres.mapped.port:5432</port>
-  									</ports>
-  									<env>
-  										<POSTGRES_DB>${env.POSTGRES_TEST_DB}</POSTGRES_DB>
-  										<POSTGRES_USER>${env.POSTGRES_TEST_USER}</POSTGRES_USER>
-  										<POSTGRES_PASSWORD>${env.POSTGRES_TEST_PASSWORD}</POSTGRES_PASSWORD>
-  									</env>
-  								</run>
-  							</image>
-  						</images>
-  					</configuration>
-  					<executions>
-  						<execution>
-  							<id>docker-start</id>
-  							<phase>pre-integration-test</phase>
-  							<goals>
-  								<goal>start</goal>
-  							</goals>
-  						</execution>
-  						<execution>
-  							<id>docker-stop</id>
-  							<phase>post-integration-test</phase>
-  							<goals>
-  								<goal>stop</goal>
-  							</goals>
-  						</execution>
-  					</executions>
-  				</plugin>
 			</plugins>
 		</pluginManagement>
 	</build>
