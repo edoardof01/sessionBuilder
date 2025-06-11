@@ -1,20 +1,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	
-	<parent>
-		<groupId>com.sessionBuilder</groupId>
-		<artifactId>sessionBuilder-bom</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
-		<relativePath>../sessionBuilder-bom/pom.xml</relativePath>
-	</parent>
-	
   	<modules>
   		<module>sessionBuilder-core</module>
   		<module>sessionBuilder-swing</module>
   		<module>sessionBuilder-it</module>
   	</modules>
  
+ 	<groupId>com.sessionBuilder</groupId>
 	<artifactId>sessionBuilder</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<properties>
 		<junit.version>4.13.2</junit.version>
