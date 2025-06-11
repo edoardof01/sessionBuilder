@@ -48,6 +48,48 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>io.fabric8</groupId>
+        <artifactId>docker-maven-plugin</artifactId>
+        <version>${docker.version}</version>
+        <executions>
+          <execution>
+            <id>docker-build-image</id>
+            <phase>package</phase>
+            <goals>
+              <goal>build</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>docker-verify</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>start</goal>
+              <goal>stop</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <showLogs>true</showLogs>
+          <verbose>build</verbose>
+          <images>
+            <image>
+              <name>sessionbuilder-app:${project.version}</name>
+              <build>
+                <dockerFile>Dockerfile</dockerFile>
+                <contextDir>${project.basedir}</contextDir>
+                <args>
+                  <jarToCopy>${project.artifactId}-${project.version}-jar-with-dependencies.jar</jarToCopy>
+                </args>
+              </build>
+            </image>
+            <image>
+              <name>postgres:15-alpine</name>
+              <alias>postgres-container</alias>
+            </image>
+          </images>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
   <dependencyManagement>
