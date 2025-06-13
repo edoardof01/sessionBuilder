@@ -1,12 +1,13 @@
 package com.sessionBuilder.core;
 
+import com.google.inject.Inject;
+
 public class StudySessionRepository implements StudySessionRepositoryInterface {
 	
 
 	private TransactionManager tm;
 	
-	public StudySessionRepository() {}
-	
+	@Inject
 	public StudySessionRepository( TransactionManager tm) {
 		 this.tm = tm;
 	}

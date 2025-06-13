@@ -113,6 +113,18 @@ public class TopicPanel extends JPanel {
 		bottomPanel.add(topicButtonPanel, BorderLayout.CENTER);
 		bottomPanel.add(errorPanel, BorderLayout.NORTH);
 		
+		JButton backButton = new JButton("Back");
+		backButton.setName("backButton");
+		backButton.addActionListener(e -> {
+			if (managerView != null) {
+				managerView.showMainView();
+			}
+		});
+		JPanel backButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		backButtonPanel.add(backButton);
+		bottomPanel.add(backButtonPanel, BorderLayout.SOUTH);
+		
+		
 		add(formPanel, BorderLayout.NORTH);
 		add(sessionPanel, BorderLayout.CENTER);
 		add(bottomPanel, BorderLayout.SOUTH);

@@ -127,6 +127,24 @@ public class TopicPanelTest extends AssertJSwingJUnitTestCase{
 	}
 	
 	@Test @GUITest
+	public void testBackButtonWithNullManagerViewDoesNothing() {
+		GuiActionRunner.execute(() -> {
+			managerView.getTopicPanel().setManagerView(null);
+		});
+		window.button(JButtonMatcher.withName("backButton")).click();
+		robot().waitForIdle();
+	}
+	
+	@Test @GUITest
+	public void testBackButtonWithManagerViewCallsShowMainView() {
+		window.button(JButtonMatcher.withName("backButton")).click();
+		robot().waitForIdle();
+		GuiActionRunner.execute(() -> {
+			assertThat(managerView.isDisplayable()).isTrue();
+		});
+	}
+	
+	@Test @GUITest
 	public void testTopicShowTheMessageInTheErrorLabel() {
 		GuiActionRunner.execute(() -> {
 			managerView.showCreateTopicView();

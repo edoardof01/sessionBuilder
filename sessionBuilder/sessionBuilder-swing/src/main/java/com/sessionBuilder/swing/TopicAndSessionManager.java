@@ -81,6 +81,21 @@ public class TopicAndSessionManager extends JFrame implements TopicViewCallback,
 		lblErrorMessage.setForeground(Color.RED);
 	    lblErrorMessage.setVisible(true);
 	    lblErrorMessage.setName("errorMessageLabel");
+	    JPanel changeViewPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+	    JButton toSessionPanel = new JButton("sessionPanel");
+	    toSessionPanel.setBorderPainted(false);
+	    toSessionPanel.setContentAreaFilled(false);
+	    toSessionPanel.setFocusPainted(false);
+	    toSessionPanel.setName("addSessionNavButton");
+	    JButton toTopicPanel = new JButton("topicPanel");
+	    toTopicPanel.setBorderPainted(false);
+	    toTopicPanel.setContentAreaFilled(false);
+	    toTopicPanel.setFocusPainted(false);
+	    toTopicPanel.setName("addTopicNavButton");
+	    changeViewPanel.add(toTopicPanel);
+	    changeViewPanel.add(toSessionPanel);
+	    contentPane.add(changeViewPanel,BorderLayout.SOUTH);
+	    
 	    contentPane.add(lblErrorMessage, BorderLayout.NORTH);
 	    
 	    JPanel mainContent = new JPanel(new GridLayout(0, 1, 0, 0));
@@ -111,7 +126,7 @@ public class TopicAndSessionManager extends JFrame implements TopicViewCallback,
 	    
 	    JPanel topicButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
 	    JButton deleteTopicButton = new JButton("delete");
-	    deleteTopicButton.setFont(new Font("Dialog", Font.BOLD, 13));
+	    deleteTopicButton.setFont(new Font("Dialog", Font.BOLD, 12));
 	    deleteTopicButton.setName("deleteTopicButton");
 	    deleteTopicButton.setEnabled(false);
 	    topicButtonPanel.add(deleteTopicButton);
@@ -160,6 +175,8 @@ public class TopicAndSessionManager extends JFrame implements TopicViewCallback,
 	    sessionButtonPanel.add(completeSessionButton);
 	    sessionButtonPanel.add(deleteSessionButton);
 	    
+	    toTopicPanel.addActionListener(e -> showCreateTopicView());
+	    toSessionPanel.addActionListener(e -> showCreateSessionView());
 	    
 	    completeSessionButton.addActionListener(e -> {
 	    	int selectedIndex = sessionList.getSelectedIndex();
@@ -292,17 +309,21 @@ public class TopicAndSessionManager extends JFrame implements TopicViewCallback,
 	
 	private void resetErrorLabels() {
 		lblErrorMessage.setText(" ");
+		lblErrorMessage.setForeground(Color.RED);
 	}
 
 	public void showCreateTopicView() {
+		resetErrorLabels();
 		cardLayout.show(mainPanel, CREATE_TOPIC_VIEW);
 	}
 
 	public void showCreateSessionView() {
+		resetErrorLabels();
 		cardLayout.show(mainPanel, CREATE_SESSION_VIEW);
 	}
 	
 	public void showMainView() {
+		resetErrorLabels();
 		cardLayout.show(mainPanel, MAIN_VIEW);
 	}
 
@@ -351,11 +372,13 @@ public class TopicAndSessionManager extends JFrame implements TopicViewCallback,
 	@Override
 	public void onTotalTimeCalculated(Integer totalTime) {
 		lblErrorMessage.setText("Tempo totale: " + totalTime + " minuti");
+		lblErrorMessage.setForeground(Color.GREEN);
 	}
 
 	@Override
 	public void onPercentageCalculated(Integer percentage) {
 		lblErrorMessage.setText("Percentuale di completamento: " + percentage + "%");
+		lblErrorMessage.setForeground(Color.GREEN);
 	}
 
 	@Override
