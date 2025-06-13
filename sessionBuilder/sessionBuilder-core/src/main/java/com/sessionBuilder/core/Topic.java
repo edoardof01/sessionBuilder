@@ -131,8 +131,7 @@ public class Topic {
 	}
 
 	void setDescription(String description) {
-		this.description = description;
-		
+		this.description = description;	
 	}
 
 

@@ -38,6 +38,10 @@
   		<artifactId>sessionBuilder-core</artifactId>
   		<version>0.0.1-SNAPSHOT</version>
   	</dependency>
+  	<dependency>
+  		<groupId>info.picocli</groupId>
+  		<artifactId>picocli</artifactId>
+  	</dependency>
   </dependencies>
   
   <build>

@@ -2,6 +2,7 @@ package com.sessionBuilder.core;
 
 import com.google.inject.Inject;
 
+
 public class TopicRepository implements TopicRepositoryInterface{
 	
 	
@@ -48,7 +49,7 @@ public class TopicRepository implements TopicRepositoryInterface{
 			return null;
 		});
 	}
-	
+
 	
 
 	

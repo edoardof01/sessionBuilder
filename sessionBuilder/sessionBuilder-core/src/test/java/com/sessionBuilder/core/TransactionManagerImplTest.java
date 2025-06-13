@@ -191,6 +191,60 @@ public class TransactionManagerImplTest {
 		verify(em).close();
 		assertThat(thrown).isEqualTo(exception);
 	}
+
+	@Test
+	public void testDoInTopicTransactionWithInactiveTransaction() {
+		@SuppressWarnings("unchecked")
+		TopicTransactionCode<String> code = mock(TopicTransactionCode.class);
+		RuntimeException exception = new RuntimeException("Topic exception");
+		when(code.apply(topicRepository)).thenThrow(exception);
+		when(transaction.isActive()).thenReturn(false);
+		
+		RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
+			transactionManager.doInTopicTransaction(code);
+		});
+		
+		verify(transaction).begin();
+		verify(transaction, never()).rollback();
+		verify(em).close();
+		assertThat(thrown).isEqualTo(exception);
+	}
+
+	@Test
+	public void testDoInSessionTransactionWithInactiveTransaction() {
+		@SuppressWarnings("unchecked")
+		StudySessionTransactionCode<String> code = mock(StudySessionTransactionCode.class);
+		RuntimeException exception = new RuntimeException("Session exception");
+		when(code.apply(sessionRepository)).thenThrow(exception);
+		when(transaction.isActive()).thenReturn(false);
+		
+		RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
+			transactionManager.doInSessionTransaction(code);
+		});
+		
+		verify(transaction).begin();
+		verify(transaction, never()).rollback();
+		verify(em).close();
+		assertThat(thrown).isEqualTo(exception);
+	}
+
+	@Test
+	public void testDoInMultiRepositoryTransactionWithInactiveTransaction() {
+		@SuppressWarnings("unchecked")
+		MultiRepositoryTransactionCode<String> code = mock(MultiRepositoryTransactionCode.class);
+		RuntimeException exception = new RuntimeException("Multi exception");
+		when(code.apply(any(RepositoryContext.class))).thenThrow(exception);
+		when(transaction.isActive()).thenReturn(false);
+		
+		RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
+			transactionManager.doInMultiRepositoryTransaction(code);
+		});
+		
+		verify(transaction).begin();
+		verify(transaction, never()).rollback();
+		verify(em).close();
+		assertThat(thrown).isEqualTo(exception);
+	}
 	
 	@Test
 	public void testRepositoryContextGetters() {

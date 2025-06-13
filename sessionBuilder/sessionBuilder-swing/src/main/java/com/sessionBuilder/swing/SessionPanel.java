@@ -2,6 +2,7 @@ package com.sessionBuilder.swing;
 
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -106,6 +107,7 @@ public class SessionPanel extends JPanel {
 		JPanel bottomPanel = new JPanel(new BorderLayout());
 		JPanel errorPanel = new JPanel();
 		errorLbl = new JLabel();
+		errorLbl.setForeground(Color.red);
 		errorLbl.setName("sessionErrorMessage");
 		errorPanel.add(errorLbl);
 		
@@ -126,6 +128,17 @@ public class SessionPanel extends JPanel {
 		
 		bottomPanel.add(errorPanel, BorderLayout.NORTH);
 		bottomPanel.add(sessionButtonPanel, BorderLayout.CENTER);
+		
+		JButton backSessionButton = new JButton("Back");
+		backSessionButton.setName("backSessionButton");
+		backSessionButton.addActionListener(e -> {
+			if (managerView != null) {
+				managerView.showMainView();
+			}
+		});
+		JPanel backSessionButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		backSessionButtonPanel.add(backSessionButton);
+		bottomPanel.add(backSessionButtonPanel, BorderLayout.SOUTH);
 		
 		add(formPanel, BorderLayout.NORTH);
 		add(topicPanel, BorderLayout.CENTER);

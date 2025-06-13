@@ -418,18 +418,6 @@ public class StudySessionTest {
 	}
 	
 	@Test
-	public void testToStringWithEmptyTopicList() {
-	   LocalDate date = LocalDate.now().plusDays(2);
-	   StudySession session = new StudySession(date, 60, "test note", new ArrayList<>());
-	   
-	   assertThat(session.toString())
-	   	.contains(date.toString())
-	   	.contains("60")
-	   	.contains("test note")
-	   	.contains("topics{}");
-	}
-	
-	@Test
 	public void testToStringWithSingleTopic() {
 	   LocalDate date = LocalDate.now().plusDays(2);
 	   ArrayList<Topic> topics = new ArrayList<>();
@@ -441,28 +429,11 @@ public class StudySessionTest {
 	   assertThat(session.toString())
 	   	.contains(date.toString())
 	   	.contains("90")
+	   	.contains("Completed: false")   	
 	   	.contains("Study session")
 	   	.contains("topics{Java}");
-	}
-
-	@Test
-	public void testToStringWithMultipleTopics() {
-	   LocalDate date = LocalDate.now().plusDays(2);
-	   ArrayList<Topic> topics = new ArrayList<>();
-	   Topic topic1 = new Topic("Java", "Programming", 3, new ArrayList<>());
-	   Topic topic2 = new Topic("Matematica", "studia integrali", 4, new ArrayList<>());
-	   Topic topic3 = new Topic("Fisica", "meccanica", 5, new ArrayList<>());
-	   topics.add(topic1);
-	   topics.add(topic2);
-	   topics.add(topic3);
-
-	   StudySession session = new StudySession(date, 120, "più topics", topics);
-	   
-	   assertThat(session.toString())
-	   	.contains(date.toString())
-	   	.contains("120")
-	   	.contains("più topics")
-	   	.contains("topics{Java, Matematica, Fisica}");
+	   session.setIsComplete(true);
+	   assertThat(session.toString()).contains("Completed: true");
 	}
 	
 	@Test

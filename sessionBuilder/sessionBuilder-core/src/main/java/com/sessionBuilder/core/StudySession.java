@@ -136,7 +136,8 @@ public class StudySession {
 	@Override
 	public String toString() {
 		String topicNames = topicList.stream().map(Topic::getName).collect(Collectors.joining(", "));
-		return "StudySession("+ date + ", "+ duration + ", " + note + ", topics{" + topicNames + "})";
+		String completedStatus = isComplete ? "Completed: true" : "Completed: false";
+		return "StudySession("+ date + ", "+ duration + ", " + note + ", " + completedStatus + ", topics{" + topicNames + "})";
 	}
 
 

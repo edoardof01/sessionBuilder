@@ -377,6 +377,24 @@ public class SessionPanelTest extends AssertJSwingJUnitTestCase {
 	    window.button(JButtonMatcher.withName("addSessionButton")).requireDisabled();
 	}
 	
+	@Test @GUITest
+	public void testBackSessionButtonWithNullManagerViewDoesNothing() {
+		GuiActionRunner.execute(() -> {
+			managerView.getSessionPanel().setManagerView(null);
+		});
+		window.button(JButtonMatcher.withName("backSessionButton")).click();
+		robot().waitForIdle();
+	}
+	
+	@Test @GUITest
+	public void testBackSessionButtonWithManagerViewCallsShowMainView() {
+		window.button(JButtonMatcher.withName("backSessionButton")).click();
+		robot().waitForIdle();
+		GuiActionRunner.execute(() -> {
+			assertThat(managerView.isDisplayable()).isTrue();
+		});
+	}
+	
 	
 	
 	private void setDateChooserValue(LocalDate localDate) {
