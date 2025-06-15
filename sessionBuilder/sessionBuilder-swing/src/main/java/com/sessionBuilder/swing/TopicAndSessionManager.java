@@ -48,6 +48,12 @@ public class TopicAndSessionManager extends JFrame implements TopicViewCallback,
 	private TopicPanel topicPanel;
 	private SessionPanel sessionPanel;
 	
+	private JButton completeSessionButton;
+	private JButton deleteTopicButton;
+	private JButton deleteSessionButton;
+	private JButton totalTimeButton;
+	private JButton percentageButton;
+	
 	
 	private TopicController topicController;
 	private StudySessionController sessionController;
@@ -125,16 +131,16 @@ public class TopicAndSessionManager extends JFrame implements TopicViewCallback,
 	    topicList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 	    
 	    JPanel topicButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
-	    JButton deleteTopicButton = new JButton("delete");
+	    deleteTopicButton = new JButton("delete");
 	    deleteTopicButton.setFont(new Font("Dialog", Font.BOLD, 12));
 	    deleteTopicButton.setName("deleteTopicButton");
 	    deleteTopicButton.setEnabled(false);
 	    topicButtonPanel.add(deleteTopicButton);
-	    JButton totalTimeButton = new JButton("totalTime");
+	    totalTimeButton = new JButton("totalTime");
 	    totalTimeButton.setEnabled(false);
 	    totalTimeButton.setFont(new Font("Dialog", Font.BOLD, 12));
 	    topicButtonPanel.add(totalTimeButton);
-	    JButton percentageButton = new JButton("%Completion");
+	    percentageButton = new JButton("%Completion");
 	    percentageButton.setFont(new Font("Dialog", Font.BOLD, 12));
 	    percentageButton.setEnabled(false);
 	    topicButtonPanel.add(percentageButton);
@@ -163,11 +169,11 @@ public class TopicAndSessionManager extends JFrame implements TopicViewCallback,
 	    JPanel sessionButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
 	    sessionPanel.add(sessionButtonPanel, BorderLayout.SOUTH);
 	    
-	    JButton completeSessionButton = new JButton("Complete");
+	    completeSessionButton = new JButton("Complete");
 	    completeSessionButton.setEnabled(false);
 	    completeSessionButton.setName("completeSessionButton");
 	    completeSessionButton.setFont(new Font("Dialog", Font.BOLD, 12));
-	    JButton deleteSessionButton = new JButton("delete");
+	    deleteSessionButton = new JButton("delete");
 	    deleteSessionButton.setName("deleteSessionButton");
 	    deleteSessionButton.setEnabled(false);
 	    deleteSessionButton.setFont(new Font("Dialog", Font.BOLD, 12));
@@ -185,6 +191,7 @@ public class TopicAndSessionManager extends JFrame implements TopicViewCallback,
 	    		sessionController.handleCompleteSession(selectedSession.getId());
 	    	}
 	    });
+
 	    
 	    deleteTopicButton.addActionListener(e -> {
 	    	int selectedIndex = topicList.getSelectedIndex();
@@ -267,6 +274,22 @@ public class TopicAndSessionManager extends JFrame implements TopicViewCallback,
 	
 	SessionPanel getSessionPanel() {
 		return this.sessionPanel;
+	}
+	
+	public JButton getCompleteSessionButton() {
+		return completeSessionButton;
+	}
+	public JButton getDeleteTopicButton() {
+		return deleteTopicButton;
+	}
+	public JButton getDeleteSessionButton() {
+		return deleteSessionButton;
+	}
+	public JButton getTotalTimeButton() {
+		return totalTimeButton;
+	}
+	public JButton getPercentageButton() {
+		return percentageButton;
 	}
 	
 	public TopicController getTopicController() {

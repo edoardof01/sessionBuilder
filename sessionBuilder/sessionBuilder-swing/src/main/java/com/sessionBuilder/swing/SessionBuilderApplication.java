@@ -103,7 +103,6 @@ public class SessionBuilderApplication implements Callable<Integer> {
 				
 			} catch (Exception e) {
 				System.err.println("Errore durante l'avvio dell'applicazione: " + e.getMessage());
-				e.printStackTrace();
 				System.exit(1);
 			}
 		});

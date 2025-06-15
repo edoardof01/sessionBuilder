@@ -58,7 +58,8 @@ public class StudySessionRepositoryTest {
 	@Test
 	public void testSaveSuccess() {
 		sessionRepository.save(session);
-		assertThat(session).isEqualTo(session);
+		assertThat(session).isNotNull();
+		assertThat(session.getId()).isGreaterThan(0);
 		verify(em, times(1)).persist(session);
 	}
 	

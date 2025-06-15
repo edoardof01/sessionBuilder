@@ -6,6 +6,8 @@ on:
 
 jobs:
   build:
+    env:
+      SONAR_TOKEN: ${{secrets.SONAR_TOKEN}}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -15,7 +17,7 @@ jobs:
           - java: 21
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Set up JDK ${{ matrix.java }}
         uses: actions/setup-java@v4
@@ -26,11 +28,18 @@ jobs:
       - name: Cache Maven packages
         uses: actions/cache@v4
         with:
-          path: ~/.m2
+          path: | 
+            ~/.m2
+            ~/.sonar/cache
           key: ${{ runner.os }}-m2-jdk-${{ matrix.java }}-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2-
 
-      - name: Build with Maven
-        run: xvfb-run mvn clean verify ${{ matrix.additional-maven-args }}
+      - name: Build with Maven and SonarCloud
+        run: > 
+          xvfb-run mvn clean verify ${{ matrix.additional-maven-args }} $SONARGOAL
+          -Dsonar.organization=edoardof01
+          -Dsonar.host.url=https://sonarcloud.io
+          -Dsonar.projectKey=edoardof01_sessionBuilder
         env:
           POSTGRES_TEST_DB: ${{ secrets.POSTGRES_TEST_DB }}
           POSTGRES_TEST_USER: ${{ secrets.POSTGRES_TEST_USER }}
