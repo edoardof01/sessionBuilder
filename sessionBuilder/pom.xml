@@ -24,6 +24,15 @@
 		<coveralls.version>4.5.0-M6</coveralls.version>
 		<testcontainer.version>1.20.4</testcontainer.version>
 		<picocli.version>4.7.6</picocli.version>
+		<sonar.version>5.0.0.4389</sonar.version>
+		<sonar.host.url>http://localhost:9000</sonar.host.url>
+		<sonar.coverage.exclusions>**/AppModule.java,**/SessionBuilderApplication.java</sonar.coverage.exclusions>
+		<sonar.issue.ignore.multicriteria>e11</sonar.issue.ignore.multicriteria>
+		<sonar.issue.ignore.multicriteria.e11.ruleKey>java:S117</sonar.issue.ignore.multicriteria.e11.ruleKey>
+		<sonar.issue.ignore.multicriteria.e11.resourceKey>**/TopicAndSessionManager.java</sonar.issue.ignore.multicriteria.e11.resourceKey>
+		<sonar.issue.ignore.multicriteria>e11,e12</sonar.issue.ignore.multicriteria>
+		<sonar.issue.ignore.multicriteria.e12.ruleKey>java:S2699</sonar.issue.ignore.multicriteria.e12.ruleKey>
+		<sonar.issue.ignore.multicriteria.e12.resourceKey>**/TopicAndSessionManagerTest.java</sonar.issue.ignore.multicriteria.e12.resourceKey>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -146,7 +155,8 @@
 								<exclude>**.*Test.class</exclude>
 								<exclude>**.SessionBuilderApplication.class</exclude>
 								<exclude>**/*$*.class</exclude>
-								<exclude>com/sessionBuilder/swing/SessionBuilderApplication.class</exclude>
+								<exclude>**/AppModule.class</exclude>
+								<exclude>**/SessionBuilderApplication.class</exclude>
 								<exclude>**.*E2E.class</exclude>
 							</excludes>
 						</configuration>
@@ -212,6 +222,11 @@
   							<postgres.mapped.port>${postgres.mapped.port}</postgres.mapped.port>
   						</systemPropertyVariables>
   					</configuration>
+  				</plugin>
+  				<plugin>
+  					<groupId>org.sonarsource.scanner.maven</groupId>
+  					<artifactId>sonar-maven-plugin</artifactId>
+  					<version>${sonar.version}</version>
   				</plugin>
 			</plugins>
 		</pluginManagement>

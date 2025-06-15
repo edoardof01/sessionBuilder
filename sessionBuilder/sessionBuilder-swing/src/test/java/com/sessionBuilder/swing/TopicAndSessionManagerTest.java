@@ -757,9 +757,147 @@ public class TopicAndSessionManagerTest extends AssertJSwingJUnitTestCase {
 		assertThat(managerView.getSessionController()).isNull();
 	}
 	
+	@Test
+	public void testCompleteSessionButton_NoSelectionWithController() {
+		GuiActionRunner.execute(() -> {
+			managerView.getStudySessionModel().addElement(session1);
+			managerView.setSessionController(sessionController);
+		});
+		robot().waitForIdle();
+		window.list("sessionList").clearSelection();
+		robot().waitForIdle();
+		window.button(JButtonMatcher.withName("completeSessionButton")).click();
+		robot().waitForIdle();
+		verify(sessionController, never()).handleCompleteSession(anyLong());
+	}
+
+	@Test
+	public void testDeleteTopicButton_NoSelectionWithController() {
+		GuiActionRunner.execute(() -> {
+			managerView.getTopicModel().addElement(topic1);
+			managerView.setTopicController(topicController);
+		});
+		robot().waitForIdle();
+		window.list("topicList").clearSelection();
+		robot().waitForIdle();
+		window.button(JButtonMatcher.withName("deleteTopicButton")).click();
+		robot().waitForIdle();
+		verify(topicController, never()).handleDeleteTopic(anyLong());
+	}
+
+	@Test
+	public void testDeleteSessionButton_NoSelectionWithController() {
+		GuiActionRunner.execute(() -> {
+			managerView.getStudySessionModel().addElement(session1);
+			managerView.setSessionController(sessionController);
+		});
+		robot().waitForIdle();
+		window.list("sessionList").clearSelection();
+		robot().waitForIdle();
+		window.button(JButtonMatcher.withName("deleteSessionButton")).click();
+		robot().waitForIdle();
+		verify(sessionController, never()).handleDeleteSession(anyLong());
+	}
+
+	@Test
+	public void testTotalTimeButton_NoSelectionWithController() {
+		GuiActionRunner.execute(() -> {
+			managerView.getTopicModel().addElement(topic1);
+			managerView.setTopicController(topicController);
+		});
+		robot().waitForIdle();
+		window.list("topicList").clearSelection();
+		robot().waitForIdle();
+		window.button(JButtonMatcher.withText("totalTime")).click();
+		robot().waitForIdle();
+		verify(topicController, never()).handleTotalTime(anyLong());
+	}
+
+	@Test
+	public void testPercentageButton_NoSelectionWithController() {
+		GuiActionRunner.execute(() -> {
+			managerView.getTopicModel().addElement(topic1);
+			managerView.setTopicController(topicController);
+		});
+		robot().waitForIdle();
+		window.list("topicList").clearSelection();
+		robot().waitForIdle();
+		window.button(JButtonMatcher.withText("%Completion")).click();
+		robot().waitForIdle();
+		verify(topicController, never()).handlePercentageOfCompletion(anyLong());
+	}
 	
 	
-	
+	@Test
+	public void testCompleteSessionButton_NoSelectionWithController_ForcedClick() {
+		GuiActionRunner.execute(() -> {
+			managerView.getStudySessionModel().addElement(session1);
+			managerView.setSessionController(sessionController);
+			managerView.getCompleteSessionButton().setEnabled(true);
+		});
+		robot().waitForIdle();
+		window.list("sessionList").clearSelection();
+		robot().waitForIdle();
+		window.button(JButtonMatcher.withName("completeSessionButton")).requireEnabled().click();
+		robot().waitForIdle();
+		verify(sessionController, never()).handleCompleteSession(anyLong());
+	}
+	@Test
+	public void testDeleteTopicButton_NoSelectionWithController_ForcedClick() {
+		GuiActionRunner.execute(() -> {
+			managerView.getTopicModel().addElement(topic1);
+			managerView.setTopicController(topicController);
+			managerView.getDeleteTopicButton().setEnabled(true);
+		});
+		robot().waitForIdle();
+		window.list("topicList").clearSelection();
+		robot().waitForIdle();
+		window.button(JButtonMatcher.withName("deleteTopicButton")).requireEnabled().click();
+		robot().waitForIdle();
+		verify(topicController, never()).handleDeleteTopic(anyLong());
+	}
+	@Test
+	public void testDeleteSessionButton_NoSelectionWithController_ForcedClick() {
+		GuiActionRunner.execute(() -> {
+			managerView.getStudySessionModel().addElement(session1);
+			managerView.setSessionController(sessionController);
+			managerView.getDeleteSessionButton().setEnabled(true);
+		});
+		robot().waitForIdle();
+		window.list("sessionList").clearSelection();
+		robot().waitForIdle();
+		window.button(JButtonMatcher.withName("deleteSessionButton")).requireEnabled().click();
+		robot().waitForIdle();
+		verify(sessionController, never()).handleDeleteSession(anyLong());
+	}
+	@Test
+	public void testTotalTimeButton_NoSelectionWithController_ForcedClick() {
+		GuiActionRunner.execute(() -> {
+			managerView.getTopicModel().addElement(topic1);
+			managerView.setTopicController(topicController);
+			managerView.getTotalTimeButton().setEnabled(true);
+		});
+		robot().waitForIdle();
+		window.list("topicList").clearSelection();
+		robot().waitForIdle();
+		window.button(JButtonMatcher.withText("totalTime")).requireEnabled().click();
+		robot().waitForIdle();
+		verify(topicController, never()).handleTotalTime(anyLong());
+	}
+	@Test
+	public void testPercentageButton_NoSelectionWithController_ForcedClick() {
+		GuiActionRunner.execute(() -> {
+			managerView.getTopicModel().addElement(topic1);
+			managerView.setTopicController(topicController);
+			managerView.getPercentageButton().setEnabled(true);
+		});
+		robot().waitForIdle();
+		window.list("topicList").clearSelection();
+		robot().waitForIdle();
+		window.button(JButtonMatcher.withText("%Completion")).requireEnabled().click();
+		robot().waitForIdle();
+		verify(topicController, never()).handlePercentageOfCompletion(anyLong());
+	}
 	
 	
 	
