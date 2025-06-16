@@ -52,7 +52,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-        working-directory: ./sessionBuilder-app
 
       - name: Push to DockerHub
         if: matrix.java == '17' && github.ref == 'refs/heads/main'
