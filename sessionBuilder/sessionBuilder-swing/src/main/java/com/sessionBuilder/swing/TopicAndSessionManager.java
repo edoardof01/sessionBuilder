@@ -12,15 +12,14 @@ import com.sessionBuilder.core.TopicViewCallback;
 import com.sessionBuilder.core.SessionViewCallback;
 import com.sessionBuilder.core.StudySession;
 import com.sessionBuilder.core.StudySessionController;
-
+import javax.swing.WindowConstants;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
+
 import javax.swing.JSplitPane;
 import javax.swing.ListSelectionModel;
 
@@ -34,7 +33,7 @@ import java.awt.Font;
 public class TopicAndSessionManager extends JFrame implements TopicViewCallback,SessionViewCallback {
 
 	private static final long serialVersionUID = 1L;
-	private JPanel contentPane;
+
 	private JList<Topic> topicList;
 	private JList<StudySession> sessionList;
 	private DefaultListModel<Topic> topicModel;
@@ -55,12 +54,14 @@ public class TopicAndSessionManager extends JFrame implements TopicViewCallback,
 	private JButton percentageButton;
 	
 	
-	private TopicController topicController;
-	private StudySessionController sessionController;
+	private transient TopicController topicController;
+	private transient StudySessionController sessionController;
+	
+	private static final String FONT = "Dialog";
 
 
 	public TopicAndSessionManager() {
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		setBounds(100, 100, 800, 600);
 		setupCardLayout();
 	}
@@ -79,193 +80,202 @@ public class TopicAndSessionManager extends JFrame implements TopicViewCallback,
 
 
 	private JPanel createMainView() {
+		JPanel mainViewPane = new JPanel(new BorderLayout());
+		mainViewPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+
+		setupErrorMessageLabel(mainViewPane);
+		setupMainContent(mainViewPane);
+		setupNavigationButtons(mainViewPane);
 		
-		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-		contentPane.setLayout(new BorderLayout());
+		setupActionListeners();
+		setupListSelectionListeners();
+
+		return mainViewPane;
+	}
+
+	private void setupErrorMessageLabel(JPanel parent) {
 		lblErrorMessage = new JLabel(" ");
 		lblErrorMessage.setForeground(Color.RED);
-	    lblErrorMessage.setVisible(true);
-	    lblErrorMessage.setName("errorMessageLabel");
-	    JPanel changeViewPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-	    JButton toSessionPanel = new JButton("sessionPanel");
-	    toSessionPanel.setBorderPainted(false);
-	    toSessionPanel.setContentAreaFilled(false);
-	    toSessionPanel.setFocusPainted(false);
-	    toSessionPanel.setName("addSessionNavButton");
-	    JButton toTopicPanel = new JButton("topicPanel");
-	    toTopicPanel.setBorderPainted(false);
-	    toTopicPanel.setContentAreaFilled(false);
-	    toTopicPanel.setFocusPainted(false);
-	    toTopicPanel.setName("addTopicNavButton");
-	    changeViewPanel.add(toTopicPanel);
-	    changeViewPanel.add(toSessionPanel);
-	    contentPane.add(changeViewPanel,BorderLayout.SOUTH);
-	    
-	    contentPane.add(lblErrorMessage, BorderLayout.NORTH);
-	    
-	    JPanel mainContent = new JPanel(new GridLayout(0, 1, 0, 0));
-	    mainContent.setLayout(new GridLayout(0, 1, 0, 0));
-	    contentPane.add(mainContent, BorderLayout.CENTER);
-	    JSplitPane splitPane = new JSplitPane();
-	    splitPane.setResizeWeight(0.5);
-	    splitPane.setDividerLocation(0.5);
-	    splitPane.setOneTouchExpandable(true);
-	    mainContent.add(splitPane);
-	    
-	    JPanel topicPanel = new JPanel();
-	    topicPanel.setLayout(new BorderLayout());
-	    splitPane.setLeftComponent(topicPanel);
-	    
-	    JLabel topicLabel = new JLabel("Topics");
-	    topicLabel.setBorder(new EmptyBorder(0, 5, 0, 0));
-	    topicLabel.setName("topicLabel");
-	    topicLabel.setFont(new Font("Dialog", Font.BOLD, 23));
-	    topicPanel.add(topicLabel, BorderLayout.NORTH);
-	    
-	    topicModel = new DefaultListModel<>();
-	    topicList = new JList<>(topicModel);
-	    topicList.setName("topicList");
-	    JScrollPane topicScrollPane = new JScrollPane(topicList);
-	    topicPanel.add(topicScrollPane, BorderLayout.CENTER);
-	    topicList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-	    
-	    JPanel topicButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
-	    deleteTopicButton = new JButton("delete");
-	    deleteTopicButton.setFont(new Font("Dialog", Font.BOLD, 12));
-	    deleteTopicButton.setName("deleteTopicButton");
-	    deleteTopicButton.setEnabled(false);
-	    topicButtonPanel.add(deleteTopicButton);
-	    totalTimeButton = new JButton("totalTime");
-	    totalTimeButton.setEnabled(false);
-	    totalTimeButton.setFont(new Font("Dialog", Font.BOLD, 12));
-	    topicButtonPanel.add(totalTimeButton);
-	    percentageButton = new JButton("%Completion");
-	    percentageButton.setFont(new Font("Dialog", Font.BOLD, 12));
-	    percentageButton.setEnabled(false);
-	    topicButtonPanel.add(percentageButton);
-	    
-	    topicPanel.add(topicButtonPanel, BorderLayout.SOUTH);
-	    
-	    
-	    
-	    JPanel sessionPanel = new JPanel();  
-	    sessionPanel.setLayout(new BorderLayout());
-	    splitPane.setRightComponent(sessionPanel);
-	    
-	    JLabel sessionLabel = new JLabel("Sessions");
-	    sessionLabel.setBorder(new EmptyBorder(0, 5, 0, 0));
-	    sessionLabel.setName("sessionLabel");
-	    sessionLabel.setFont(new Font("Dialog", Font.BOLD, 23));
-	    sessionPanel.add(sessionLabel, BorderLayout.NORTH);
-	    
-	    studySessionModel = new DefaultListModel<>();
-	    sessionList = new JList<>(studySessionModel);
-	    sessionList.setName("sessionList");
-	    JScrollPane sessionScrollPane = new JScrollPane(sessionList);
-	    sessionPanel.add(sessionScrollPane, BorderLayout.CENTER);
-	    sessionList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-	    
-	    JPanel sessionButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
-	    sessionPanel.add(sessionButtonPanel, BorderLayout.SOUTH);
-	    
-	    completeSessionButton = new JButton("Complete");
-	    completeSessionButton.setEnabled(false);
-	    completeSessionButton.setName("completeSessionButton");
-	    completeSessionButton.setFont(new Font("Dialog", Font.BOLD, 12));
-	    deleteSessionButton = new JButton("delete");
-	    deleteSessionButton.setName("deleteSessionButton");
-	    deleteSessionButton.setEnabled(false);
-	    deleteSessionButton.setFont(new Font("Dialog", Font.BOLD, 12));
-	    
-	    sessionButtonPanel.add(completeSessionButton);
-	    sessionButtonPanel.add(deleteSessionButton);
-	    
-	    toTopicPanel.addActionListener(e -> showCreateTopicView());
-	    toSessionPanel.addActionListener(e -> showCreateSessionView());
-	    
-	    completeSessionButton.addActionListener(e -> {
-	    	int selectedIndex = sessionList.getSelectedIndex();
-	    	if (selectedIndex != -1 && sessionController != null) { 
-	    		StudySession selectedSession = studySessionModel.getElementAt(selectedIndex);
-	    		sessionController.handleCompleteSession(selectedSession.getId());
-	    	}
-	    });
+		lblErrorMessage.setVisible(true);
+		lblErrorMessage.setName("errorMessageLabel");
+		parent.add(lblErrorMessage, BorderLayout.NORTH);
+	}
 
-	    
-	    deleteTopicButton.addActionListener(e -> {
-	    	int selectedIndex = topicList.getSelectedIndex();
-	    	if (selectedIndex != -1 && topicController != null) { 
-	    		Topic selectedTopic = topicModel.getElementAt(selectedIndex);
-	    		topicController.handleDeleteTopic(selectedTopic.getId());
-	    	}
-	    });
-	    
-	    deleteSessionButton.addActionListener(e -> {
-	    	int selectedIndex = sessionList.getSelectedIndex();
-	    	if (selectedIndex != -1 && sessionController != null) { 
-	    		StudySession selectedSession = studySessionModel.getElementAt(selectedIndex);
-	    		sessionController.handleDeleteSession(selectedSession.getId());
-	    	}
-	    });
-	    
-	    totalTimeButton.addActionListener(e ->{
-	    	int selectedIndex = topicList.getSelectedIndex();
-    		if (selectedIndex != -1 && topicController != null) { 
-    			Topic selectedTopic = topicModel.getElementAt(selectedIndex);
-	    		topicController.handleTotalTime(selectedTopic.getId());
-	    		resetErrorLabels();
-    		}
-	    });
-	    
-	    percentageButton.addActionListener(e -> {
-	    	int selectedIndex = topicList.getSelectedIndex();
-	    	if (selectedIndex != -1 && topicController != null) { 
-	    		Topic selectedTopic = topicModel.getElementAt(selectedIndex);
-	    		resetErrorLabels();
-	    		topicController.handlePercentageOfCompletion(selectedTopic.getId());
-	    	}
-	    });
-	    
-	    topicList.addListSelectionListener(new ListSelectionListener() {
-	    	@Override
-	    	public void valueChanged(ListSelectionEvent e) {
-	    		if(!e.getValueIsAdjusting()) {
-	    			if(topicList.getSelectedIndex() != -1) {
-	    				deleteTopicButton.setEnabled(true);
-	    				totalTimeButton.setEnabled(true);
-	    				percentageButton.setEnabled(true);
-	    			}
-	    			else {
-	    				deleteTopicButton.setEnabled(false);
-	    				totalTimeButton.setEnabled(false);
-	    				percentageButton.setEnabled(false);
-	    			}
-	    		}
-	    	}
-	    });
-	    
-	    sessionList.addListSelectionListener(new ListSelectionListener() {
-	    	@Override
-	    	public void valueChanged(ListSelectionEvent e) {
-	    		if(!e.getValueIsAdjusting()) {
-	    			if(sessionList.getSelectedIndex() != -1) {
-	    				deleteSessionButton.setEnabled(true);
-	    				if(sessionList.getSelectedValue().isComplete() == false) {
-	    					completeSessionButton.setEnabled(true);
-	    				}
-	    				else {
-	    				}
-	    			}
-	    			else {
-	    				deleteSessionButton.setEnabled(false);
-	    				completeSessionButton.setEnabled(false);
-	    			}
-	    		}
-	    	}
-	    });
-	 
-	    return contentPane;
+	private void setupMainContent(JPanel parent) {
+		JSplitPane splitPane = new JSplitPane();
+		splitPane.setResizeWeight(0.5);
+		splitPane.setDividerLocation(0.5);
+		splitPane.setOneTouchExpandable(true);
+
+		JPanel topicContainerPanel = createTopicPanel();
+		JPanel sessionContainerPanel = createSessionPanel();
+
+		splitPane.setLeftComponent(topicContainerPanel);
+		splitPane.setRightComponent(sessionContainerPanel);
+		
+		JPanel mainContent = new JPanel(new GridLayout(0, 1, 0, 0));
+		mainContent.add(splitPane);
+		parent.add(mainContent, BorderLayout.CENTER);
+	}
+
+	private JPanel createTopicPanel() {
+		JPanel panel = new JPanel(new BorderLayout());
+		JLabel label = new JLabel("Topics");
+		label.setBorder(new EmptyBorder(0, 5, 0, 0));
+		label.setName("topicLabel");
+		label.setFont(new Font(FONT, Font.BOLD, 23));
+		panel.add(label, BorderLayout.NORTH);
+
+		topicModel = new DefaultListModel<>();
+		topicList = new JList<>(topicModel);
+		topicList.setName("topicList");
+		topicList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		panel.add(new JScrollPane(topicList), BorderLayout.CENTER);
+
+		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
+		deleteTopicButton = new JButton("delete");
+		deleteTopicButton.setName("deleteTopicButton");
+		deleteTopicButton.setFont(new Font(FONT, Font.BOLD, 12));
+		deleteTopicButton.setEnabled(false);
+		
+		totalTimeButton = new JButton("totalTime");
+		totalTimeButton.setFont(new Font(FONT, Font.BOLD, 12));
+		totalTimeButton.setEnabled(false);
+
+		percentageButton = new JButton("%Completion");
+		percentageButton.setFont(new Font(FONT, Font.BOLD, 12));
+		percentageButton.setEnabled(false);
+
+		buttonPanel.add(deleteTopicButton);
+		buttonPanel.add(totalTimeButton);
+		buttonPanel.add(percentageButton);
+		panel.add(buttonPanel, BorderLayout.SOUTH);
+
+		return panel;
+	}
+
+	private JPanel createSessionPanel() {
+		JPanel panel = new JPanel(new BorderLayout());
+		JLabel label = new JLabel("Sessions");
+		label.setBorder(new EmptyBorder(0, 5, 0, 0));
+		label.setName("sessionLabel");
+		label.setFont(new Font(FONT, Font.BOLD, 23));
+		panel.add(label, BorderLayout.NORTH);
+
+		studySessionModel = new DefaultListModel<>();
+		sessionList = new JList<>(studySessionModel);
+		sessionList.setName("sessionList");
+		sessionList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		panel.add(new JScrollPane(sessionList), BorderLayout.CENTER);
+
+		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
+		completeSessionButton = new JButton("Complete");
+		completeSessionButton.setName("completeSessionButton");
+		completeSessionButton.setFont(new Font(FONT, Font.BOLD, 12));
+		completeSessionButton.setEnabled(false);
+
+		deleteSessionButton = new JButton("delete");
+		deleteSessionButton.setName("deleteSessionButton");
+		deleteSessionButton.setFont(new Font(FONT, Font.BOLD, 12));
+		deleteSessionButton.setEnabled(false);
+		
+		buttonPanel.add(completeSessionButton);
+		buttonPanel.add(deleteSessionButton);
+		panel.add(buttonPanel, BorderLayout.SOUTH);
+		
+		return panel;
+	}
+
+	private void setupNavigationButtons(JPanel parent) {
+		JPanel changeViewPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		JButton toSessionPanel = new JButton("sessionPanel");
+		toSessionPanel.setBorderPainted(false);
+		toSessionPanel.setContentAreaFilled(false);
+		toSessionPanel.setFocusPainted(false);
+		toSessionPanel.setName("addSessionNavButton");
+
+		JButton toTopicPanel = new JButton("topicPanel");
+		toTopicPanel.setBorderPainted(false);
+		toTopicPanel.setContentAreaFilled(false);
+		toTopicPanel.setFocusPainted(false);
+		toTopicPanel.setName("addTopicNavButton");
+		
+		toTopicPanel.addActionListener(e -> showCreateTopicView());
+		toSessionPanel.addActionListener(e -> showCreateSessionView());
+		
+		changeViewPanel.add(toTopicPanel);
+		changeViewPanel.add(toSessionPanel);
+		parent.add(changeViewPanel, BorderLayout.SOUTH);
+	}
+
+	private void setupActionListeners() {
+		deleteTopicButton.addActionListener(e -> handleDeleteTopicAction());
+		deleteSessionButton.addActionListener(e -> handleDeleteSessionAction());
+		completeSessionButton.addActionListener(e -> handleCompleteSessionAction());
+		totalTimeButton.addActionListener(e -> handleTotalTimeAction());
+		percentageButton.addActionListener(e -> handlePercentageAction());
+	}
+	
+	private void setupListSelectionListeners() {
+		topicList.addListSelectionListener(e -> {
+			if (!e.getValueIsAdjusting()) {
+				boolean selected = topicList.getSelectedIndex() != -1;
+				deleteTopicButton.setEnabled(selected);
+				totalTimeButton.setEnabled(selected);
+				percentageButton.setEnabled(selected);
+			}
+		});
+
+		sessionList.addListSelectionListener(e -> {
+			if (!e.getValueIsAdjusting()) {
+				boolean selected = sessionList.getSelectedIndex() != -1;
+				deleteSessionButton.setEnabled(selected);
+				boolean completable = selected && !sessionList.getSelectedValue().isComplete();
+				completeSessionButton.setEnabled(completable);
+			}
+		});
+	}
+
+	private void handleDeleteTopicAction() {
+		int selectedIndex = topicList.getSelectedIndex();
+		if (selectedIndex != -1 && topicController != null) {
+			Topic selectedTopic = topicModel.getElementAt(selectedIndex);
+			topicController.handleDeleteTopic(selectedTopic.getId());
+		}
+	}
+
+	private void handleDeleteSessionAction() {
+		int selectedIndex = sessionList.getSelectedIndex();
+		if (selectedIndex != -1 && sessionController != null) {
+			StudySession selectedSession = studySessionModel.getElementAt(selectedIndex);
+			sessionController.handleDeleteSession(selectedSession.getId());
+		}
+	}
+
+	private void handleCompleteSessionAction() {
+		int selectedIndex = sessionList.getSelectedIndex();
+		if (selectedIndex != -1 && sessionController != null) {
+			StudySession selectedSession = studySessionModel.getElementAt(selectedIndex);
+			sessionController.handleCompleteSession(selectedSession.getId());
+		}
+	}
+
+	private void handleTotalTimeAction() {
+		int selectedIndex = topicList.getSelectedIndex();
+		if (selectedIndex != -1 && topicController != null) {
+			Topic selectedTopic = topicModel.getElementAt(selectedIndex);
+			topicController.handleTotalTime(selectedTopic.getId());
+			resetErrorLabels();
+		}
+	}
+
+	private void handlePercentageAction() {
+		int selectedIndex = topicList.getSelectedIndex();
+		if (selectedIndex != -1 && topicController != null) {
+			Topic selectedTopic = topicModel.getElementAt(selectedIndex);
+			resetErrorLabels();
+			topicController.handlePercentageOfCompletion(selectedTopic.getId());
+		}
 	}
 	
 	TopicPanel getTopicPanel() {

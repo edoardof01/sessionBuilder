@@ -1,12 +1,13 @@
 package com.sessionBuilder.core;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.List;
 
 import com.google.inject.Inject;
 
 public class StudySessionService implements StudySessionInterface {
 	
+	private static final String NULL_SESSION_MESSAGE = "la sessione passata è null";
 	@Inject
 	private TransactionManager tm;
 
@@ -19,7 +20,7 @@ public class StudySessionService implements StudySessionInterface {
 	}
 
 	@Override
-	public StudySession createSession(LocalDate date, int duration, String note, ArrayList<Topic> topicList) {
+	public StudySession createSession(LocalDate date, int duration, String note, List<Topic> topicList) {
 		return tm.doInSessionTransaction(sessionRepository -> {
 			StudySession session = new StudySession(date, duration, note, topicList);
 			sessionRepository.save(session);
@@ -27,11 +28,12 @@ public class StudySessionService implements StudySessionInterface {
 		});
 	}
 	
+	
 	@Override
 	public void completeSession(long sessionId) {
 		tm.doInSessionTransaction(sessionRepository ->{
 			StudySession session = sessionRepository.findById(sessionId);
-			if(session == null) throw new IllegalArgumentException("la sessione passata è null");
+			if(session == null) throw new IllegalArgumentException(NULL_SESSION_MESSAGE);
 			session.complete();
 			sessionRepository.update(session);
 			return null;
@@ -43,7 +45,7 @@ public class StudySessionService implements StudySessionInterface {
 		tm.doInMultiRepositoryTransaction(context -> {
 			StudySession session = context.getSessionRepository().findById(sessionId);
 			Topic topic = context.getTopicRepository().findById(topicId);
-			if(session == null) throw new IllegalArgumentException("la sessione passata è null");
+			if(session == null) throw new IllegalArgumentException(NULL_SESSION_MESSAGE);
 			if(topic == null) throw new IllegalArgumentException("il topic passato è null");
 			session.addTopic(topic);
 			context.getSessionRepository().update(session);
@@ -56,7 +58,7 @@ public class StudySessionService implements StudySessionInterface {
 		tm.doInMultiRepositoryTransaction(context -> {
 			StudySession session = context.getSessionRepository().findById(sessionId);
 			Topic topic = context.getTopicRepository().findById(topicId);
-			if(session == null) throw new IllegalArgumentException("la sessione passata è null");
+			if(session == null) throw new IllegalArgumentException(NULL_SESSION_MESSAGE);
 			if(topic == null) throw new IllegalArgumentException("il topic passato è null");
 			session.removeTopic(topic);
 			context.getSessionRepository().update(session);

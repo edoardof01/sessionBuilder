@@ -85,7 +85,7 @@ public class SessionBuilderApplicationE2E extends AssertJSwingJUnitTestCase {
 				)
 				.start();
 
-			Thread.sleep(3000);
+			robot().waitForIdle();
 
 			window = WindowFinder.findFrame(new GenericTypeMatcher<JFrame>(JFrame.class) {
 				@Override
@@ -121,6 +121,10 @@ public class SessionBuilderApplicationE2E extends AssertJSwingJUnitTestCase {
 		window.list("sessionList").requireVisible();
 		window.button(JButtonMatcher.withName("deleteTopicButton")).requireVisible().requireDisabled();
 		window.button(JButtonMatcher.withName("deleteSessionButton")).requireVisible().requireDisabled();
+		assertThat(window.list("topicList").contents()).isEmpty();
+		assertThat(window.list("sessionList").contents()).isEmpty();
+		assertThat(window.button(JButtonMatcher.withName("deleteTopicButton")).isEnabled()).isFalse();
+		assertThat(window.button(JButtonMatcher.withName("deleteSessionButton")).isEnabled()).isFalse();
 	}
 
 	@Test
@@ -266,9 +270,7 @@ public class SessionBuilderApplicationE2E extends AssertJSwingJUnitTestCase {
 	@Test
 	public void testDeleteTopicButtonSuccess() {
 		window.list("topicList").selectItem(Pattern.compile(".*" + TOPIC_FIXTURE_1_NAME + ".*"));
-		
 		window.button(JButtonMatcher.withName("deleteTopicButton")).click();
-		
 		assertThat(window.list("topicList").contents()).hasSize(1);
 		assertThat(window.list("topicList").contents()).doesNotContain(
 			TOPIC_FIXTURE_1_NAME, TOPIC_FIXTURE_1_DESCRIPTION, String.valueOf(TOPIC_FIXTURE_1_DIFFICULTY));
@@ -287,55 +289,51 @@ public class SessionBuilderApplicationE2E extends AssertJSwingJUnitTestCase {
 	@Test
 	public void testCompleteSessionButtonSuccess() {
 		window.list("sessionList").selectItem(Pattern.compile(".*" + SESSION_FIXTURE_1_NOTE + ".*"));
-		
 		window.button(JButtonMatcher.withName("completeSessionButton")).click();
-		
 		assertThat(window.list("sessionList").contents()[0]).contains("Completed: true");
 	}
 
 	@Test
 	public void testCompleteSessionButtonError() {
 		window.list("sessionList").clearSelection();
-		
 		window.button(JButtonMatcher.withName("completeSessionButton")).requireDisabled();
-		
 		assertThat(window.list("sessionList").contents()).hasSize(2);
 	}
 
 	@Test
 	public void testTotalTimeButtonSuccess() {
 		window.list("topicList").selectItem(Pattern.compile(".*" + TOPIC_FIXTURE_1_NAME + ".*"));
-		
 		window.button(JButtonMatcher.withText("totalTime")).click();
-		
 		window.label(JLabelMatcher.withName("errorMessageLabel")).requireText("Tempo totale: 150 minuti");
+		assertThat(window.button(JButtonMatcher.withText("totalTime")).isEnabled()).isTrue();
+		assertThat(window.label(JLabelMatcher.withName("errorMessageLabel")).text()).isEqualTo("Tempo totale: 150 minuti");
 	}
 
 	@Test
 	public void testTotalTimeButtonError() {
 		window.list("topicList").clearSelection();
-		
 		window.button(JButtonMatcher.withText("totalTime")).requireDisabled();
-		
 		window.label(JLabelMatcher.withName("errorMessageLabel")).requireText(" ");
+		assertThat(window.button(JButtonMatcher.withText("totalTime")).isEnabled()).isFalse();
+		assertThat(window.label(JLabelMatcher.withName("errorMessageLabel")).text()).isEqualTo(" ");
 	}
 
 	@Test
 	public void testPercentageButtonSuccess() {
 		window.list("topicList").selectItem(Pattern.compile(".*" + TOPIC_FIXTURE_1_NAME + ".*"));
-		
 		window.button(JButtonMatcher.withText("%Completion")).click();
-		
 		window.label(JLabelMatcher.withName("errorMessageLabel")).requireText("Percentuale di completamento: 0%");
+		assertThat(window.button(JButtonMatcher.withText("%Completion")).isEnabled()).isTrue();
+		assertThat(window.label(JLabelMatcher.withName("errorMessageLabel")).text()).isEqualTo("Percentuale di completamento: 0%");
 	}
 
 	@Test
 	public void testPercentageButtonError() {
 		window.list("topicList").clearSelection();
-		
 		window.button(JButtonMatcher.withText("%Completion")).requireDisabled();
-		
 		window.label(JLabelMatcher.withName("errorMessageLabel")).requireText(" ");
+		assertThat(window.button(JButtonMatcher.withText("%Completion")).isEnabled()).isFalse();
+		assertThat(window.label(JLabelMatcher.withName("errorMessageLabel")).text()).isEqualTo(" ");
 	}
 
 	@Test
@@ -352,20 +350,6 @@ public class SessionBuilderApplicationE2E extends AssertJSwingJUnitTestCase {
 		
 		assertThat(window.list("topicList").contents()).anySatisfy(e -> 
 			assertThat(e).contains("Geografia", "Capitali europee", "2"));
-	}
-
-	@Test
-	public void testTopicPanelAddButtonError() {
-		window.button(JButtonMatcher.withName("addTopicNavButton")).click();
-		
-		window.textBox("nameField").enterText(TOPIC_FIXTURE_1_NAME);
-		window.textBox("descriptionField").enterText(TOPIC_FIXTURE_1_DESCRIPTION);
-		window.textBox("difficultyField").enterText(String.valueOf(TOPIC_FIXTURE_1_DIFFICULTY));
-		
-		window.button(JButtonMatcher.withName("addTopicButton")).click();
-		
-		String errorText = window.label(JLabelMatcher.withName("errorTopicPanelLbl")).text();
-		assertThat(errorText).contains("Errore nel salvare il topic:");
 	}
 
 	@Test

@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -23,6 +26,8 @@ import picocli.CommandLine.Option;
 	description = "Study Session Builder - Gestione sessioni di studio"
 )
 public class SessionBuilderApplication implements Callable<Integer> {
+	
+	private static final Logger logger = LogManager.getLogger(SessionBuilderApplication.class);
 
 	@Option(names = {"--postgres-host"}, description = "PostgreSQL host (default: ${DEFAULT-VALUE})", defaultValue = "localhost")
 	private String postgresHost;
@@ -68,7 +73,7 @@ public class SessionBuilderApplication implements Callable<Integer> {
 				properties.put("hibernate.cache.use_second_level_cache", "false");
 				properties.put("hibernate.cache.use_query_cache", "false");
 				
-				System.out.println("Connessione a: " + jdbcUrl);
+				logger.info("Database: {}", jdbcUrl);
 				
 				EntityManagerFactory emf = Persistence.createEntityManagerFactory(persistenceUnit, properties);
 				
@@ -98,11 +103,11 @@ public class SessionBuilderApplication implements Callable<Integer> {
 				
 				frame.setVisible(true);
 				
-				System.out.println("SessionBuilder avviato con successo!");
-				System.out.println("Database: " + jdbcUrl);
+				logger.info("SessionBuilder avviato con successo!");
+				logger.info("Database: {}", jdbcUrl);
 				
 			} catch (Exception e) {
-				System.err.println("Errore durante l'avvio dell'applicazione: " + e.getMessage());
+				logger.error("Errore durante l'avvio dell'applicazione: {}", e.getMessage(), e);
 				System.exit(1);
 			}
 		});

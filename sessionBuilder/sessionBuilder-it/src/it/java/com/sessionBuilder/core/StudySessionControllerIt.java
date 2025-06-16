@@ -97,7 +97,7 @@ public class StudySessionControllerIt {
 		verify(viewCallback).onSessionAdded(session);
 		verify(viewCallback, never()).onSessionError(anyString());
 		assertThat(session).isNotNull();
-		assertThat(session.getId()).isGreaterThan(0);
+		assertThat(session.getId()).isPositive();
 		assertThat(session.getDate()).isEqualTo(LocalDate.now().plusDays(1));
 		assertThat(session.getDuration()).isEqualTo(90);
 		assertThat(session.getNote()).isEqualTo("sessione di algebra");
@@ -116,8 +116,7 @@ public class StudySessionControllerIt {
 		
 		StudySession retrievedSession = sessionController.handleGetSession(createdSession.getId());
 		
-		assertThat(retrievedSession).isNotNull();
-		assertThat(retrievedSession).isEqualTo(createdSession);
+		assertThat(retrievedSession).isNotNull().isEqualTo(createdSession);
 		assertThat(retrievedSession.getNote()).isEqualTo("studio genetica");
 		verify(viewCallback, never()).onSessionError(anyString());
 	}
@@ -129,9 +128,10 @@ public class StudySessionControllerIt {
 		ArrayList<Topic> topics = new ArrayList<>(List.of(topic));
 		StudySession session = sessionService.createSession(
 			LocalDate.now().plusDays(1), 60, "sessione di etica", topics);
-		sessionController.handleDeleteSession(session.getId());
+		long sessionId = session.getId();
+		sessionController.handleDeleteSession(sessionId);
 		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, 
-			() -> sessionService.getSessionById(session.getId()));
+			() -> sessionService.getSessionById(sessionId));
 		assertThat(exception.getMessage()).contains("la sessione cercata non esiste");
 		verify(viewCallback).onSessionRemoved(session);
 		verify(viewCallback, never()).onSessionError(anyString());
@@ -210,20 +210,21 @@ public class StudySessionControllerIt {
 		topicRepository.save(topic2);
 		StudySession session = sessionController.handleCreateSession(
 			LocalDate.now().plusDays(1), 150, "sessione algoritmi e calcolo", new ArrayList<>(List.of(topic1)));
-		sessionController.handleAddTopic(session.getId(), topic2.getId());
-		StudySession sessionWithBothTopics = sessionController.handleGetSession(session.getId());
+		long sessionId = session.getId();
+		sessionController.handleAddTopic(sessionId, topic2.getId());
+		StudySession sessionWithBothTopics = sessionController.handleGetSession(sessionId);
 		assertThat(sessionWithBothTopics.getTopicList()).hasSize(2);
 		assertThat(sessionWithBothTopics.getTopicList()).contains(topic1, topic2);
-		sessionController.handleCompleteSession(session.getId());
-		StudySession completedSession = sessionController.handleGetSession(session.getId());
+		sessionController.handleCompleteSession(sessionId);
+		StudySession completedSession = sessionController.handleGetSession(sessionId);
 		assertThat(completedSession.isComplete()).isTrue();
-		sessionController.handleRemoveTopic(session.getId(), topic2.getId());
-		StudySession sessionWithOneTopic = sessionController.handleGetSession(session.getId());
+		sessionController.handleRemoveTopic(sessionId, topic2.getId());
+		StudySession sessionWithOneTopic = sessionController.handleGetSession(sessionId);
 		assertThat(sessionWithOneTopic.getTopicList()).hasSize(1);
 		assertThat(sessionWithOneTopic.getTopicList()).contains(topic1);
-		sessionController.handleDeleteSession(session.getId());
+		sessionController.handleDeleteSession(sessionId);
 		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, 
-			() -> sessionController.handleGetSession(session.getId()));
+			() -> sessionController.handleGetSession(sessionId));
 		assertThat(exception.getMessage()).contains("la sessione cercata non esiste");
 	}
 

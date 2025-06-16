@@ -1,8 +1,6 @@
 package com.sessionBuilder.core;
 
-import java.util.ArrayList;
-
-
+import java.util.List;
 import com.google.inject.Inject;
 
 public class TopicController {
@@ -13,6 +11,8 @@ public class TopicController {
 	@Inject
 	private TopicViewCallback viewCallback;
 	
+	private static final String TOPIC_NOT_FOUND = "Topic non trovato: ";
+	
 	public void setViewCallback(TopicViewCallback callback) {
 		this.viewCallback = callback;
 	}
@@ -22,13 +22,13 @@ public class TopicController {
 			return service.getTopicById(topicId);
 		} catch(Exception e) {
 			if(viewCallback != null) {
-				viewCallback.onTopicError("Topic non trovato: " + e.getMessage());
+				viewCallback.onTopicError(TOPIC_NOT_FOUND + e.getMessage());
 			}
 			throw e;
 		}
 	}
 
-	public Topic handleCreateTopic(String name, String description, int difficulty, ArrayList<StudySession> sessionList) {
+	public Topic handleCreateTopic(String name, String description, int difficulty, List<StudySession> sessionList) {
 		try {
 			Topic topic = service.createTopic(name, description, difficulty, sessionList);
 			if (viewCallback != null) {
@@ -37,7 +37,7 @@ public class TopicController {
 			return topic;
 		} catch(Exception e) {
 			if(viewCallback != null) {
-				viewCallback.onTopicError("Topic non trovato: " + e.getMessage());
+				viewCallback.onTopicError(TOPIC_NOT_FOUND + e.getMessage());
 			}
 			throw e;
 		}
@@ -53,7 +53,7 @@ public class TopicController {
 			}
 		} catch(Exception e) {
 			if(viewCallback != null) {
-				viewCallback.onTopicError("Topic non trovato: " + e.getMessage());
+				viewCallback.onTopicError(TOPIC_NOT_FOUND + e.getMessage());
 			}
 		}
 		
@@ -64,7 +64,7 @@ public class TopicController {
 			service.addSessionToTopic(topicId, sessionId);
 		} catch(Exception e) {
 			if(viewCallback != null) {
-				viewCallback.onTopicError("Topic non trovato: " + e.getMessage());
+				viewCallback.onTopicError(TOPIC_NOT_FOUND + e.getMessage());
 			}
 		}
 	}
@@ -88,7 +88,7 @@ public class TopicController {
 			return totalTime;
 		} catch(Exception e) {
 			if(viewCallback != null) {
-				viewCallback.onTopicError("Topic non trovato: " + e.getMessage());
+				viewCallback.onTopicError(TOPIC_NOT_FOUND + e.getMessage());
 			}
 			throw e;
 		}
@@ -103,7 +103,7 @@ public class TopicController {
 			return percentage;
 		} catch(Exception e) {
 			if(viewCallback != null) {
-				viewCallback.onTopicError("Topic non trovato: " + e.getMessage());
+				viewCallback.onTopicError(TOPIC_NOT_FOUND + e.getMessage());
 			}
 			throw e;
 		}

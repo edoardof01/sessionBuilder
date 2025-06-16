@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import javax.annotation.processing.Generated;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -26,12 +24,11 @@ public class StudySession {
 	private String note;
 	
 	@ManyToMany(mappedBy="sessionList")
-	private List<Topic> topicList = new ArrayList<Topic>();
+	private List<Topic> topicList = new ArrayList<>();
 	
 	private boolean isComplete;
-	
 
-	public StudySession(LocalDate date, int duration, String note, ArrayList<Topic> topicList) {
+	public StudySession(LocalDate date, int duration, String note, List<Topic> topicList) {
 		if(date == null) throw new IllegalArgumentException("la date non può essere null");
 		if(date.isBefore(LocalDate.now())) throw new IllegalArgumentException("la date non può essere nel passato");
 		this.date = date;

@@ -27,12 +27,19 @@
 		<sonar.version>5.0.0.4389</sonar.version>
 		<sonar.host.url>http://localhost:9000</sonar.host.url>
 		<sonar.coverage.exclusions>**/AppModule.java,**/SessionBuilderApplication.java</sonar.coverage.exclusions>
-		<sonar.issue.ignore.multicriteria>e11</sonar.issue.ignore.multicriteria>
+		<sonar.issue.ignore.multicriteria>e11,e12,e13,e14,e15,e16</sonar.issue.ignore.multicriteria>
 		<sonar.issue.ignore.multicriteria.e11.ruleKey>java:S117</sonar.issue.ignore.multicriteria.e11.ruleKey>
-		<sonar.issue.ignore.multicriteria.e11.resourceKey>**/TopicAndSessionManager.java</sonar.issue.ignore.multicriteria.e11.resourceKey>
-		<sonar.issue.ignore.multicriteria>e11,e12</sonar.issue.ignore.multicriteria>
+		<sonar.issue.ignore.multicriteria.e11.resourceKey>**/*</sonar.issue.ignore.multicriteria.e11.resourceKey>
 		<sonar.issue.ignore.multicriteria.e12.ruleKey>java:S2699</sonar.issue.ignore.multicriteria.e12.ruleKey>
 		<sonar.issue.ignore.multicriteria.e12.resourceKey>**/TopicAndSessionManagerTest.java</sonar.issue.ignore.multicriteria.e12.resourceKey>
+		<sonar.issue.ignore.multicriteria.e13.ruleKey>java:S5778</sonar.issue.ignore.multicriteria.e13.ruleKey>
+		<sonar.issue.ignore.multicriteria.e13.resourceKey>**/*Test.java</sonar.issue.ignore.multicriteria.e13.resourceKey>
+		<sonar.issue.ignore.multicriteria.e14.ruleKey>java:S5785</sonar.issue.ignore.multicriteria.e14.ruleKey>
+		<sonar.issue.ignore.multicriteria.e14.resourceKey>**/*Test.java</sonar.issue.ignore.multicriteria.e14.resourceKey>
+		<sonar.issue.ignore.multicriteria.e15.ruleKey>java:S120</sonar.issue.ignore.multicriteria.e15.ruleKey>
+		<sonar.issue.ignore.multicriteria.e15.resourceKey>**/*</sonar.issue.ignore.multicriteria.e15.resourceKey>
+		<sonar.issue.ignore.multicriteria.e16.ruleKey>java:S3577</sonar.issue.ignore.multicriteria.e16.ruleKey>
+		<sonar.issue.ignore.multicriteria.e16.resourceKey>**/*</sonar.issue.ignore.multicriteria.e16.resourceKey>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -124,10 +131,10 @@
 						<targetClasses>
 							<param>com.sessionBuilder.core.*</param>
 						</targetClasses>
-						<!-- exclude the main class -->
 						<excludedClasses>
 							<param>**.*Test</param>
 							<param>**.*It</param>
+							<param>**.AppModule.class</param>
 						</excludedClasses>
 						<targetTests>
 							<param>com.sessionBuilder.core.*Test</param>

@@ -7,6 +7,17 @@
   </parent>
   <artifactId>sessionBuilder-it</artifactId>
   
+  <dependencyManagement>
+  	<dependencies>
+  		<dependency>
+  			<groupId>com.sessionBuilder</groupId>
+  			<artifactId>sessionBuilder-bom</artifactId>
+  			<version>0.0.1-SNAPSHOT</version>
+  			<scope>import</scope>
+			<type>pom</type>
+  		</dependency>
+  	</dependencies>
+  </dependencyManagement>
   <dependencies>
   	<dependency>
   		<groupId>org.testcontainers</groupId>
@@ -27,14 +38,12 @@
 		<artifactId>hibernate-core</artifactId>
 	</dependency>
   	<dependency>
-  		<groupId>com.sessionBuilder</groupId>
+  		<groupId>${project.groupId}</groupId>
   		<artifactId>sessionBuilder-core</artifactId>
-  		<version>0.0.1-SNAPSHOT</version>
   	</dependency>
   	<dependency>
-  		<groupId>com.sessionBuilder</groupId>
+  		<groupId>${project.groupId}</groupId>
   		<artifactId>sessionBuilder-swing</artifactId>
-  		<version>0.0.1-SNAPSHOT</version>
   	</dependency>
   	<dependency>
   		<groupId>org.assertj</groupId>

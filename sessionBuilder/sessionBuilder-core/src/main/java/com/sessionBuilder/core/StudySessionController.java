@@ -1,8 +1,7 @@
 package com.sessionBuilder.core;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-
+import java.util.List;
 
 import com.google.inject.Inject;
 
@@ -14,8 +13,10 @@ public class StudySessionController {
 	@Inject
 	private SessionViewCallback viewCallBack;
 	
+	private static final String STRING_ERROR = "Error: ";
+	
 
-	public StudySession handleCreateSession(LocalDate date, int duration, String note, ArrayList<Topic> topics) {
+	public StudySession handleCreateSession(LocalDate date, int duration, String note, List<Topic> topics) {
 		try {
 			StudySession session = service.createSession(date, duration, note, topics);
 			if (viewCallBack != null) {
@@ -24,7 +25,7 @@ public class StudySessionController {
 			return session;
 		} catch(Exception e) {
 			if (viewCallBack != null) {
-				viewCallBack.onSessionError("Errore: " + e.getMessage());
+				viewCallBack.onSessionError(STRING_ERROR + e.getMessage());
 			}
 			throw e;
 		}	
@@ -35,7 +36,7 @@ public class StudySessionController {
 			return service.getSessionById(sessionId);
 		} catch(Exception e) {
 			if (viewCallBack != null) {
-				viewCallBack.onSessionError("Errore: " + e.getMessage());
+				viewCallBack.onSessionError(STRING_ERROR + e.getMessage());
 			}
 			throw e;
 		}
@@ -47,7 +48,7 @@ public class StudySessionController {
 			service.addTopic(sessionId, topicId);
 		}catch(Exception e) {
 			if (viewCallBack != null) {
-				viewCallBack.onSessionError("Errore: " + e.getMessage());
+				viewCallBack.onSessionError(STRING_ERROR + e.getMessage());
 			}
 		}
 	}
@@ -57,7 +58,7 @@ public class StudySessionController {
 			service.removeTopic(sessionId, topicId);
 		}catch(Exception e) {
 			if (viewCallBack != null) {
-				viewCallBack.onSessionError("Errore: " + e.getMessage());
+				viewCallBack.onSessionError(STRING_ERROR + e.getMessage());
 			}
 		}
 		
@@ -68,7 +69,7 @@ public class StudySessionController {
 			service.completeSession(sessionId);
 		}catch (Exception e){
 			if(viewCallBack != null) {
-				viewCallBack.onSessionError("Errore: " + e.getMessage());
+				viewCallBack.onSessionError(STRING_ERROR + e.getMessage());
 			}
 		}
 	}
@@ -83,7 +84,7 @@ public class StudySessionController {
 			}
 		} catch(Exception e) {
 			if(viewCallBack != null) {
-				viewCallBack.onSessionError("Errore: " + e.getMessage());
+				viewCallBack.onSessionError(STRING_ERROR + e.getMessage());
 			}
 		}
 		

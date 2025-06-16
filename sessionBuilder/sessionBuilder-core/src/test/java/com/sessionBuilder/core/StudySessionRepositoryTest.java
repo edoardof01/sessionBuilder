@@ -59,7 +59,7 @@ public class StudySessionRepositoryTest {
 	public void testSaveSuccess() {
 		sessionRepository.save(session);
 		assertThat(session).isNotNull();
-		assertThat(session.getId()).isGreaterThan(0);
+		assertThat(session.getId()).isPositive();
 		verify(em, times(1)).persist(session);
 	}
 	

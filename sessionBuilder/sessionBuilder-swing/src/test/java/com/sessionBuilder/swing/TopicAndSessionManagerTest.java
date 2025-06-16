@@ -84,16 +84,19 @@ public class TopicAndSessionManagerTest extends AssertJSwingJUnitTestCase {
 	}
 	
 	
-	@Test 
+	@Test
 	public void testControlsInitialStates() {
 		window.label(JLabelMatcher.withName("topicLabel"));
 		window.label(JLabelMatcher.withName("sessionLabel"));
 		window.button(JButtonMatcher.withName("completeSessionButton")).requireDisabled();
 		window.button(JButtonMatcher.withName("deleteSessionButton")).requireDisabled();
 		window.button(JButtonMatcher.withName("deleteTopicButton")).requireDisabled();
+		assertThat(window.button(JButtonMatcher.withName("completeSessionButton")).isEnabled()).isFalse();
+		assertThat(window.button(JButtonMatcher.withName("deleteSessionButton")).isEnabled()).isFalse();
+		assertThat(window.button(JButtonMatcher.withName("deleteTopicButton")).isEnabled()).isFalse();
 	}
-	
-	@Test 
+
+	@Test
 	public void testButtonsShouldBeEnabledOnlyWhenAnObjectIsSelected() {
 		GuiActionRunner.execute(() -> {
 			managerView.showMainView();
@@ -118,6 +121,11 @@ public class TopicAndSessionManagerTest extends AssertJSwingJUnitTestCase {
 		totalTimeButton.requireEnabled();
 		JButtonFixture percentageButton = window.button(JButtonMatcher.withText("%Completion"));
 		percentageButton.requireEnabled();
+		assertThat(deleteTopicButton.isEnabled()).isTrue();
+		assertThat(deleteSessionButton.isEnabled()).isTrue();
+		assertThat(completeButton.isEnabled()).isTrue();
+		assertThat(totalTimeButton.isEnabled()).isTrue();
+		assertThat(percentageButton.isEnabled()).isTrue();
 		robot().waitForIdle();
 		window.list("topicList").clearSelection();
 		window.list("sessionList").clearSelection();
@@ -127,6 +135,11 @@ public class TopicAndSessionManagerTest extends AssertJSwingJUnitTestCase {
 		completeButton.requireDisabled();
 		totalTimeButton.requireDisabled();
 		percentageButton.requireDisabled();
+		assertThat(deleteTopicButton.isEnabled()).isFalse();
+		assertThat(deleteSessionButton.isEnabled()).isFalse();
+		assertThat(completeButton.isEnabled()).isFalse();
+		assertThat(totalTimeButton.isEnabled()).isFalse();
+		assertThat(percentageButton.isEnabled()).isFalse();
 	}
 	
 	
@@ -156,8 +169,10 @@ public class TopicAndSessionManagerTest extends AssertJSwingJUnitTestCase {
 		window.list("sessionList").clearSelection();
 		window.button(JButtonMatcher.withName("completeSessionButton")).click();
 		robot().waitForIdle();
+		assertThat(window.list("sessionList").selection()).isEmpty();
+		assertThat(window.button(JButtonMatcher.withName("completeSessionButton")).isEnabled()).isFalse();
 	}
-	
+
 	@Test
 	public void testCompleteSessionButtonWithSelectionButNullController() {
 		GuiActionRunner.execute(() -> {
@@ -168,9 +183,11 @@ public class TopicAndSessionManagerTest extends AssertJSwingJUnitTestCase {
 		window.list("sessionList").selectItem(0);
 		window.button(JButtonMatcher.withName("completeSessionButton")).click();
 		robot().waitForIdle();
+		assertThat(window.list("sessionList").selection()).hasSize(1);
+		assertThat(managerView.getSessionController()).isNull();
 	}
-	
-	@Test 
+
+	@Test
 	public void testCompleteButtonShoudBeDisabledIfSessionSelectedIsCompleted() {
 		session1.setIsComplete(true);
 		GuiActionRunner.execute(() -> {
@@ -185,10 +202,12 @@ public class TopicAndSessionManagerTest extends AssertJSwingJUnitTestCase {
 		if(session1.isComplete() == true) {
 			JButtonFixture completeButton = window.button(JButtonMatcher.withName("completeSessionButton"));
 			completeButton.requireDisabled();
+			assertThat(completeButton.isEnabled()).isFalse();
 		}
+		assertThat(session1.isComplete()).isTrue();
 	}
-	
-	@Test 
+
+	@Test
 	public void testSessionShowTheMessageInTheErrorLabel() {
 		GuiActionRunner.execute(() -> {
 			managerView.showMainView();
@@ -196,10 +215,11 @@ public class TopicAndSessionManagerTest extends AssertJSwingJUnitTestCase {
 		});
 		robot().waitForIdle();
 		window.label("errorMessageLabel").requireText("error message: "+ session2);
+		assertThat(window.label("errorMessageLabel").text()).isEqualTo("error message: "+ session2);
 		robot().waitForIdle();
 	}
-	
-	@Test 
+
+	@Test
 	public void testTopicShowTheMessageInTheErrorLabel() {
 		GuiActionRunner.execute(() -> {
 			managerView.showMainView();
@@ -207,6 +227,7 @@ public class TopicAndSessionManagerTest extends AssertJSwingJUnitTestCase {
 		});
 		robot().waitForIdle();
 		window.label("errorMessageLabel").requireText("error message: "+ topic2);
+		assertThat(window.label("errorMessageLabel").text()).isEqualTo("error message: "+ topic2);
 		robot().waitForIdle();
 	}
 	
@@ -326,8 +347,11 @@ public class TopicAndSessionManagerTest extends AssertJSwingJUnitTestCase {
 		window.list("topicList").clearSelection();
 		window.button(JButtonMatcher.withName("deleteTopicButton")).click();
 		robot().waitForIdle();
+		assertThat(window.list("topicList").selection()).isEmpty();
+		assertThat(window.button(JButtonMatcher.withName("deleteTopicButton")).isEnabled()).isFalse();
+		assertThat(managerView.getTopicModel().getSize()).isEqualTo(1);
 	}
-	
+
 	@Test
 	public void testDeleteTopicButtonWithNullController() {
 		GuiActionRunner.execute(() -> {
@@ -338,6 +362,9 @@ public class TopicAndSessionManagerTest extends AssertJSwingJUnitTestCase {
 		window.list("topicList").selectItem(0);
 		window.button(JButtonMatcher.withName("deleteTopicButton")).click();
 		robot().waitForIdle();
+		assertThat(window.list("topicList").selection()).hasSize(1);
+		assertThat(managerView.getTopicController()).isNull();
+		assertThat(managerView.getTopicModel().getSize()).isEqualTo(1);
 	}
 	
 	@Test
@@ -379,8 +406,11 @@ public class TopicAndSessionManagerTest extends AssertJSwingJUnitTestCase {
 		window.list("sessionList").clearSelection();
 		window.button(JButtonMatcher.withName("deleteSessionButton")).click();
 		robot().waitForIdle();
+		assertThat(window.list("sessionList").selection()).isEmpty();
+		assertThat(window.button(JButtonMatcher.withName("deleteSessionButton")).isEnabled()).isFalse();
+		assertThat(managerView.getStudySessionModel().getSize()).isEqualTo(1);
 	}
-	
+
 	@Test
 	public void testDeleteSessionButtonWithSelectionButNullController() {
 		GuiActionRunner.execute(() -> {
@@ -391,6 +421,9 @@ public class TopicAndSessionManagerTest extends AssertJSwingJUnitTestCase {
 		window.list("sessionList").selectItem(0);
 		window.button(JButtonMatcher.withName("deleteSessionButton")).click();
 		robot().waitForIdle();
+		assertThat(window.list("sessionList").selection()).hasSize(1);
+		assertThat(managerView.getSessionController()).isNull();
+		assertThat(managerView.getStudySessionModel().getSize()).isEqualTo(1);
 	}
 	
 	@Test
@@ -449,8 +482,11 @@ public class TopicAndSessionManagerTest extends AssertJSwingJUnitTestCase {
 		window.list("topicList").clearSelection();
 		window.button(JButtonMatcher.withText("totalTime")).click();
 		robot().waitForIdle();
+		assertThat(window.list("topicList").selection()).isEmpty();
+		assertThat(window.button(JButtonMatcher.withText("totalTime")).isEnabled()).isFalse();
+		assertThat(managerView.getTopicModel().getSize()).isEqualTo(1);
 	}
-	
+
 	@Test
 	public void testTotalTimeButtonWithSelectionButNullController() {
 		GuiActionRunner.execute(() -> {
@@ -461,8 +497,11 @@ public class TopicAndSessionManagerTest extends AssertJSwingJUnitTestCase {
 		window.list("topicList").selectItem(0);
 		window.button(JButtonMatcher.withText("totalTime")).click();
 		robot().waitForIdle();
+		assertThat(window.list("topicList").selection()).hasSize(1);
+		assertThat(managerView.getTopicController()).isNull();
+		assertThat(managerView.getTopicModel().getSize()).isEqualTo(1);
 	}
-	
+
 	@Test
 	public void testTotalTimeButtonResetError() {
 		topic1.setSessions(new ArrayList<>(List.of(session1, session2)));
@@ -477,6 +516,8 @@ public class TopicAndSessionManagerTest extends AssertJSwingJUnitTestCase {
 		robot().waitForIdle();
 		window.button(JButtonMatcher.withText("totalTime")).click();
 		window.label("errorMessageLabel").requireText(" ");
+		assertThat(window.label("errorMessageLabel").text()).isEqualTo(" ");
+		assertThat(topic1.totalTime()).isEqualTo(150);
 		robot().waitForIdle();
 	}
 		
@@ -512,6 +553,8 @@ public class TopicAndSessionManagerTest extends AssertJSwingJUnitTestCase {
 		robot().waitForIdle();
 		window.button(JButtonMatcher.withText("%Completion")).click();
 		window.label("errorMessageLabel").requireText(" ");
+		assertThat(window.label("errorMessageLabel").text()).isEqualTo(" ");
+		assertThat(topic1.percentageOfCompletion()).isZero();
 		robot().waitForIdle();
 	}
 
@@ -541,8 +584,11 @@ public class TopicAndSessionManagerTest extends AssertJSwingJUnitTestCase {
 		window.list("topicList").clearSelection();
 		window.button(JButtonMatcher.withText("%Completion")).click();
 		robot().waitForIdle();
+		assertThat(window.list("topicList").selection()).isEmpty();
+		assertThat(window.button(JButtonMatcher.withText("%Completion")).isEnabled()).isFalse();
+		assertThat(managerView.getTopicModel().getSize()).isEqualTo(1);
 	}
-	
+
 	@Test
 	public void testPercentageButtonWithSelectionButNullController() {
 		GuiActionRunner.execute(() -> {
@@ -553,6 +599,9 @@ public class TopicAndSessionManagerTest extends AssertJSwingJUnitTestCase {
 		window.list("topicList").selectItem(0);
 		window.button(JButtonMatcher.withText("%Completion")).click();
 		robot().waitForIdle();
+		assertThat(window.list("topicList").selection()).hasSize(1);
+		assertThat(managerView.getTopicController()).isNull();
+		assertThat(managerView.getTopicModel().getSize()).isEqualTo(1);
 	}
 	
 	@Test
@@ -577,7 +626,7 @@ public class TopicAndSessionManagerTest extends AssertJSwingJUnitTestCase {
 		});
 		
 		assertThat(managerView.getTopicModel().contains(topic)).isFalse();
-		assertThat(managerView.getTopicModel().size()).isEqualTo(0);
+		assertThat(managerView.getTopicModel().size()).isZero();
 	}
 
 	@Test
@@ -587,6 +636,7 @@ public class TopicAndSessionManagerTest extends AssertJSwingJUnitTestCase {
 			managerView.onTopicError(errorMessage);
 		});
 		window.label("errorMessageLabel").requireText(errorMessage);
+		assertThat(window.label("errorMessageLabel").text()).isEqualTo(errorMessage);
 	}
 
 	@Test
@@ -596,6 +646,7 @@ public class TopicAndSessionManagerTest extends AssertJSwingJUnitTestCase {
 			managerView.onTotalTimeCalculated(totalTime);
 		});
 		window.label("errorMessageLabel").requireText("Tempo totale: 120 minuti");
+		assertThat(window.label("errorMessageLabel").text()).isEqualTo("Tempo totale: 120 minuti");
 	}
 
 	@Test
@@ -605,6 +656,7 @@ public class TopicAndSessionManagerTest extends AssertJSwingJUnitTestCase {
 			managerView.onPercentageCalculated(percentage);
 		});
 		window.label("errorMessageLabel").requireText("Percentuale di completamento: 75%");
+		assertThat(window.label("errorMessageLabel").text()).isEqualTo("Percentuale di completamento: 75%");
 	}
 
 	@Test
@@ -615,6 +667,8 @@ public class TopicAndSessionManagerTest extends AssertJSwingJUnitTestCase {
 			managerView.onTopicAdded(topic);
 		});
 		window.label("errorMessageLabel").requireText(" ");
+		assertThat(window.label("errorMessageLabel").text()).isEqualTo(" ");
+		assertThat(managerView.getTopicModel().contains(topic)).isTrue();
 	}
 
 	@Test
@@ -626,6 +680,8 @@ public class TopicAndSessionManagerTest extends AssertJSwingJUnitTestCase {
 			managerView.onTopicRemoved(topic);
 		});
 		window.label("errorMessageLabel").requireText(" ");
+		assertThat(window.label("errorMessageLabel").text()).isEqualTo(" ");
+		assertThat(managerView.getTopicModel().contains(topic)).isFalse();
 	}
 
 	@Test
@@ -656,8 +712,11 @@ public class TopicAndSessionManagerTest extends AssertJSwingJUnitTestCase {
 		window.button(JButtonMatcher.withText("totalTime")).click();
 		window.button(JButtonMatcher.withText("%Completion")).click();
 		robot().waitForIdle();
+		assertThat(managerView.getTopicController()).isNull();
+		assertThat(managerView.getTopicModel().getSize()).isEqualTo(1);
+		assertThat(window.list("topicList").selection()).hasSize(1);
 	}
-	
+
 	@Test
 	public void testButtonsWithNullSessionController() {
 		GuiActionRunner.execute(() -> {
@@ -668,6 +727,9 @@ public class TopicAndSessionManagerTest extends AssertJSwingJUnitTestCase {
 		window.button(JButtonMatcher.withName("deleteSessionButton")).click();
 		window.button(JButtonMatcher.withName("completeSessionButton")).click();
 		robot().waitForIdle();
+		assertThat(managerView.getSessionController()).isNull();
+		assertThat(managerView.getStudySessionModel().getSize()).isEqualTo(1);
+		assertThat(window.list("sessionList").selection()).hasSize(1);
 	}
 	
 	@Test
@@ -706,7 +768,7 @@ public class TopicAndSessionManagerTest extends AssertJSwingJUnitTestCase {
 			managerView.onSessionRemoved(session);
 		});
 		assertThat(managerView.getStudySessionModel().contains(session)).isFalse();
-		assertThat(managerView.getStudySessionModel().size()).isEqualTo(0);
+		assertThat(managerView.getStudySessionModel().size()).isZero();
 	}
 
 	@Test
@@ -716,6 +778,7 @@ public class TopicAndSessionManagerTest extends AssertJSwingJUnitTestCase {
 			managerView.onSessionError(errorMessage);
 		});
 		window.label("errorMessageLabel").requireText(errorMessage);
+		assertThat(window.label("errorMessageLabel").text()).isEqualTo(errorMessage);
 	}
 
 	@Test
@@ -726,18 +789,22 @@ public class TopicAndSessionManagerTest extends AssertJSwingJUnitTestCase {
 			managerView.onSessionAdded(session);
 		});
 		window.label("errorMessageLabel").requireText(" ");
+		assertThat(window.label("errorMessageLabel").text()).isEqualTo(" ");
+		assertThat(managerView.getStudySessionModel().contains(session)).isTrue();
 	}
 
 	@Test
 	public void testOnSessionRemovedResetsErrorLabel() {
 		StudySession session = new StudySession(LocalDate.now().plusDays(1), 60, "test note", new ArrayList<>());
-		
+
 		GuiActionRunner.execute(() -> {
 			managerView.getStudySessionModel().addElement(session);
 			managerView.showGeneralError("Previous error");
 			managerView.onSessionRemoved(session);
 		});
 		window.label("errorMessageLabel").requireText(" ");
+		assertThat(window.label("errorMessageLabel").text()).isEqualTo(" ");
+		assertThat(managerView.getStudySessionModel().contains(session)).isFalse();
 	}
 
 	@Test
@@ -898,11 +965,6 @@ public class TopicAndSessionManagerTest extends AssertJSwingJUnitTestCase {
 		robot().waitForIdle();
 		verify(topicController, never()).handlePercentageOfCompletion(anyLong());
 	}
-	
-	
-	
-	
-
 	
 
 }

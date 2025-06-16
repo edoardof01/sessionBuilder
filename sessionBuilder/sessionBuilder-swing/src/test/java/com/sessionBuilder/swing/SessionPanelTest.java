@@ -92,7 +92,7 @@ public class SessionPanelTest extends AssertJSwingJUnitTestCase {
 			@Override
 			protected boolean isMatching(JDateChooser component) {
 				return "dateChooser".equals(component.getName());
-			};
+			}
 		};
 		Component dateChooser = robot().finder().find(matcher);
 		assertThat(dateChooser).isNotNull();
@@ -102,7 +102,7 @@ public class SessionPanelTest extends AssertJSwingJUnitTestCase {
 		window.button(JButtonMatcher.withName("addSessionButton")).requireDisabled();
 	}
 	
-	@Test
+	@Test @GUITest
 	public void testWhenFieldsAreNotEmptyAddButtonIsEnabled() {
 		GuiActionRunner.execute(() -> {
 			managerView.getSessionPanel().getTopicModel().addElement(topic);
@@ -126,8 +126,9 @@ public class SessionPanelTest extends AssertJSwingJUnitTestCase {
 		robot().waitForIdle();
 		
 		window.button(JButtonMatcher.withName("addSessionButton")).requireEnabled();
+		assertThat(window.button(JButtonMatcher.withName("addSessionButton")).isEnabled()).isTrue();
 	}
-	
+
 	@Test @GUITest
 	public void testTopicSelectionEnablesButton() {
 		setDateChooserValue(date);
@@ -137,67 +138,72 @@ public class SessionPanelTest extends AssertJSwingJUnitTestCase {
 			managerView.getSessionPanel().getTopicModel().addElement(topic);
 		});
 		window.button(JButtonMatcher.withName("addSessionButton")).requireDisabled();
+		assertThat(window.button(JButtonMatcher.withName("addSessionButton")).isEnabled()).isFalse();
 		window.list("sessionPanelTopicList").selectItem(0);
 		robot().waitForIdle();
 		
 		window.button(JButtonMatcher.withName("addSessionButton")).requireEnabled();
+		assertThat(window.button(JButtonMatcher.withName("addSessionButton")).isEnabled()).isTrue();
 	}
-	
+
 	@Test @GUITest
 	public void testDateChangeEnablesButton() {
-	   GuiActionRunner.execute(() -> {
-	   	managerView.getSessionPanel().getTopicModel().addElement(topic);
-	   });
-	   window.textBox("durationField").enterText("60");
-	   window.textBox("noteField").enterText("test");
-	   window.list("sessionPanelTopicList").selectItem(0);
-	   
-	   window.button(JButtonMatcher.withName("addSessionButton")).requireDisabled();
-	   setDateChooserValue(date);
-	   
-	   window.button(JButtonMatcher.withName("addSessionButton")).requireEnabled();
+		GuiActionRunner.execute(() -> {
+			managerView.getSessionPanel().getTopicModel().addElement(topic);
+		});
+		window.textBox("durationField").enterText("60");
+		window.textBox("noteField").enterText("test");
+		window.list("sessionPanelTopicList").selectItem(0);
+		
+		window.button(JButtonMatcher.withName("addSessionButton")).requireDisabled();
+		assertThat(window.button(JButtonMatcher.withName("addSessionButton")).isEnabled()).isFalse();
+		setDateChooserValue(date);
+		
+		window.button(JButtonMatcher.withName("addSessionButton")).requireEnabled();
+		assertThat(window.button(JButtonMatcher.withName("addSessionButton")).isEnabled()).isTrue();
 	}
-	
-	
+
 	@Test @GUITest
 	public void testWhenEitherDurationFieldorNoteFieldAreBlankThenAddButtonShouldBeDisabled() {
-	    JTextComponentFixture durationText = window.textBox("durationField");
-	    JTextComponentFixture noteText = window.textBox("noteField");
-	    GuiActionRunner.execute(() -> {
-	    	managerView.getSessionPanel().getTopicModel().addElement(topic);
+		JTextComponentFixture durationText = window.textBox("durationField");
+		JTextComponentFixture noteText = window.textBox("noteField");
+		GuiActionRunner.execute(() -> {
+			managerView.getSessionPanel().getTopicModel().addElement(topic);
 		});
 
-	    setDateChooserValue(date);
-	    durationText.enterText(String.valueOf(duration));
-	    noteText.enterText("");
-	    window.list("sessionPanelTopicList").selectItem(0);
-	    window.button(JButtonMatcher.withName("addSessionButton")).requireDisabled();
+		setDateChooserValue(date);
+		durationText.enterText(String.valueOf(duration));
+		noteText.enterText("");
+		window.list("sessionPanelTopicList").selectItem(0);
+		window.button(JButtonMatcher.withName("addSessionButton")).requireDisabled();
+		assertThat(window.button(JButtonMatcher.withName("addSessionButton")).isEnabled()).isFalse();
 
-	    durationText.deleteText();
-	    noteText.deleteText();
-	    durationText.enterText("");
-	    noteText.enterText(note);
-	    window.list("sessionPanelTopicList").selectItem(0);
-	    window.button(JButtonMatcher.withName("addSessionButton")).requireDisabled();
-	    
-	    window.list("sessionPanelTopicList").clearSelection();
-	    durationText.enterText("60");
-	    window.button(JButtonMatcher.withName("addSessionButton")).requireDisabled();
-
+		durationText.deleteText();
+		noteText.deleteText();
+		durationText.enterText("");
+		noteText.enterText(note);
+		window.list("sessionPanelTopicList").selectItem(0);
+		window.button(JButtonMatcher.withName("addSessionButton")).requireDisabled();
+		assertThat(window.button(JButtonMatcher.withName("addSessionButton")).isEnabled()).isFalse();
+		
+		window.list("sessionPanelTopicList").clearSelection();
+		durationText.enterText("60");
+		window.button(JButtonMatcher.withName("addSessionButton")).requireDisabled();
+		assertThat(window.button(JButtonMatcher.withName("addSessionButton")).isEnabled()).isFalse();
 	}
 
-	@Test @GUITest 
+	@Test @GUITest
 	public void testWhenDateIsBlankThenAddButtonShouldBeDisabled() {
-	    JTextComponentFixture durationText = window.textBox("durationField");
-	    JTextComponentFixture noteText = window.textBox("noteField");
-	    
-	    durationText.enterText(String.valueOf(duration));
-	    noteText.enterText(note);
-	    clearDateChooser();
-	    window.button(JButtonMatcher.withName("addSessionButton")).requireDisabled();
+		JTextComponentFixture durationText = window.textBox("durationField");
+		JTextComponentFixture noteText = window.textBox("noteField");
+		
+		durationText.enterText(String.valueOf(duration));
+		noteText.enterText(note);
+		clearDateChooser();
+		window.button(JButtonMatcher.withName("addSessionButton")).requireDisabled();
+		assertThat(window.button(JButtonMatcher.withName("addSessionButton")).isEnabled()).isFalse();
 	}
-	
-	
+
 	@Test @GUITest
 	public void testSessionShowTheMessageInTheErrorLabel() {
 		GuiActionRunner.execute(() -> {
@@ -205,8 +211,9 @@ public class SessionPanelTest extends AssertJSwingJUnitTestCase {
 			managerView.getSessionPanel().showSessionError("error message", session);
 		});
 		window.label("sessionErrorMessage").requireText("error message: "+ session);
+		assertThat(window.label("sessionErrorMessage").text()).isEqualTo("error message: "+ session);
 	}
-	
+
 	@Test @GUITest
 	public void testAddButtonDisabledWithoutSelectingATopic() {
 		GuiActionRunner.execute(() -> {
@@ -228,20 +235,22 @@ public class SessionPanelTest extends AssertJSwingJUnitTestCase {
 		});
 		robot().waitForIdle();
 		window.button(JButtonMatcher.withName("addSessionButton")).requireDisabled();
+		assertThat(window.button(JButtonMatcher.withName("addSessionButton")).isEnabled()).isFalse();
 	}
-	
+
 	@Test @GUITest
 	public void testKeyTypingEnablesDisablesButton() {
-	   GuiActionRunner.execute(() -> {
-	   	managerView.getSessionPanel().getTopicModel().addElement(topic);
-	   });
-	   window.textBox("durationField").focus().pressAndReleaseKeys(KeyEvent.VK_6, KeyEvent.VK_0);
-	   window.textBox("noteField").focus().pressAndReleaseKeys(KeyEvent.VK_A);
-	   window.list("sessionPanelTopicList").selectItem(0);
-	   setDateChooserValue(date);
-	   window.button(JButtonMatcher.withName("addSessionButton")).requireEnabled();
+		GuiActionRunner.execute(() -> {
+			managerView.getSessionPanel().getTopicModel().addElement(topic);
+		});
+		window.textBox("durationField").focus().pressAndReleaseKeys(KeyEvent.VK_6, KeyEvent.VK_0);
+		window.textBox("noteField").focus().pressAndReleaseKeys(KeyEvent.VK_A);
+		window.list("sessionPanelTopicList").selectItem(0);
+		setDateChooserValue(date);
+		window.button(JButtonMatcher.withName("addSessionButton")).requireEnabled();
+		assertThat(window.button(JButtonMatcher.withName("addSessionButton")).isEnabled()).isTrue();
 	}
-	
+
 	@Test @GUITest
 	public void testKeyAdapterWithTopicSelection() {
 		GuiActionRunner.execute(() -> {
@@ -253,14 +262,16 @@ public class SessionPanelTest extends AssertJSwingJUnitTestCase {
 		window.textBox("durationField").focus().enterText("6");
 		robot().waitForIdle();
 		window.button(JButtonMatcher.withName("addSessionButton")).requireDisabled();
+		assertThat(window.button(JButtonMatcher.withName("addSessionButton")).isEnabled()).isFalse();
 		
 		window.textBox("durationField").focus().enterText("0");
 		window.textBox("noteField").focus().enterText("a");
 		robot().waitForIdle();
 		
 		window.button(JButtonMatcher.withName("addSessionButton")).requireEnabled();
+		assertThat(window.button(JButtonMatcher.withName("addSessionButton")).isEnabled()).isTrue();
 	}
-	
+
 	@Test @GUITest
 	public void testAddButtonEnabledifClickedShouldResetErrorLabel() {
 		GuiActionRunner.execute(() -> {
@@ -277,6 +288,7 @@ public class SessionPanelTest extends AssertJSwingJUnitTestCase {
 		robot().waitForIdle();
 		window.button(JButtonMatcher.withName("addSessionButton")).click();
 		window.label("sessionErrorMessage").requireText("");
+		assertThat(window.label("sessionErrorMessage").text()).isEmpty();
 	}
 	
 	@Test @GUITest
@@ -309,30 +321,33 @@ public class SessionPanelTest extends AssertJSwingJUnitTestCase {
 		window.textBox("durationField").enterText("60");
 		window.textBox("noteField").enterText("test");
 		window.list("sessionPanelTopicList").selectItem(0);
-		
+
 		window.button(JButtonMatcher.withName("addSessionButton")).click();
-		
+
 		window.label("sessionErrorMessage").requireText("Errore nel salvare la sessione: Test exception");
+		assertThat(window.label("sessionErrorMessage").text()).isEqualTo("Errore nel salvare la sessione: Test exception");
 	}
-	
+
 	@Test @GUITest
 	public void testListSelectionWithAllFieldsFilled() {
 		setDateChooserValue(date);
 		window.textBox("durationField").enterText("60");
 		window.textBox("noteField").enterText("test");
-		
+
 		GuiActionRunner.execute(() -> {
 			managerView.getSessionPanel().getTopicModel().addElement(topic);
 			managerView.getSessionPanel().getTopicModel().addElement(topic);
 		});
-		
+
 		window.list("sessionPanelTopicList").selectItem(0);
 		robot().waitForIdle();
 		window.button(JButtonMatcher.withName("addSessionButton")).requireEnabled();
-		
+		assertThat(window.button(JButtonMatcher.withName("addSessionButton")).isEnabled()).isTrue();
+
 		window.list("sessionPanelTopicList").clearSelection();
 		robot().waitForIdle();
 		window.button(JButtonMatcher.withName("addSessionButton")).requireDisabled();
+		assertThat(window.button(JButtonMatcher.withName("addSessionButton")).isEnabled()).isFalse();
 	}
 	
 	@Test @GUITest
@@ -365,18 +380,20 @@ public class SessionPanelTest extends AssertJSwingJUnitTestCase {
 	@Test @GUITest
 	public void testAddButtonEnabledWhenDateIsSelectedButNoteNotFailure() {
 		JTextComponentFixture durationText = window.textBox("durationField");
-	    JTextComponentFixture noteText = window.textBox("noteField");
-	    GuiActionRunner.execute(() -> {
-	    	managerView.getSessionPanel().getTopicModel().addElement(topic);
+		JTextComponentFixture noteText = window.textBox("noteField");
+		GuiActionRunner.execute(() -> {
+			managerView.getSessionPanel().getTopicModel().addElement(topic);
 		});
-	    durationText.enterText(String.valueOf(duration));
-	    noteText.enterText("");
-	    window.list("sessionPanelTopicList").selectItem(0);
-	    setDateChooserValue(date);
-	    robot().waitForIdle();
-	    window.button(JButtonMatcher.withName("addSessionButton")).requireDisabled();
+		durationText.enterText(String.valueOf(duration));
+		noteText.enterText("");
+		window.list("sessionPanelTopicList").selectItem(0);
+		setDateChooserValue(date);
+		robot().waitForIdle();
+		window.button(JButtonMatcher.withName("addSessionButton")).requireDisabled();
+		assertThat(window.button(JButtonMatcher.withName("addSessionButton")).isEnabled()).isFalse();
+		assertThat(noteText.text()).isEmpty();
 	}
-	
+
 	@Test @GUITest
 	public void testBackSessionButtonWithNullManagerViewDoesNothing() {
 		GuiActionRunner.execute(() -> {
@@ -384,6 +401,7 @@ public class SessionPanelTest extends AssertJSwingJUnitTestCase {
 		});
 		window.button(JButtonMatcher.withName("backSessionButton")).click();
 		robot().waitForIdle();
+		assertThat(window.button(JButtonMatcher.withName("backSessionButton")).isEnabled()).isTrue();
 	}
 	
 	@Test @GUITest
@@ -395,37 +413,33 @@ public class SessionPanelTest extends AssertJSwingJUnitTestCase {
 		});
 	}
 	
-	
-	
 	private void setDateChooserValue(LocalDate localDate) {
-	    GuiActionRunner.execute(() -> {
-	        ComponentMatcher matcher = new GenericTypeMatcher<JDateChooser>(JDateChooser.class) {
-	            @Override
-	            protected boolean isMatching(JDateChooser component) {
-	                return "dateChooser".equals(component.getName());
-	            }
-	        };
-	        JDateChooser dateChooser = (JDateChooser) robot().finder().find(matcher);
-	        Date javaDate = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-	        dateChooser.setDate(javaDate);
-	    });
-	    robot().waitForIdle();
-	    try { Thread.sleep(50); } catch (InterruptedException e) {}
+		GuiActionRunner.execute(() -> {
+			ComponentMatcher matcher = new GenericTypeMatcher<JDateChooser>(JDateChooser.class) {
+				@Override
+				protected boolean isMatching(JDateChooser component) {
+					return "dateChooser".equals(component.getName());
+				}
+			};
+			JDateChooser dateChooser = (JDateChooser) robot().finder().find(matcher);
+			Date javaDate = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+			dateChooser.setDate(javaDate);
+		});
+		robot().waitForIdle();
 	}
 
 	private void clearDateChooser() {
-	    GuiActionRunner.execute(() -> {
-	        ComponentMatcher matcher = new GenericTypeMatcher<JDateChooser>(JDateChooser.class) {
-	            @Override
-	            protected boolean isMatching(JDateChooser component) {
-	                return "dateChooser".equals(component.getName());
-	            }
-	        };
-	        JDateChooser dateChooser = (JDateChooser) robot().finder().find(matcher);
-	        dateChooser.setDate(null);
-	    });
-	    robot().waitForIdle();
-	    try { Thread.sleep(50); } catch (InterruptedException e) {}
+		GuiActionRunner.execute(() -> {
+			ComponentMatcher matcher = new GenericTypeMatcher<JDateChooser>(JDateChooser.class) {
+				@Override
+				protected boolean isMatching(JDateChooser component) {
+					return "dateChooser".equals(component.getName());
+				}
+			};
+			JDateChooser dateChooser = (JDateChooser) robot().finder().find(matcher);
+			dateChooser.setDate(null);
+		});
+		robot().waitForIdle();
 	}
 	
 	

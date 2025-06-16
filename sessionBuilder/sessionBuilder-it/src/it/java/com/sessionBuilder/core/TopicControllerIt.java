@@ -88,11 +88,10 @@ public class TopicControllerIt {
 	@Test
 	public void handleGetTopicByIdItSuccessIt() {
 		Topic topic = topicService.createTopic("chimica", "tavola periodica", 3, new ArrayList<>());
-		assertThat(topic.getId()).isGreaterThan(0);
+		assertThat(topic.getId()).isPositive();
 		assertThat(topicService.getTopicById(topic.getId())).isEqualTo(topic);
 		Topic result = topicController.handleGetTopicById(topic.getId());
-		assertThat(result).isNotNull();
-		assertThat(result).isEqualTo(topic);
+		assertThat(result).isNotNull().isEqualTo(topic);
 	}
 	
 	@Test
@@ -100,7 +99,7 @@ public class TopicControllerIt {
 		Topic topic = topicController.handleCreateTopic("chimica", "tavola periodica", 3, new ArrayList<>());
 		verify(viewCallback).onTopicAdded(topic);
 		assertThat(topic).isNotNull();
-		assertThat(topic.getId()).isGreaterThan(0);
+		assertThat(topic.getId()).isPositive();
 		assertThat(topicService.getTopicById(topic.getId())).isEqualTo(topic);
 	}
 	
@@ -115,7 +114,7 @@ public class TopicControllerIt {
 	public void handleDeleteTopicIt() {
 		Topic topic = topicService.createTopic("chimica", "tavola periodica", 3, new ArrayList<>());
 		assertThat(topic).isNotNull();
-		assertThat(topic.getId()).isGreaterThan(0);
+		assertThat(topic.getId()).isPositive();
 		assertThat(topicService.getTopicById(topic.getId())).isEqualTo(topic);
 		topicController.handleDeleteTopic(topic.getId());
 		assertThat(topicService.getTopicById(topic.getId())).isNull();
@@ -128,15 +127,15 @@ public class TopicControllerIt {
 		Topic topic = topicService.createTopic("chimica", "tavola periodica", 3, new ArrayList<>());
 		Topic topic2 = topicService.createTopic("biologia", "cetacei", 3, new ArrayList<>());
 		assertThat(topic).isNotNull();
-		assertThat(topic.getId()).isGreaterThan(0);
+		assertThat(topic.getId()).isPositive();
 		assertThat(topicService.getTopicById(topic.getId())).isEqualTo(topic);
 		assertThat(topic2).isNotNull();
-		assertThat(topic2.getId()).isGreaterThan(0);
+		assertThat(topic2.getId()).isPositive();
 		assertThat(topicService.getTopicById(topic2.getId())).isEqualTo(topic2);
 		StudySession session = new StudySession(LocalDate.now().plusDays(1), 60, "una nota", new ArrayList<>(List.of(topic)));
 		sessionRepository.save(session);
 		assertThat(sessionRepository.findById(session.getId())).isNotNull();
-		assertThat(session.getId()).isGreaterThan(0);
+		assertThat(session.getId()).isPositive();
 		topicController.handleAddSessionToTopic(topic2.getId(), session.getId());
 		assertThat(topicService.getTopicById(topic2.getId()).getSessionList()).contains(session);
 		verify(viewCallback, never()).onTopicError(anyString());
@@ -146,12 +145,12 @@ public class TopicControllerIt {
 	public void handleRemoveSessionFromTopicIt() {
 		Topic topic = topicService.createTopic("chimica", "tavola periodica", 3, new ArrayList<>());
 		assertThat(topic).isNotNull();
-		assertThat(topic.getId()).isGreaterThan(0);
+		assertThat(topic.getId()).isPositive();
 		assertThat(topicService.getTopicById(topic.getId())).isEqualTo(topic);
 		StudySession session = new StudySession(LocalDate.now().plusDays(1), 60, "una nota", new ArrayList<>(List.of(topic)));
 		sessionRepository.save(session);
 		assertThat(sessionRepository.findById(session.getId())).isNotNull();
-		assertThat(session.getId()).isGreaterThan(0);
+		assertThat(session.getId()).isPositive();
 		topicController.handleRemoveSessionFromTopic(topic.getId(), session.getId());
 		assertThat(topicService.getTopicById(topic.getId()).getSessionList()).doesNotContain(session);
 		assertThat(topicService.getTopicById(topic.getId()).getSessionList()).isEmpty();
@@ -162,15 +161,14 @@ public class TopicControllerIt {
 	public void handleTotalTimeIt() {
 		Topic topic = topicService.createTopic("chimica", "tavola periodica", 3, new ArrayList<>());
 		assertThat(topic).isNotNull();
-		assertThat(topic.getId()).isGreaterThan(0);
+		assertThat(topic.getId()).isPositive();
 		assertThat(topicService.getTopicById(topic.getId())).isEqualTo(topic);
 		StudySession session = new StudySession(LocalDate.now().plusDays(1), 60, "una nota", new ArrayList<>(List.of(topic)));
 		sessionRepository.save(session);
 		assertThat(sessionRepository.findById(session.getId())).isNotNull();
-		assertThat(session.getId()).isGreaterThan(0);
+		assertThat(session.getId()).isPositive();
 		Integer time = topicController.handleTotalTime(topic.getId());
-		assertThat(time).isNotEqualTo(0);
-		assertThat(time).isEqualTo(60);
+		assertThat(time).isNotZero().isEqualTo(60);
 		verify(viewCallback).onTotalTimeCalculated(time);
 	}
 	
@@ -178,20 +176,19 @@ public class TopicControllerIt {
 	public void handlePercentageOfCompletion() {
 		Topic topic = topicService.createTopic("chimica", "tavola periodica", 3, new ArrayList<>());
 		assertThat(topic).isNotNull();
-		assertThat(topic.getId()).isGreaterThan(0);
+		assertThat(topic.getId()).isPositive();
 		assertThat(topicService.getTopicById(topic.getId())).isEqualTo(topic);
 		StudySession session = new StudySession(LocalDate.now().plusDays(1), 60, "una nota", new ArrayList<>(List.of(topic)));
 		sessionRepository.save(session);
 		assertThat(sessionRepository.findById(session.getId())).isNotNull();
-		assertThat(session.getId()).isGreaterThan(0);
+		assertThat(session.getId()).isPositive();
 		StudySession session2 = new StudySession(LocalDate.now().plusDays(2), 60, "un'altra nota", new ArrayList<>(List.of(topic)));
 		session2.complete();
 		sessionRepository.save(session2);
 		assertThat(sessionRepository.findById(session.getId())).isNotNull();
-		assertThat(session.getId()).isGreaterThan(0);
+		assertThat(session.getId()).isPositive();
 		Integer percentage = topicController.handlePercentageOfCompletion(topic.getId());
-		assertThat(percentage).isNotEqualTo(0);
-		assertThat(percentage).isEqualTo(50);
+		assertThat(percentage).isNotZero().isEqualTo(50);
 		verify(viewCallback).onPercentageCalculated(percentage);
 	}
 	

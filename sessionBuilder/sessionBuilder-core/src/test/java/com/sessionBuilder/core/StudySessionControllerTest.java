@@ -80,7 +80,7 @@ public class StudySessionControllerTest {
 			sessionController.handleCreateSession(date, duration, note, topics);
 		});
 		verify(service).createSession(date, duration, note, topics);
-		verify(viewCallback).onSessionError("Errore: creation failed");
+		verify(viewCallback).onSessionError("Error: creation failed");
 		assertThat(thrown).isEqualTo(exception);
 	}
 	
@@ -121,7 +121,7 @@ public class StudySessionControllerTest {
 			sessionController.handleGetSession(ids1);
 		});
 		verify(service).getSessionById(ids1);
-		verify(viewCallback).onSessionError("Errore: session not found");
+		verify(viewCallback).onSessionError("Error: session not found");
 		assertThat(thrown).isEqualTo(exception);
 	}
 	
@@ -150,7 +150,7 @@ public class StudySessionControllerTest {
 		doThrow(exception).when(service).addTopic(ids1, idt2);
 		sessionController.handleAddTopic(ids1, idt2);
 		verify(service).addTopic(ids1, idt2);
-		verify(viewCallback).onSessionError("Errore: Add topic failed");
+		verify(viewCallback).onSessionError("Error: Add topic failed");
 	}
 	
 	@Test
@@ -176,7 +176,7 @@ public class StudySessionControllerTest {
 		doThrow(exception).when(service).removeTopic(ids1, idt2);
 		sessionController.handleRemoveTopic(ids1, idt2);
 		verify(service).removeTopic(ids1, idt2);
-		verify(viewCallback).onSessionError("Errore: Remove topic failed");
+		verify(viewCallback).onSessionError("Error: Remove topic failed");
 	}
 	
 	@Test
@@ -201,7 +201,7 @@ public class StudySessionControllerTest {
 		doThrow(exception).when(service).completeSession(ids1);
 		sessionController.handleCompleteSession(ids1);
 		verify(service).completeSession(ids1);
-		verify(viewCallback).onSessionError("Errore: Complete session failed");
+		verify(viewCallback).onSessionError("Error: Complete session failed");
 	}
 	
 	@Test
@@ -229,7 +229,7 @@ public class StudySessionControllerTest {
 		sessionController.handleDeleteSession(ids1);
 		verify(service).getSessionById(ids1);
 		verify(service, never()).deleteSession(ids1);
-		verify(viewCallback).onSessionError("Errore: Delete session failed");
+		verify(viewCallback).onSessionError("Error: Delete session failed");
 		verify(viewCallback, never()).onSessionRemoved(org.mockito.ArgumentMatchers.any());
 	}
 	

@@ -41,6 +41,7 @@ jobs:
           -Dsonar.host.url=https://sonarcloud.io
           -Dsonar.projectKey=edoardof01_sessionBuilder
         env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           POSTGRES_TEST_DB: ${{ secrets.POSTGRES_TEST_DB }}
           POSTGRES_TEST_USER: ${{ secrets.POSTGRES_TEST_USER }}
           POSTGRES_TEST_PASSWORD: ${{ secrets.POSTGRES_TEST_PASSWORD }}

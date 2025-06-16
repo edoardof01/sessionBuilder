@@ -83,7 +83,7 @@ public class StudySessionServiceIt {
 		StudySession createdSession = sessionService.createSession(LocalDate.now().plusDays(1), 60, "Test session", new ArrayList<>());
 		
 		long sessionId = createdSession.getId();
-		assertThat(sessionId).isGreaterThan(0);
+		assertThat(sessionId).isPositive();
 		
 		StudySession retrievedSession = sessionService.getSessionById(sessionId);
 		

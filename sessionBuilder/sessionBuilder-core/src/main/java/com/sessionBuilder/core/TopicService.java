@@ -1,6 +1,7 @@
 package com.sessionBuilder.core;
 
-import java.util.ArrayList;
+
+import java.util.List;
 
 import com.google.inject.Inject;
 
@@ -11,9 +12,11 @@ public class TopicService implements TopicServiceInterface {
 	
 	@Inject
 	private TransactionManager tm;
+	
+	private static final String TOPIC_EXCEPTION_MESSAGE = "il topic passato è null";
 
 	@Override
-	public Topic createTopic(String name, String description, int difficulty, ArrayList<StudySession> sessionList) {
+	public Topic createTopic(String name, String description, int difficulty, List<StudySession> sessionList) {
 		Topic topic = new Topic(name, description, difficulty, sessionList);
 		topicRepository.save(topic);
 		return topic;
@@ -21,8 +24,8 @@ public class TopicService implements TopicServiceInterface {
 
 	@Override
 	public Topic getTopicById(long topicId) {
-		return tm.doInTopicTransaction(topicRepository -> {
-			Topic topic = topicRepository.findById(topicId);
+		return tm.doInTopicTransaction(repository -> {
+			Topic topic = repository.findById(topicId);
 			if(topic == null) throw new IllegalArgumentException("il topic cercato non esiste");
 			return topic;
 		});
@@ -33,7 +36,7 @@ public class TopicService implements TopicServiceInterface {
 		tm.doInMultiRepositoryTransaction(context -> {
 			Topic topic = context.getTopicRepository().findById(topicId);
 			StudySession session = context.getSessionRepository().findById(sessionId);
-			if(topic == null) throw new IllegalArgumentException("il topic passato è null");
+			if(topic == null) throw new IllegalArgumentException(TOPIC_EXCEPTION_MESSAGE);
 			if(session == null) throw new IllegalArgumentException("la sessione passata è null");
 			topic.addSession(session);
 			context.getTopicRepository().update(topic);
@@ -46,7 +49,7 @@ public class TopicService implements TopicServiceInterface {
 		tm.doInMultiRepositoryTransaction(context -> {
 			Topic topic = context.getTopicRepository().findById(topicId);
 			StudySession session = context.getSessionRepository().findById(sessionId);
-			if(topic == null) throw new IllegalArgumentException("il topic passato è null");
+			if(topic == null) throw new IllegalArgumentException(TOPIC_EXCEPTION_MESSAGE);
 			if(session == null) throw new IllegalArgumentException("la sessione passata è null");
 			topic.removeSession(session);
 			context.getTopicRepository().update(topic);
@@ -56,10 +59,10 @@ public class TopicService implements TopicServiceInterface {
 	
 	@Override
 	public void deleteTopic(long topicId) {
-		tm.doInTopicTransaction(topicRepository -> {
-			Topic topic = topicRepository.findById(topicId);
-			if(topic == null) throw new IllegalArgumentException("il topic passato è null");
-			topicRepository.delete(topicId);
+		tm.doInTopicTransaction(repository -> {
+			Topic topic = repository.findById(topicId);
+			if(topic == null) throw new IllegalArgumentException(TOPIC_EXCEPTION_MESSAGE);
+			repository.delete(topicId);
 			return null;
 		});
 	}
@@ -67,18 +70,18 @@ public class TopicService implements TopicServiceInterface {
 
 	@Override
 	public int calculateTotalTime(long topicId) {
-		return tm.doInTopicTransaction(topicRepository -> {
-			Topic topic = topicRepository.findById(topicId);
-			if(topic == null) throw new IllegalArgumentException("il topic passato è null");
+		return tm.doInTopicTransaction(repository -> {
+			Topic topic = repository.findById(topicId);
+			if(topic == null) throw new IllegalArgumentException(TOPIC_EXCEPTION_MESSAGE);
 			return topic.totalTime();
 		});
 	}
 
 	@Override
 	public int calculatePercentageOfCompletion(long topicId) {
-		return tm.doInTopicTransaction(topicRepository -> {
-			Topic topic = topicRepository.findById(topicId);
-			if(topic == null) throw new IllegalArgumentException("il topic passato è null");
+		return tm.doInTopicTransaction(repository -> {
+			Topic topic = repository.findById(topicId);
+			if(topic == null) throw new IllegalArgumentException(TOPIC_EXCEPTION_MESSAGE);
 			return topic.percentageOfCompletion();
 		});	
 	}

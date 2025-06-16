@@ -88,7 +88,7 @@ public class TopicServiceIt {
 		Topic createdTopic = topicService.createTopic(name, description, difficulty, new ArrayList<>());
 		
 		long realId = createdTopic.getId();
-		assertThat(realId).isGreaterThan(0);
+		assertThat(realId).isPositive();
 		
 		Topic retrievedTopic = topicService.getTopicById(realId);
 		

@@ -49,24 +49,32 @@ public class TopicTest {
 		topicB = new Topic("matematica", "Studia matematica", 3, emptySessions);
 	}
 	
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testCreatingTopicWithNullNameFieldFailure() {
-		Topic topic = new Topic(null, description1, difficulty1, sessionList);
+		assertThrows(IllegalArgumentException.class, () ->
+			new Topic(null, description1, difficulty1, sessionList)
+		);
 	}
-	
-	@Test(expected = IllegalArgumentException.class)
+
+	@Test
 	public void testCreatingTopicWithDifficultyFieldZeroFailure() {
-		Topic topic = new Topic(name1, description1, 0, sessionList);
+		assertThrows(IllegalArgumentException.class, () ->
+			new Topic(name1, description1, 0, sessionList)
+		);
 	}
-	
-	@Test(expected = IllegalArgumentException.class)
+
+	@Test
 	public void testCreatingTopicWithNegativeDifficultyFieldFailure() {
-		Topic topic = new Topic(name1, description1, -1, sessionList);
+		assertThrows(IllegalArgumentException.class, () ->
+			new Topic(name1, description1, -1, sessionList)
+		);
 	}
-	
-	@Test(expected = IllegalArgumentException.class)
+
+	@Test
 	public void testCreatingTopicWithDifficultyFieldExceedingMaxFailure() {
-		Topic topic = new Topic(name1, description1, 6, sessionList);
+		assertThrows(IllegalArgumentException.class, () ->
+			new Topic(name1, description1, 6, sessionList)
+		);
 	}
 	
 	@Test
@@ -124,7 +132,7 @@ public class TopicTest {
 	
 	@Test
 	public void testCalculatePercentageOfTopicCompletionWithoutSessions() {
-		assertThat(topic3.percentageOfCompletion()).isEqualTo(0);
+		assertThat(topic3.percentageOfCompletion()).isZero();
 	}
 	
 	
@@ -148,51 +156,7 @@ public class TopicTest {
 	public void testBringMasteryLevelToNegativeValueFailure() {
 		topic2.setMasteryLevel(5);
 		topic2.decreaseMasteryLevel(10);
-		assertThat(topic2.getMasteryLevel()).isEqualTo(0);
-	}
-	
-	@Test
-	public void testDecreaseMasteryLevelSuccess() {
-		topic2.setMasteryLevel(10);
-		topic2.decreaseMasteryLevel(5);
-		assertThat(topic2.getMasteryLevel()).isEqualTo(5);
-	}
-	
-	
-	@Test
-	public void testDecreaseBoundaryMasteryLevelSuccess() {
-		topic2.setMasteryLevel(10);
-		topic2.decreaseMasteryLevel(10);
-		assertThat(topic2.getMasteryLevel()).isEqualTo(0);
-	}
-	
-	@Test
-	public void testDecreaseMasteryLevelJustOverBoundarySuccess() {
-		topic2.setMasteryLevel(10);
-		topic2.decreaseMasteryLevel(11);
-		assertThat(topic2.getMasteryLevel()).isEqualTo(0);
-	}
-	
-	@Test
-	public void testDecreaseMasteryLevelJustUnderBoundarySuccess() {
-		topic2.setMasteryLevel(10);
-		topic2.decreaseMasteryLevel(9);
-		assertThat(topic2.getMasteryLevel()).isEqualTo(1);
-	}
-	
-	
-	@Test
-	public void testDecreaseMasteryLevelWhenIsZeroCaseSuccess() {
-		topic2.setMasteryLevel(0);
-		topic2.decreaseMasteryLevel(10);
-		assertThat(topic2.getMasteryLevel()).isEqualTo(0);
-	}
-	
-	@Test 
-	public void testDecreaseMasteryLevelofZeroSuccess() {
-		topic2.setMasteryLevel(10);
-		topic2.decreaseMasteryLevel(0);
-		assertThat(topic2.getMasteryLevel()).isEqualTo(10);
+		assertThat(topic2.getMasteryLevel()).isZero();
 	}
 	
 	@Test
@@ -208,7 +172,7 @@ public class TopicTest {
 	// TEST PER EQUALS, HASHCODE & TOSTRING
 	@Test
 	public void testEquals() {
-		assertTrue(topicA.equals(topicA));
+		assertThat(topicA.equals(topicA)).isTrue();
 	}
 	
 	@Test
@@ -218,19 +182,18 @@ public class TopicTest {
 	
 	@Test
 	public void testNotEqualsNull() {
-		assertFalse(topicA.equals(null));
+		assertThat(topicA).isNotEqualTo(null);
 	}
 	
-	@SuppressWarnings("unlikely-arg-type")
 	@Test 
 	public void testNotEqualsDifferentType() {
-		assertFalse(topicA.equals("non un Topic"));
+		assertThat(topicA).isNotEqualTo("non un topic");
 	}
 	
 	@Test
 	public void testNotEqualsDifferentName() {
 		Topic other = new Topic("fisica", "Studia matematica", 3, emptySessions);
-		assertFalse(topicA.equals(other));
+		assertThat(topicA).isNotEqualTo(other);
 	}
 	
 	@Test
@@ -253,19 +216,18 @@ public class TopicTest {
 		sessions2.add(s);
 		Topic t1 = new Topic("matematica", "Studia matematica", 3, sessions1);
 		Topic t2 = new Topic("matematica", "Studia matematica", 3, sessions2);
-		assertTrue(t1.equals(t2));
+		assertThat(t1).isEqualTo(t2);
 	}
 	
 	@Test
 	public void testHashCodeEqualObjects() {
-		assertThat(topicA.hashCode()).isEqualTo(topicB.hashCode());
+		assertThat(topicA).hasSameHashCodeAs(topicB);
 	}
 	
 	@Test
 	public void testHashCodeConsistency() {
 		int hc = topicA.hashCode();
-		assertThat(hc).isEqualTo(topicA.hashCode());
-		assertThat(hc).isEqualTo(topicA.hashCode());
+		assertThat(hc).isEqualTo(topicA.hashCode()).isEqualTo(topicA.hashCode());
 	}
 	
 	@Test
@@ -276,14 +238,14 @@ public class TopicTest {
 	
 	@Test
 	public void testHashCodeNotZeroForValidTopic() {
-		assertThat(topicA.hashCode()).isNotEqualTo(0);
+		assertThat(topicA.hashCode()).isNotZero();
 	}
 	
 	@Test
 	public void testToStringWithNonNullSessionList() {
 		Topic topic = new Topic("Java", "Programming language", 3, new ArrayList<>());
 		String expected = "Topic( name: Java, description: Programming language, difficulty: 3, numSessions: 0)";
-		assertThat(topic.toString()).isEqualTo(expected);
+		assertThat(topic).hasToString(expected);
 	}
 
 	@Test

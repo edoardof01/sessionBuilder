@@ -256,6 +256,7 @@ public class SessionPanelIt extends AssertJSwingJUnitTestCase {
 		});
 		String expectedText = "Errore di test: " + session.toString();
 		window.label(JLabelMatcher.withName("sessionErrorMessage")).requireText(expectedText);
+		assertThat(window.label(JLabelMatcher.withName("sessionErrorMessage")).text()).isEqualTo(expectedText);
 	}
 
 	@Test
@@ -264,6 +265,7 @@ public class SessionPanelIt extends AssertJSwingJUnitTestCase {
 			sessionPanel.showGeneralError("Errore generale di test");
 		});
 		window.label(JLabelMatcher.withName("sessionErrorMessage")).requireText("Errore generale di test");
+		assertThat(window.label(JLabelMatcher.withName("sessionErrorMessage")).text()).isEqualTo("Errore generale di test");
 	}
 
 	@Test
@@ -303,6 +305,5 @@ public class SessionPanelIt extends AssertJSwingJUnitTestCase {
 			dateChooser.setDate(javaDate);
 		});
 		robot().waitForIdle();
-		try { Thread.sleep(50); } catch (InterruptedException e) {}
 	}
 }
