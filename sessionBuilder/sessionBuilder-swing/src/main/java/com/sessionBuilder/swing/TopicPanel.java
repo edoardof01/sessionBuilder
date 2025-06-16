@@ -29,8 +29,10 @@ public class TopicPanel extends JPanel {
 	private static final long serialVersionUID = 2L;
 	private DefaultListModel<StudySession> sessionModel;
 	private JLabel errorLbl;
-	private TopicController topicController;
+	private transient TopicController topicController;
 	private TopicAndSessionManager managerView;
+	
+	private static final String FONT = "Dialog";
 	
 	public TopicPanel() {
 		setBorder(new EmptyBorder(5,5,5,5));
@@ -44,7 +46,7 @@ public class TopicPanel extends JPanel {
 		JLabel nameLabel = new JLabel("Name:");
 		nameLabel.setPreferredSize(new Dimension(90, 20));
 		nameLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-		nameLabel.setFont(new Font("Dialog", Font.BOLD, 14));
+		nameLabel.setFont(new Font(FONT, Font.BOLD, 14));
 		nameLabel.setName("nameLbl");
 		JTextField nameField = new JTextField();
 		nameField.setName("nameField");
@@ -56,7 +58,7 @@ public class TopicPanel extends JPanel {
 		
 		descriptionLabel.setPreferredSize(new Dimension(90, 20));
 		descriptionLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-		descriptionLabel.setFont(new Font("Dialog", Font.BOLD, 14));
+		descriptionLabel.setFont(new Font(FONT, Font.BOLD, 14));
 		descriptionLabel.setName("descriptionLbl");
 		JTextField descriptionField = new JTextField();
 		descriptionField.setName("descriptionField");
@@ -67,7 +69,7 @@ public class TopicPanel extends JPanel {
 		JLabel difficultyLabel = new JLabel("Difficulty:");
 		
 		difficultyLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-		difficultyLabel.setFont(new Font("Dialog", Font.BOLD, 14));
+		difficultyLabel.setFont(new Font(FONT, Font.BOLD, 14));
 		difficultyLabel.setName("difficultyLbl");
 		difficultyLabel.setPreferredSize(new Dimension(90, 20));
 		difficultyLabel.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -107,7 +109,7 @@ public class TopicPanel extends JPanel {
 		errorLbl = new JLabel();
 		errorLbl.setName("errorTopicPanelLbl");
 		errorLbl.setForeground(Color.red);
-		difficultyLabel.setFont(new Font("Dialog", Font.BOLD, 14));
+		difficultyLabel.setFont(new Font(FONT, Font.BOLD, 14));
 		JPanel errorPanel = new JPanel();
 		errorPanel.add(errorLbl);
 		bottomPanel.add(topicButtonPanel, BorderLayout.CENTER);
@@ -134,7 +136,7 @@ public class TopicPanel extends JPanel {
 			public void keyReleased(KeyEvent e) {
 				addTopicButton.setEnabled( !nameField.getText().trim().isEmpty() &&
 						!descriptionField.getText().trim().isEmpty() && !difficultyField.getText().trim().isEmpty());
-			};
+			}
 		};
 		nameField.addKeyListener(btnAddEnabler);
 		descriptionField.addKeyListener(btnAddEnabler);

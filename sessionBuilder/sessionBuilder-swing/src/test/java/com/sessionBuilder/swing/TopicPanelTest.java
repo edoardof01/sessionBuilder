@@ -92,40 +92,48 @@ public class TopicPanelTest extends AssertJSwingJUnitTestCase{
 		window.textBox("descriptionField").requireEnabled();
 		window.textBox("difficultyField").requireEnabled();
 		window.button(JButtonMatcher.withName("addTopicButton")).requireDisabled();
+		assertThat(window.textBox("nameField").isEnabled()).isTrue();
+		assertThat(window.textBox("descriptionField").isEnabled()).isTrue();
+		assertThat(window.textBox("difficultyField").isEnabled()).isTrue();
+		assertThat(window.button(JButtonMatcher.withName("addTopicButton")).isEnabled()).isFalse();
 	}
-	
-	
-	@Test
+
+	@Test @GUITest
 	public void testWhenFieldsAreNotEmptyAddButtonIsEnabled() {
 		window.textBox("nameField").enterText(name);
 		window.textBox("difficultyField").enterText(String.valueOf(difficulty));
 		window.textBox("descriptionField").enterText(description);
 		window.button(JButtonMatcher.withName("addTopicButton")).requireEnabled();
+		assertThat(window.button(JButtonMatcher.withName("addTopicButton")).isEnabled()).isTrue();
+		assertThat(window.textBox("nameField").text()).isEqualTo(name);
+		assertThat(window.textBox("descriptionField").text()).isEqualTo(description);
 	}
-	
-	@Test
+
+	@Test @GUITest
 	public void testWhenEitherNameOrDescriptionOrDifficultyAreBlankThenAddButtonShouldBeDisabled() {
 		JTextComponentFixture nameText = window.textBox("nameField");
 		JTextComponentFixture descriptionText = window.textBox("descriptionField");
 		JTextComponentFixture difficultyText = window.textBox("difficultyField");
-		
+
 		nameText.enterText(name);
 		descriptionText.enterText(description);
 		difficultyText.enterText("");
 		window.button(JButtonMatcher.withName("addTopicButton")).requireDisabled();
-		
+		assertThat(window.button(JButtonMatcher.withName("addTopicButton")).isEnabled()).isFalse();
+
 		nameText.deleteText();
 		nameText.enterText("");
 		difficultyText.enterText(String.valueOf(difficulty));
 		window.button(JButtonMatcher.withName("addTopicButton")).requireDisabled();
-		
+		assertThat(window.button(JButtonMatcher.withName("addTopicButton")).isEnabled()).isFalse();
+
 		nameText.enterText(name);
 		descriptionText.deleteText();
 		descriptionText.enterText("");
 		window.button(JButtonMatcher.withName("addTopicButton")).requireDisabled();
-		
+		assertThat(window.button(JButtonMatcher.withName("addTopicButton")).isEnabled()).isFalse();
 	}
-	
+
 	@Test @GUITest
 	public void testBackButtonWithNullManagerViewDoesNothing() {
 		GuiActionRunner.execute(() -> {
@@ -133,6 +141,7 @@ public class TopicPanelTest extends AssertJSwingJUnitTestCase{
 		});
 		window.button(JButtonMatcher.withName("backButton")).click();
 		robot().waitForIdle();
+		assertThat(window.button(JButtonMatcher.withName("backButton")).isEnabled()).isTrue();
 	}
 	
 	@Test @GUITest
@@ -151,9 +160,11 @@ public class TopicPanelTest extends AssertJSwingJUnitTestCase{
 			managerView.getTopicPanel().showTopicError("error message", topic);
 		});
 		window.label("errorTopicPanelLbl").requireText("error message: "+ topic);
+		assertThat(window.label("errorTopicPanelLbl").text()).isEqualTo("error message: "+ topic);
 	}
-	
-	@Test @GUITest
+
+	@Test
+	@GUITest
 	public void testAddButtonEnabledifClickedShouldResetErrorLabel() {
 		GuiActionRunner.execute(() -> {
 			managerView.getTopicPanel().showGeneralError("error");
@@ -164,6 +175,7 @@ public class TopicPanelTest extends AssertJSwingJUnitTestCase{
 		managerView.getTopicPanel().setTopicController(topicController);
 		window.button(JButtonMatcher.withName("addTopicButton")).click();
 		window.label("errorTopicPanelLbl").requireText(" ");
+		assertThat(window.label("errorTopicPanelLbl").text()).isEqualTo(" ");
 	}
 	
 	@Test @GUITest
@@ -218,22 +230,22 @@ public class TopicPanelTest extends AssertJSwingJUnitTestCase{
 	}
 	
 	@SuppressWarnings("unchecked")
-	@Test @GUITest
+	@Test
+	@GUITest
 	public void testAddButtonWithAnErrorThrowException() {
-		doThrow((new RuntimeException("bug del backend"))).when(topicController).handleCreateTopic(anyString(), anyString(), anyInt(), any(ArrayList.class));
+		doThrow(new RuntimeException("bug del backend")).when(topicController).handleCreateTopic(anyString(), anyString(), anyInt(), any(ArrayList.class));
 		GuiActionRunner.execute(() -> {
 			managerView.getTopicPanel().getSessionModel().addElement(session);
 			managerView.getTopicPanel().setTopicController(topicController);
 			managerView.getStudySessionModel().addElement(session);
 		});
-		JTextComponentFixture nameField = window.textBox("nameField").enterText("test");
-		JTextComponentFixture descriptionField = window.textBox("descriptionField").enterText("descrizione");
-		JTextComponentFixture difficultyField = window.textBox("difficultyField").enterText("1");
+		window.textBox("nameField").enterText("test");
+		window.textBox("descriptionField").enterText("descrizione");
+		window.textBox("difficultyField").enterText("1");
 		window.list("topicPanelSessionList").selectItem(0);
 		robot().waitForIdle();
 		window.button(JButtonMatcher.withName("addTopicButton")).click();
 		assertThat(window.label("errorTopicPanelLbl").text()).contains("Errore nel salvare il topic: bug del backend");
-		
 	}
 	
 	

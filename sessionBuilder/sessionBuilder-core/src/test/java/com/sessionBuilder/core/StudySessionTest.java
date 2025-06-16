@@ -60,52 +60,66 @@ public class StudySessionTest {
 		assertThat(studySession.isComplete()).isFalse();
 	}
 	
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testSessionCreationWithNullDateFailure() {
-		StudySession studySession = new StudySession(null , 60 ,note, topics);	
+		assertThrows(IllegalArgumentException.class, () -> {
+			new StudySession(null, 60, note, topics);
+		});
 	}
-	
-	@Test(expected = IllegalArgumentException.class)
+
+	@Test
 	public void testSessionCreationWithPastDateFailure() {
-		StudySession studySession = new StudySession(LocalDate.now().minusDays(1) , 60 ,note, topics);
+		LocalDate pastDate = LocalDate.now().minusDays(1);
+		assertThrows(IllegalArgumentException.class, () ->
+			new StudySession(pastDate, 60, note, topics)
+		);
 	}
-	
-	
-	@Test(expected = IllegalArgumentException.class)
+
+	@Test
 	public void testSessionCreationInstantaneuosDurationFailure() {
-		StudySession studySession = new StudySession(date , 0 ,note, topics);
+		assertThrows(IllegalArgumentException.class, () -> {
+			new StudySession(date, 0, note, topics);
+		});
 	}
-	
-	@Test( expected = IllegalArgumentException.class)
+
+	@Test
 	public void testSessionCreationWithNullNoteFailure() {
-		StudySession studySession = new StudySession(date , 60 , null, topics);
+		assertThrows(IllegalArgumentException.class, () -> {
+			new StudySession(date, 60, null, topics);
+		});
 	}
 
-	
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testSessionCreationNegativeDurationFailure() {
-		StudySession studySession = new StudySession(date , -1 ,note, topics);
+		assertThrows(IllegalArgumentException.class, () -> {
+			new StudySession(date, -1, note, topics);
+		});
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testSessionCreationWithNullTopicListFailure() {
-		StudySession studySession = new StudySession(date ,60 ,note , null);
+		assertThrows(IllegalArgumentException.class, () -> {
+			new StudySession(date, 60, note, null);
+		});
 	}
-	
-	@Test(expected = IllegalArgumentException.class)
+
+	@Test
 	public void testSessionCreationWithOneNullTopicFailure() {
 		ArrayList<Topic> nullTopics = new ArrayList<Topic>();
 		nullTopics.add(null);
-		StudySession studySession = new StudySession(date ,60 , note, nullTopics);	
+		assertThrows(IllegalArgumentException.class, () -> {
+			new StudySession(date, 60, note, nullTopics);
+		});
 	}
 
-	
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testSessionCreationWithANullTopicTooFailure() {
 		ArrayList<Topic> topics = new ArrayList<Topic>();
 		topics.add(fullTopic);
 		topics.add(null);
-		StudySession studySession = new StudySession(date ,60 , note, topics);	
+		assertThrows(IllegalArgumentException.class, () -> {
+			new StudySession(date, 60, note, topics);
+		});
 	}
 	
 	
@@ -275,7 +289,7 @@ public class StudySessionTest {
 		topic.setMasteryLevel(0);
 		studySession.complete();
 		assertThat(topic.getMasteryLevel()).isEqualTo(10);
-	};
+	}
 	
 	@Test
 	public void testCompleteSessionExactlyNinetyMinutesBoundary() {
@@ -339,7 +353,7 @@ public class StudySessionTest {
 		fullTopic.setMasteryLevel(0);
 		studySession.complete();
 		IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
-				()->studySession.complete());
+				studySession::complete);
 		assertThat(e.getMessage()).isEqualTo("la sessione è già stata completata");
 		assertThat(fullTopic.getMasteryLevel()).isEqualTo(13);
 	}
@@ -402,13 +416,12 @@ public class StudySessionTest {
 	
 	@Test
 	public void testHashCodeEqualsObjects() {
-		assertThat(s1.hashCode()).isEqualTo(s2.hashCode());
+		assertThat(s1).hasSameHashCodeAs(s2);
 	}
 	
 	@Test
 	public void testHashCodeConsistency() {
-		assertThat(s1.hashCode()).isEqualTo(s1.hashCode());
-		assertThat(s1.hashCode()).isEqualTo(s1.hashCode());
+		assertThat(s1).hasSameHashCodeAs(s1).hasSameHashCodeAs(s1);
 	}
 	
 	@Test

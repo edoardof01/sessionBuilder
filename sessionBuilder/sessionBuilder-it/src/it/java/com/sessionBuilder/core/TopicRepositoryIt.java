@@ -77,7 +77,7 @@ public class TopicRepositoryIt {
 	public void testSaveAndFindTopicIt() {
 		Topic topic = new Topic("Scultura", "Vasi di ceramica antica", 4, new ArrayList<>());
 		topicRepository.save(topic);
-		assertThat(topic.getId()).isGreaterThan(0);
+		assertThat(topic.getId()).isPositive();
 		Topic retrievedTopic = topicRepository.findById(topic.getId());
 		assertThat(retrievedTopic).isNotNull();
 		assertThat(retrievedTopic.getName()).isEqualTo("Scultura");

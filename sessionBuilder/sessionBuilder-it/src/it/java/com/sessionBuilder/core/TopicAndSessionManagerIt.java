@@ -112,7 +112,7 @@ public class TopicAndSessionManagerIt extends AssertJSwingJUnitTestCase {
 		Topic topic = GuiActionRunner.execute(() -> {
 			Topic t = topicController.handleCreateTopic("Matematica", "Algebra", 3, new ArrayList<>());
 			assertThat(t).isNotNull();
-			assertThat(t.getId()).isGreaterThan(0);
+			assertThat(t.getId()).isPositive();
 			return t;
 		});
 		DefaultListModel<Topic> topicModel = managerView.getTopicModel();
@@ -137,7 +137,7 @@ public class TopicAndSessionManagerIt extends AssertJSwingJUnitTestCase {
 			StudySession s = sessionController.handleCreateSession(
 				LocalDate.now().plusDays(1), 90, "Sessione fisica", new ArrayList<>(List.of(topic)));
 			assertThat(s).isNotNull();
-			assertThat(s.getId()).isGreaterThan(0);
+			assertThat(s.getId()).isPositive();
 			return s;
 		});
 		DefaultListModel<StudySession> sessionModel = managerView.getStudySessionModel();
@@ -165,7 +165,7 @@ public class TopicAndSessionManagerIt extends AssertJSwingJUnitTestCase {
 		JButtonFixture deleteButton = window.button(JButtonMatcher.withName("deleteTopicButton"));
 		deleteButton.requireEnabled();
 		deleteButton.click();
-		assertThat(managerView.getTopicModel().getSize()).isEqualTo(0);
+		assertThat(managerView.getTopicModel().getSize()).isZero();
 		window.list("topicList").requireItemCount(0);
 		window.label(JLabelMatcher.withName("errorMessageLabel")).requireText(" ");
 		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, 
@@ -189,7 +189,7 @@ public class TopicAndSessionManagerIt extends AssertJSwingJUnitTestCase {
 		JButtonFixture deleteButton = window.button(JButtonMatcher.withName("deleteSessionButton"));
 		deleteButton.requireEnabled();
 		deleteButton.click();
-		assertThat(managerView.getStudySessionModel().getSize()).isEqualTo(0);
+		assertThat(managerView.getStudySessionModel().getSize()).isZero();
 		window.list("sessionList").requireItemCount(0);
 		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, 
 			() -> sessionRepository.findById(sessionId));
@@ -305,10 +305,12 @@ public class TopicAndSessionManagerIt extends AssertJSwingJUnitTestCase {
 		Topic topic2 = GuiActionRunner.execute(() -> {
 			return topicController.handleCreateTopic("Database", "SQL", 4, new ArrayList<>());
 		});
+		long topic2Id = topic2.getId();
 		StudySession session1 = GuiActionRunner.execute(() -> {
 			return sessionController.handleCreateSession(
 				LocalDate.now().plusDays(1), 120, "Java basics", new ArrayList<>(List.of(topic1)));
 		});
+		long session1Id = session1.getId();
 		StudySession session2 = GuiActionRunner.execute(() -> {
 			return sessionController.handleCreateSession(
 				LocalDate.now().plusDays(2), 90, "SQL queries", new ArrayList<>(List.of(topic2)));
@@ -335,13 +337,13 @@ public class TopicAndSessionManagerIt extends AssertJSwingJUnitTestCase {
 		assertThat(managerView.getTopicModel().getSize()).isEqualTo(1);
 		assertThat(managerView.getTopicModel().getElementAt(0).getName()).isEqualTo("Informatica");
 		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, 
-			() -> topicRepository.findById(topic2.getId()));
+			() -> topicRepository.findById(topic2Id));
 		assertThat(exception.getMessage()).isEqualTo("non esiste un topic con tale id");
 		window.list("sessionList").selectItem(0);
 		window.button(JButtonMatcher.withName("deleteSessionButton")).click();
-		assertThat(managerView.getStudySessionModel().getSize()).isEqualTo(0);
+		assertThat(managerView.getStudySessionModel().getSize()).isZero();
 		IllegalArgumentException sessionException = assertThrows(IllegalArgumentException.class, 
-			() -> sessionRepository.findById(session1.getId()));
+			() -> sessionRepository.findById(session1Id));
 		assertThat(sessionException.getMessage()).contains("la sessione cercata non esiste");
 	}
 

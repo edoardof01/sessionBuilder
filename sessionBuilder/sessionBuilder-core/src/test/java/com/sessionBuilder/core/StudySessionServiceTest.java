@@ -62,7 +62,7 @@ public class StudySessionServiceTest {
 				@Override
 				public TopicRepositoryInterface getTopicRepository() {
 					return topicRepository;
-				};
+				}
 
 				@Override
 				public StudySessionRepositoryInterface getSessionRepository() {
@@ -89,7 +89,7 @@ public class StudySessionServiceTest {
 	public void testGetSessionByIdSuccess() {
 		when(sessionRepository.findById(ids1)).thenReturn(session1);
 		StudySession result = service.getSessionById(ids1);
-		assertThat(result.equals(session1)).isTrue();
+		assertThat(result).isEqualTo(session1);
 	}
 	
 	@Test
@@ -106,7 +106,7 @@ public class StudySessionServiceTest {
 		assertThat(session).isNotNull();
 		assertThat(session.getDate()).isEqualTo(date);
 		assertThat(session.getDuration()).isEqualTo(duration);
-		assertThat(session.getTopicList().equals(topicList)).isTrue();
+		assertThat(session.getTopicList()).isEqualTo(topicList);
 	}
 	
 	

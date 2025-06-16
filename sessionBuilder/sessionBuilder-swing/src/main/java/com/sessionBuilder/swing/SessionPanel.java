@@ -39,8 +39,10 @@ public class SessionPanel extends JPanel {
 	private JLabel errorLbl;
 	private JDateChooser dateChooser;
 	private JList<Topic> sessionPaneltopicList;
-	private StudySessionController sessionController;
+	private transient StudySessionController sessionController;
 	private TopicAndSessionManager managerView;
+	
+	private static final String FONT = "Dialog";
 	
 	public SessionPanel () {
 		
@@ -54,7 +56,7 @@ public class SessionPanel extends JPanel {
 		JLabel dateLbl = new JLabel("Date:");
 		dateLbl.setPreferredSize(new Dimension(90, 20));
 		dateLbl.setHorizontalAlignment(SwingConstants.RIGHT);
-		dateLbl.setFont(new Font("Dialog", Font.BOLD, 14));
+		dateLbl.setFont(new Font(FONT, Font.BOLD, 14));
 		dateChooser = new JDateChooser();
 		dateChooser.setName("dateChooser");
 		datePanel.add(dateLbl, BorderLayout.WEST);
@@ -65,7 +67,7 @@ public class SessionPanel extends JPanel {
 		
 		durationLbl.setPreferredSize(new Dimension(90, 20));
 		durationLbl.setHorizontalAlignment(SwingConstants.RIGHT);
-		durationLbl.setFont(new Font("Dialog", Font.BOLD, 14));
+		durationLbl.setFont(new Font(FONT, Font.BOLD, 14));
 		durationLbl.setName("durationLbl");
 		JTextField durationField = new JTextField();
 		durationField.setName("durationField");
@@ -75,7 +77,7 @@ public class SessionPanel extends JPanel {
 		JPanel notePanel = new JPanel(new BorderLayout(5,0));
 		JLabel noteLabel = new JLabel("Note:");
 		noteLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-		noteLabel.setFont(new Font("Dialog", Font.BOLD, 14));
+		noteLabel.setFont(new Font(FONT, Font.BOLD, 14));
 		noteLabel.setName("difficultyLbl");
 		noteLabel.setPreferredSize(new Dimension(90, 20));
 		noteLabel.setHorizontalAlignment(SwingConstants.RIGHT);

@@ -1,9 +1,10 @@
 package com.sessionBuilder.core;
 
-import java.util.ArrayList;
+
+import java.util.List;
 
 public interface TopicServiceInterface {
-	Topic createTopic(String name, String description, int difficulty, ArrayList<StudySession> sessionList);
+	Topic createTopic(String name, String description, int difficulty, List<StudySession> sessionList);
 	Topic getTopicById(long id);
 	void addSessionToTopic(long topicId, long sessionId);
 	void deleteTopic(long topicId);

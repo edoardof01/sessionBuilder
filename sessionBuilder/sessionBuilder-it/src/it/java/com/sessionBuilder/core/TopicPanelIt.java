@@ -197,6 +197,7 @@ public class TopicPanelIt extends AssertJSwingJUnitTestCase {
 		});
 		String expectedText = "Errore di test: " + topic.toString();
 		window.label(JLabelMatcher.withName("errorTopicPanelLbl")).requireText(expectedText);
+		assertThat(window.label(JLabelMatcher.withName("errorTopicPanelLbl")).text()).isEqualTo(expectedText);
 	}
 
 	@Test
@@ -205,6 +206,7 @@ public class TopicPanelIt extends AssertJSwingJUnitTestCase {
 			topicPanel.showGeneralError("Errore generale di test");
 		});
 		window.label(JLabelMatcher.withName("errorTopicPanelLbl")).requireText("Errore generale di test");
+		assertThat(window.label(JLabelMatcher.withName("errorTopicPanelLbl")).text()).isEqualTo("Errore generale di test");
 	}
 
 	@Test
@@ -218,5 +220,10 @@ public class TopicPanelIt extends AssertJSwingJUnitTestCase {
 		window.button(JButtonMatcher.withName("addTopicButton")).requireEnabled();
 		window.textBox("nameField").deleteText();
 		window.button(JButtonMatcher.withName("addTopicButton")).requireDisabled();
+		assertThat(window.button(JButtonMatcher.withName("addTopicButton")).isEnabled()).isFalse();
+		assertThat(window.button(JButtonMatcher.withName("addTopicButton")).isEnabled()).isFalse();
+		assertThat(window.button(JButtonMatcher.withName("addTopicButton")).isEnabled()).isFalse();
+		assertThat(window.button(JButtonMatcher.withName("addTopicButton")).isEnabled()).isTrue();
+		assertThat(window.button(JButtonMatcher.withName("addTopicButton")).isEnabled()).isFalse();
 	}
 }

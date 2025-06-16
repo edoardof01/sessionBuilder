@@ -21,7 +21,7 @@ public class Topic {
 	private int difficulty;
 	
 	@ManyToMany
-	private List<StudySession> sessionList = new ArrayList<StudySession>();
+	private List<StudySession> sessionList = new ArrayList<>();
 	
 	private int masteryLevel = 0;
 
@@ -61,7 +61,7 @@ public class Topic {
 	
 	
 	
-	public void setSessions(ArrayList<StudySession> arrayList) {
+	public void setSessions(List<StudySession> arrayList) {
 		this.sessionList = arrayList;
 	}
 	void setMasteryLevel(int level) {
@@ -89,8 +89,9 @@ public class Topic {
 			reduce(0,((a,b)-> a+b));
 	}
 
+	
 	public int percentageOfCompletion() {
-		if(this.getSessionList().size() == 0) return 0;
+		if(this.getSessionList().isEmpty()) return 0;
 		return Math.round((float)(this.getSessionList().stream().filter(s -> s.isComplete()).
 						count())/(this.getSessionList().size())*100);
 	}

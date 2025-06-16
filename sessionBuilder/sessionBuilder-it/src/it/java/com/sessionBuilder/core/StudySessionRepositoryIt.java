@@ -89,7 +89,7 @@ public class StudySessionRepositoryIt {
 		StudySession session = new StudySession(LocalDate.now().plusDays(1), 60, "una nota", new ArrayList<>());
 		sessionRepository.save(session);
 		long sessionId = session.getId();
-		assertThat(sessionId).isGreaterThan(0);
+		assertThat(sessionId).isPositive();
 		StudySession retrievedSession = sessionRepository.findById(sessionId);
 		assertThat(retrievedSession).isNotNull();
 		assertThat(retrievedSession.getNote()).isEqualTo("una nota");
