@@ -1,5 +1,4 @@
 version: '2'
-#sonar-token: squ_a0d38aab21338407fd30b5c12acf5e7ea22a64cb
 services:
   sessionbuilder-app:
     image: sessionbuilder-app:0.0.1-SNAPSHOT

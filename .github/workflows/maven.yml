@@ -13,12 +13,13 @@ jobs:
       matrix:
         include:
           - java: 17
-            additional-maven-args: "-Pjacoco,mutation-testing,app-docker"
+            additional-maven-args: "-Pjacoco,mutation-testing,app-docker,coveralls,sonarcloud"
           - java: 21
 
     steps:
       - uses: actions/checkout@v4
-
+        with: 
+          fetch-depth: 0
       - name: Set up JDK ${{ matrix.java }}
         uses: actions/setup-java@v4
         with:
@@ -34,14 +35,20 @@ jobs:
           key: ${{ runner.os }}-m2-jdk-${{ matrix.java }}-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2-
 
+      - name: Set additional maven goals
+        run: |
+          echo "SONARGOAL=sonar:sonar" >> $GITHUB_ENV"
+        if: ${{ env.SONAR_TOKEN }}
+
       - name: Build with Maven and SonarCloud
         run: > 
           xvfb-run mvn clean verify ${{ matrix.additional-maven-args }} $SONARGOAL
           -Dsonar.organization=edoardof01
           -Dsonar.host.url=https://sonarcloud.io
           -Dsonar.projectKey=edoardof01_sessionBuilder
+          -Dsonar.coverage.jacoco.xmlReportPaths=**/target/site/jacoco/jacoco.xml
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_CLOUD }}
           POSTGRES_TEST_DB: ${{ secrets.POSTGRES_TEST_DB }}
           POSTGRES_TEST_USER: ${{ secrets.POSTGRES_TEST_USER }}
           POSTGRES_TEST_PASSWORD: ${{ secrets.POSTGRES_TEST_PASSWORD }}
@@ -59,12 +66,6 @@ jobs:
           docker tag sessionbuilder-app:0.0.1-SNAPSHOT ${{ secrets.DOCKERHUB_USERNAME }}/sessionbuilder-app:latest
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/sessionbuilder-app:latest
         working-directory: ./sessionBuilder-app
-
-      - name: Upload to Coveralls (non blocking)
-        if: matrix.java == '17'
-        run: mvn coveralls:report || echo "Coveralls failed but build continues"
-        env:
-          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
 
       - name: Archive Surefire XML reports
         uses: actions/upload-artifact@v4
