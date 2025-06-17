@@ -6,6 +6,7 @@
   		<module>sessionBuilder-swing</module>
   		<module>sessionBuilder-it</module>
   		<module>sessionBuilder-e2e</module>
+  		<module>sessionBuilder-report</module>
   	</modules>
  
  	<groupId>com.sessionBuilder</groupId>
@@ -13,6 +14,7 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<junit.version>4.13.2</junit.version>
 		<compiler.version>3.13.0</compiler.version>
 		<java.version>17</java.version>
@@ -24,8 +26,8 @@
 		<coveralls.version>4.5.0-M6</coveralls.version>
 		<testcontainer.version>1.20.4</testcontainer.version>
 		<picocli.version>4.7.6</picocli.version>
+		
 		<sonar.version>5.0.0.4389</sonar.version>
-		<sonar.host.url>http://localhost:9000</sonar.host.url>
 		<sonar.coverage.exclusions>**/AppModule.java,**/SessionBuilderApplication.java</sonar.coverage.exclusions>
 		<sonar.issue.ignore.multicriteria>e11,e12,e13,e14,e15,e16</sonar.issue.ignore.multicriteria>
 		<sonar.issue.ignore.multicriteria.e11.ruleKey>java:S117</sonar.issue.ignore.multicriteria.e11.ruleKey>
@@ -41,6 +43,7 @@
 		<sonar.issue.ignore.multicriteria.e16.ruleKey>java:S3577</sonar.issue.ignore.multicriteria.e16.ruleKey>
 		<sonar.issue.ignore.multicriteria.e16.resourceKey>**/*</sonar.issue.ignore.multicriteria.e16.resourceKey>
 	</properties>
+	
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
@@ -68,6 +71,13 @@
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>
+			<dependency>
+				<groupId>com.sessionBuilder</groupId>
+				<artifactId>sessionBuilder-bom</artifactId>
+				<version>0.0.1-SNAPSHOT</version>
+				<scope>import</scope>
+				<type>pom</type>
+			</dependency>
 			<dependency>
 				<groupId>org.postgresql</groupId>
 				<artifactId>postgresql</artifactId>
@@ -124,6 +134,21 @@
 		<pluginManagement>
 			<plugins>
 				<plugin>
+					<groupId>org.jacoco</groupId>
+					<artifactId>jacoco-maven-plugin</artifactId>
+					<version>${jacoco.version}</version>
+						<configuration>
+							<excludes>
+								<exclude>**.*Test.class</exclude>
+								<exclude>**.SessionBuilderApplication.class</exclude>
+								<exclude>**/*$*.class</exclude>
+								<exclude>**/AppModule.class</exclude>
+								<exclude>**/SessionBuilderApplication.class</exclude>
+								<exclude>**.*E2E.class</exclude>
+							</excludes>
+						</configuration>
+				</plugin>
+				<plugin>
 					<groupId>org.pitest</groupId>
 					<artifactId>pitest-maven</artifactId>
 					<version>${pitest.version}</version>
@@ -151,29 +176,6 @@
 							<outputFormat>XML</outputFormat>
 						</outputFormats>	
 						<reportsDirectory>${project.build.directory}/pit-reports</reportsDirectory>
-					</configuration>
-				</plugin>
-				<plugin>
-					<groupId>org.jacoco</groupId>
-					<artifactId>jacoco-maven-plugin</artifactId>
-					<version>${jacoco.version}</version>
-						<configuration>
-							<excludes>
-								<exclude>**.*Test.class</exclude>
-								<exclude>**.SessionBuilderApplication.class</exclude>
-								<exclude>**/*$*.class</exclude>
-								<exclude>**/AppModule.class</exclude>
-								<exclude>**/SessionBuilderApplication.class</exclude>
-								<exclude>**.*E2E.class</exclude>
-							</excludes>
-						</configuration>
-				</plugin>
-				<plugin>
-					<groupId>com.github.hazendaz.maven</groupId>
-					<artifactId>coveralls-maven-plugin</artifactId>
-					<version>${coveralls.version}</version>
-					<configuration>
-						<repoToken>${env.COVERALLS_REPO_TOKEN}</repoToken>
 					</configuration>
 				</plugin>
 				<plugin>
@@ -306,6 +308,20 @@
 					</plugin>
 				</plugins>
 			</build>
+		</profile>
+		<profile>
+			<id>sonarqube</id>
+			<properties>
+				<sonar.host.url>http://localhost:9000</sonar.host.url>
+			</properties>
+		</profile>
+		<profile>
+			<id>sonarcloud</id>
+			<properties>
+				<sonar.host.url>https://sonarcloud.io</sonar.host.url>
+				<sonar.organization>edoardof01</sonar.organization>
+				<sonar.projectKey>edoardof01_sessionBuilder</sonar.projectKey>
+			</properties>
 		</profile>
 	</profiles>	
 </project>

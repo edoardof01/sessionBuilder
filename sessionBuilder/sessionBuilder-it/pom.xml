@@ -6,18 +6,8 @@
     <version>0.0.1-SNAPSHOT</version>
   </parent>
   <artifactId>sessionBuilder-it</artifactId>
+ 
   
-  <dependencyManagement>
-  	<dependencies>
-  		<dependency>
-  			<groupId>com.sessionBuilder</groupId>
-  			<artifactId>sessionBuilder-bom</artifactId>
-  			<version>0.0.1-SNAPSHOT</version>
-  			<scope>import</scope>
-			<type>pom</type>
-  		</dependency>
-  	</dependencies>
-  </dependencyManagement>
   <dependencies>
   	<dependency>
   		<groupId>org.testcontainers</groupId>
@@ -55,6 +45,13 @@
   		<plugin>
   			<groupId>org.codehaus.mojo</groupId>
   			<artifactId>build-helper-maven-plugin</artifactId>
+  		</plugin>
+  		<plugin>
+  			<groupId>org.jacoco</groupId>
+  			<artifactId>jacoco-maven-plugin</artifactId>
+  			<configuration>
+  				<skip>true</skip>
+  			</configuration>
   		</plugin>
   		<plugin>
   			<groupId>org.pitest</groupId>
