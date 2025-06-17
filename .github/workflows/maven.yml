@@ -41,7 +41,6 @@ jobs:
         if: ${{ env.SONAR_TOKEN }}
 
       - name: Build with Maven and SonarCloud
-        timeout-minutes: 30
         run: > 
           xvfb-run mvn clean verify ${{ matrix.additional-maven-args }} $SONARGOAL
           -Dsonar.organization=edoardof01
