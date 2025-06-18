@@ -114,11 +114,11 @@ public class StudySessionTest {
 
 	@Test
 	public void testSessionCreationWithANullTopicTooFailure() {
-		ArrayList<Topic> topics = new ArrayList<Topic>();
-		topics.add(fullTopic);
-		topics.add(null);
+		ArrayList<Topic> topicsList = new ArrayList<Topic>();
+		topicsList.add(fullTopic);
+		topicsList.add(null);
 		assertThrows(IllegalArgumentException.class, () -> {
-			new StudySession(date, 60, note, topics);
+			new StudySession(date, 60, note, topicsList);
 		});
 	}
 	

@@ -262,10 +262,10 @@ public class TopicTest {
 	   LocalDate date = LocalDate.now().plusDays(2);
 	   ArrayList<Topic> topics = new ArrayList<>();
 	   
-	   StudySession session1 = new StudySession(date, 60, "Session 1", topics);
+	   StudySession session3 = new StudySession(date, 60, "Session 1", topics);
 	   StudySession session2 = new StudySession(date.plusDays(1), 90, "Session 2", topics);
 	   
-	   sessions.add(session1);
+	   sessions.add(session3);
 	   sessions.add(session2);
 	   
 	   Topic topic = new Topic("Chimica", "reazioni chimiche", 4, sessions);
