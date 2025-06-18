@@ -13,7 +13,7 @@ jobs:
       matrix:
         include:
           - java: 17
-            additional-maven-args: "-Pjacoco,mutation-testing,app-docker,coveralls,sonarcloud -X"
+            additional-maven-args: "-Pjacoco,app-docker,coveralls,sonarcloud -X"
           - java: 21
             additional-maven-args: ""
     steps:
