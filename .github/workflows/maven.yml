@@ -44,10 +44,10 @@ jobs:
           POSTGRES_TEST_DB: ${{ secrets.POSTGRES_TEST_DB }}
           POSTGRES_TEST_USER: ${{ secrets.POSTGRES_TEST_USER }}
           POSTGRES_TEST_PASSWORD: ${{ secrets.POSTGRES_TEST_PASSWORD }}
-		  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-		  CI_NAME: github
-		  CI_BUILD_NUMBER: ${{ github.run_number }}
-		  CI_BRANCH: ${{ github.ref_name }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CI_NAME: github
+          CI_BUILD_NUMBER: ${{ github.run_number }}
+          CI_BRANCH: ${{ github.ref_name }}
 
       - name: Login to DockerHub
         if: matrix.java == '17' && github.ref == 'refs/heads/main'
