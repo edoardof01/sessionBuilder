@@ -328,10 +328,10 @@
 					<plugin>
 						<groupId>org.sonarsource.scanner.maven</groupId>
 						<artifactId>sonar-maven-plugin</artifactId>
-						<version>${sonar.version}</version>
 						<executions>
 							<execution>
 								<id>sonar-analysis</id>
+								<phase>verify</phase>
 								<goals>
 									<goal>sonar</goal>
 								</goals>

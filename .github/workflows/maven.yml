@@ -13,7 +13,7 @@ jobs:
       matrix:
         include:
           - java: 17
-            additional-maven-args: "-Pjacoco,mutation-testing,app-docker,coveralls"
+            additional-maven-args: "-Pjacoco,mutation-testing,app-docker,coveralls,sonarcloud"
           - java: 21
             additional-maven-args: ""
 
@@ -40,7 +40,6 @@ jobs:
         run: >
           xvfb-run mvn -B clean verify ${{ matrix.additional-maven-args }}
           -Dcoveralls.repoToken=${{ secrets.COVERALLS_TOKEN }}
-          ${{ matrix.java == '17' && 'sonar:sonar -Psonarcloud' || '' }}
         env:
           POSTGRES_TEST_DB: ${{ secrets.POSTGRES_TEST_DB }}
           POSTGRES_TEST_USER: ${{ secrets.POSTGRES_TEST_USER }}
