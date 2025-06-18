@@ -13,7 +13,7 @@
 	<properties>
 		<sonar.version>5.0.0.4389</sonar.version>
 		<sonar.coverage.exclusions>**/AppModule.java,**/SessionBuilderApplication.java</sonar.coverage.exclusions>
-		<sonar.issue.ignore.multicriteria>e11,e12,e13,e14,e15,e16</sonar.issue.ignore.multicriteria>
+		<sonar.issue.ignore.multicriteria>e11,e12,e13,e14,e15,e16,e17</sonar.issue.ignore.multicriteria>
 		<sonar.issue.ignore.multicriteria.e11.ruleKey>java:S117</sonar.issue.ignore.multicriteria.e11.ruleKey>
 		<sonar.issue.ignore.multicriteria.e11.resourceKey>**/*</sonar.issue.ignore.multicriteria.e11.resourceKey>
 		<sonar.issue.ignore.multicriteria.e12.ruleKey>java:S2699</sonar.issue.ignore.multicriteria.e12.ruleKey>
@@ -26,6 +26,8 @@
 		<sonar.issue.ignore.multicriteria.e15.resourceKey>**/*</sonar.issue.ignore.multicriteria.e15.resourceKey>
 		<sonar.issue.ignore.multicriteria.e16.ruleKey>java:S3577</sonar.issue.ignore.multicriteria.e16.ruleKey>
 		<sonar.issue.ignore.multicriteria.e16.resourceKey>**/*</sonar.issue.ignore.multicriteria.e16.resourceKey>
+		<sonar.issue.ignore.multicriteria.e17.ruleKey>java:S6813</sonar.issue.ignore.multicriteria.e17.ruleKey>
+		<sonar.issue.ignore.multicriteria.e17.resourceKey>**/*</sonar.issue.ignore.multicriteria.e17.resourceKey>
 	</properties>
 
 	<build>

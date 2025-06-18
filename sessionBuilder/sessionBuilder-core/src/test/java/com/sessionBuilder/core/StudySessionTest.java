@@ -174,10 +174,10 @@ public class StudySessionTest {
 	@Test
 	public void testAddingTopicsToUnCompletedSessionSuccess() {
 		Topic topic2 = new Topic();
-		ArrayList<Topic> topics = new ArrayList<Topic>();
-		topics.add(topic1);
+		ArrayList<Topic> topicsList = new ArrayList<Topic>();
+		topicsList.add(topic1);
 		
-		StudySession studySession = new StudySession(date ,60, note, topics);
+		StudySession studySession = new StudySession(date ,60, note, topicsList);
 		studySession.addTopic(topic2);
 		assertThat(studySession.getTopicList()).containsAll(new ArrayList<Topic>(List.of(topic1,topic2)));
 	}
@@ -231,16 +231,16 @@ public class StudySessionTest {
 				new ArrayList<StudySession>());
 		Topic topic3 = new Topic("Cucina","impara primi piatti",2,
 				new ArrayList<StudySession>());
-		ArrayList<Topic> topics = new ArrayList<Topic>();
-		topics.add(topic);
-		topics.add(topic3);
-		StudySession studySession = new StudySession(date , 60, note, topics);
+		ArrayList<Topic> topicsList = new ArrayList<Topic>();
+		topicsList.add(topic);
+		topicsList.add(topic3);
+		StudySession studySession = new StudySession(date , 60, note, topicsList);
 		topic.setSessions(new ArrayList<>(List.of(studySession)));
 		topic3.setSessions(new ArrayList<>(List.of(studySession)));
 		IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
 				()-> studySession.removeTopic(fullTopic));
 		assertThat(e.getMessage()).isEqualTo("il topic non è presente nella lista");
-		assertThat(studySession.getTopicList()).containsAll(topics);
+		assertThat(studySession.getTopicList()).containsAll(topicsList);
 	}
 	
 	@Test 
@@ -249,10 +249,10 @@ public class StudySessionTest {
 				new ArrayList<StudySession>());
 		Topic topic3 = new Topic("Cucina","impara primi piatti",2,
 				new ArrayList<StudySession>());
-		ArrayList<Topic> topics = new ArrayList<Topic>();
-		topics.add(topic);
-		topics.add(topic3);
-		StudySession studySession = new StudySession(date , 60, note, topics);
+		ArrayList<Topic> topicsList = new ArrayList<Topic>();
+		topicsList.add(topic);
+		topicsList.add(topic3);
+		StudySession studySession = new StudySession(date , 60, note, topicsList);
 		topic.setSessions(new ArrayList<>(List.of(studySession)));
 		topic3.setSessions(new ArrayList<>(List.of(studySession)));
 		studySession.removeTopic(topic3);
@@ -261,8 +261,8 @@ public class StudySessionTest {
 	
 	@Test
 	public void testCompleteSessionMaxPointsSuccess() {
-		ArrayList<Topic> topics = new ArrayList<Topic>(List.of(fullTopic));
-		StudySession studySession = new StudySession(date , 120, note, topics);
+		ArrayList<Topic> topicsList = new ArrayList<Topic>(List.of(fullTopic));
+		StudySession studySession = new StudySession(date , 120, note, topicsList);
 		fullTopic.setSessions(new ArrayList<>(List.of(studySession)));
 		fullTopic.setMasteryLevel(0);
 		studySession.complete();
@@ -272,8 +272,8 @@ public class StudySessionTest {
 	@Test
 	public void testCompleteSessionWithoutMaxDifficultyAndLongDurationSuccess() {
 		Topic topic = new Topic("biliardino","impara a giocare in difesa", 4, new ArrayList<StudySession>());
-		ArrayList<Topic> topics = new ArrayList<Topic>(List.of(topic));
-		StudySession studySession = new StudySession(date , 120, note, topics);
+		ArrayList<Topic> topicsList = new ArrayList<Topic>(List.of(topic));
+		StudySession studySession = new StudySession(date , 120, note, topicsList);
 		topic.setSessions(new ArrayList<>(List.of(studySession)));
 		topic.setMasteryLevel(0);
 		studySession.complete();
@@ -283,8 +283,8 @@ public class StudySessionTest {
 	@Test 
 	public void testCompleteSessionWithLittleDifficultyAndDUrationSuccess() {
 		Topic topic = new Topic("viaggi","visita paesi europei", 2, new ArrayList<StudySession>());
-		ArrayList<Topic> topics = new ArrayList<Topic>(List.of(topic));
-		StudySession studySession = new StudySession(date , 60, note, topics);
+		ArrayList<Topic> topicsList = new ArrayList<Topic>(List.of(topic));
+		StudySession studySession = new StudySession(date , 60, note, topicsList);
 		topic.setSessions(new ArrayList<>(List.of(studySession)));
 		topic.setMasteryLevel(0);
 		studySession.complete();
@@ -294,8 +294,8 @@ public class StudySessionTest {
 	@Test
 	public void testCompleteSessionExactlyNinetyMinutesBoundary() {
 		Topic topic = new Topic("pesca", "pesca da traino", 2, new ArrayList<StudySession>());
-		ArrayList<Topic> topics = new ArrayList<Topic>(List.of(topic));
-		StudySession studySession = new StudySession(date, 90, note, topics);
+		ArrayList<Topic> topicsList = new ArrayList<Topic>(List.of(topic));
+		StudySession studySession = new StudySession(date, 90, note, topicsList);
 		topic.setSessions(new ArrayList<>(List.of(studySession)));
 		topic.setMasteryLevel(0);
 		studySession.complete();
@@ -305,8 +305,8 @@ public class StudySessionTest {
 	@Test
 	public void testCompleteSessionWithLowDifficultyAndHighDuration() {
 		Topic topic = new Topic("Cultura Generale","informati sulle notizie del mondo", 2, new ArrayList<StudySession>());
-		ArrayList<Topic> topics = new ArrayList<Topic>(List.of(topic));
-		StudySession studySession = new StudySession(date , 100, note, topics);
+		ArrayList<Topic> topicsList = new ArrayList<Topic>(List.of(topic));
+		StudySession studySession = new StudySession(date , 100, note, topicsList);
 		topic.setSessions(new ArrayList<>(List.of(studySession)));
 		topic.setMasteryLevel(0);
 		studySession.complete();
@@ -316,8 +316,8 @@ public class StudySessionTest {
 	@Test
 	public void testCompleteSEssionDifficultyThreeWithEightyNineMinutes() {
 		Topic topic = new Topic("Storia","Roma Monarchica", 3, new ArrayList<StudySession>());
-		ArrayList<Topic> topics = new ArrayList<Topic>(List.of(topic));
-		StudySession studySession = new StudySession(date , 89, note, topics);
+		ArrayList<Topic> topicsList = new ArrayList<Topic>(List.of(topic));
+		StudySession studySession = new StudySession(date , 89, note, topicsList);
 		topic.setSessions(new ArrayList<>(List.of(studySession)));
 		topic.setMasteryLevel(0);
 		studySession.complete();
@@ -327,8 +327,8 @@ public class StudySessionTest {
 	@Test 
 	public void testCompleteSessionDifficultyThreeWithNinetyMinutes() {
 		Topic topic = new Topic("Excel","tabelle pivot", 3, new ArrayList<StudySession>());
-		ArrayList<Topic> topics = new ArrayList<Topic>(List.of(topic));
-		StudySession studySession = new StudySession(date , 90, note, topics);
+		ArrayList<Topic> topicsList = new ArrayList<Topic>(List.of(topic));
+		StudySession studySession = new StudySession(date , 90, note, topicsList);
 		topic.setSessions(new ArrayList<>(List.of(studySession)));
 		topic.setMasteryLevel(0);
 		studySession.complete();
@@ -337,8 +337,8 @@ public class StudySessionTest {
 	
 	@Test
 	public void testCompleteSessionWithPenaltySuccess() {
-		ArrayList<Topic> topics = new ArrayList<Topic>(List.of(fullTopic));
-		StudySession studySession = new StudySession(date , 50, note, topics);
+		ArrayList<Topic> topicsList = new ArrayList<Topic>(List.of(fullTopic));
+		StudySession studySession = new StudySession(date , 50, note, topicsList);
 		fullTopic.setSessions(new ArrayList<>(List.of(studySession)));
 		fullTopic.setMasteryLevel(0);
 		studySession.complete();
@@ -347,8 +347,8 @@ public class StudySessionTest {
 	
 	@Test
 	public void testCompleteSessionAlreadyCompleted() {
-		ArrayList<Topic> topics = new ArrayList<Topic>(List.of(fullTopic));
-		StudySession studySession = new StudySession(date , 50, note, topics);
+		ArrayList<Topic> topicsList = new ArrayList<Topic>(List.of(fullTopic));
+		StudySession studySession = new StudySession(date , 50, note, topicsList);
 		fullTopic.setSessions(new ArrayList<>(List.of(studySession)));
 		fullTopic.setMasteryLevel(0);
 		studySession.complete();
@@ -432,29 +432,29 @@ public class StudySessionTest {
 	
 	@Test
 	public void testToStringWithSingleTopic() {
-	   LocalDate date = LocalDate.now().plusDays(2);
-	   ArrayList<Topic> topics = new ArrayList<>();
+	   LocalDate localDate = LocalDate.now().plusDays(2);
+	   ArrayList<Topic> topicsList = new ArrayList<>();
 	   Topic topic = new Topic("Java", "Programming", 3, new ArrayList<>());
-	   topics.add(topic);
+	   topicsList.add(topic);
 
-	   StudySession session = new StudySession(date, 90, "Study session", topics);
+	   StudySession other = new StudySession(localDate, 90, "Study session", topicsList);
 	   
-	   assertThat(session.toString())
-	   	.contains(date.toString())
+	   assertThat(other.toString())
+	   	.contains(localDate.toString())
 	   	.contains("90")
 	   	.contains("Completed: false")   	
 	   	.contains("Study session")
 	   	.contains("topics{Java}");
-	   session.setIsComplete(true);
-	   assertThat(session.toString()).contains("Completed: true");
+	   other.setIsComplete(true);
+	   assertThat(other.toString()).contains("Completed: true");
 	}
 	
 	@Test
 	public void testSetDuration() {
-		StudySession session = new StudySession(LocalDate.now().plusDays(1), 60, "Test note", new ArrayList<>());
-		assertThat(session.getDuration()).isEqualTo(60);
-		session.setDuration(90);
-		assertThat(session.getDuration()).isEqualTo(90);
+		StudySession other = new StudySession(LocalDate.now().plusDays(1), 60, "Test note", new ArrayList<>());
+		assertThat(other.getDuration()).isEqualTo(60);
+		other.setDuration(90);
+		assertThat(other.getDuration()).isEqualTo(90);
 	}
 	
 	

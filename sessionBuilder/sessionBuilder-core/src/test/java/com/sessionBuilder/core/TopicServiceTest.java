@@ -99,12 +99,12 @@ public class TopicServiceTest {
 	
 	@Test
 	public void testCreateTopicSuccess() {
-		Topic topic = service.createTopic(name, description, difficulty, new ArrayList<>());
-		verify(topicRepository,times(1)).save(topic);
-		assertThat(topic).isNotNull();
-		assertThat(topic.getName()).isEqualTo(name);
-		assertThat(topic.getDescription()).isEqualTo(description);
-		assertThat(topic.getDifficulty()).isEqualTo(difficulty);
+		Topic topic1 = service.createTopic(name, description, difficulty, new ArrayList<>());
+		verify(topicRepository,times(1)).save(topic1);
+		assertThat(topic1).isNotNull();
+		assertThat(topic1.getName()).isEqualTo(name);
+		assertThat(topic1.getDescription()).isEqualTo(description);
+		assertThat(topic1.getDifficulty()).isEqualTo(difficulty);
 	}
 	
 	@Test

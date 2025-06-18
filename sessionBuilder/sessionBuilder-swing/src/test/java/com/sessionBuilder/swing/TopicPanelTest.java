@@ -205,11 +205,11 @@ public class TopicPanelTest extends AssertJSwingJUnitTestCase{
 		verify(topicController).handleCreateTopic(nameField.text(), descriptionField.text(), Integer.parseInt(difficultyField.text()), new ArrayList<>(List.of(session)));
 		robot().waitForIdle();
 		List<Topic> topics = Collections.list(managerView.getTopicModel().elements());
-		Topic topic = topics.get(0);
-		assertThat(topic.getName()).isEqualTo(nameField.text());
-		assertThat(topic.getDescription()).isEqualTo(descriptionField.text());
-		assertThat(topic.getDifficulty()).isEqualTo(Integer.parseInt(difficultyField.text()));
-		assertThat(topic.getSessionList()).containsExactly(session);
+		Topic topic1 = topics.get(0);
+		assertThat(topic1.getName()).isEqualTo(nameField.text());
+		assertThat(topic1.getDescription()).isEqualTo(descriptionField.text());
+		assertThat(topic1.getDifficulty()).isEqualTo(Integer.parseInt(difficultyField.text()));
+		assertThat(topic1.getSessionList()).containsExactly(session);
 	}
 	
 	@Test @GUITest
