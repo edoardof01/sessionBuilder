@@ -40,7 +40,6 @@ jobs:
           xvfb-run mvn -B clean verify ${{ matrix.additional-maven-args }}
           -Dcoveralls.repoToken=${{ secrets.COVERALLS_TOKEN }}
           ${{ matrix.java == '17' && 'sonar:sonar -Psonarcloud' || '' }}
-        working-directory: ./sessionBuilder
         env:
           POSTGRES_TEST_DB: ${{ secrets.POSTGRES_TEST_DB }}
           POSTGRES_TEST_USER: ${{ secrets.POSTGRES_TEST_USER }}
