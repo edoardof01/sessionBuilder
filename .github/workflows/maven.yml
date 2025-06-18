@@ -49,6 +49,14 @@ jobs:
           CI_BUILD_NUMBER: ${{ github.run_number }}
           CI_BRANCH: ${{ github.ref_name }}
 
+      - name: Analyze with SonarCloud
+        if: success() && matrix.java == '17'
+        run: mvn sonar:sonar -Psonarcloud
+        working-directory: ./sessionBuilder
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_CLOUD }}
+
       - name: Login to DockerHub
         if: matrix.java == '17' && github.ref == 'refs/heads/main'
         uses: docker/login-action@v3
