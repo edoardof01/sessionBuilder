@@ -10,6 +10,12 @@
 		<module>sessionBuilder</module>
 	</modules>
 	
+	<build>
+		<plugins>
+			
+		</plugins>
+	</build>
+	
 	<profiles>
 		<profile>
 			<id>app-docker</id>
