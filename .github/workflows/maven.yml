@@ -13,9 +13,9 @@ jobs:
       matrix:
         include:
           - java: 17
-            additional-maven-args: "-Pjacoco,app-docker,coveralls,sonarcloud -X"
+            additional-maven-args: "-Pjacoco,mutation-testing,app-docker,coveralls,sonarcloud -X"
           - java: 21
-            additional-maven-args: ""
+		    additional-maven-args: ""
     steps:
       - uses: actions/checkout@v4
         with: 
@@ -42,7 +42,7 @@ jobs:
 
       - name: Build with Maven and SonarCloud
         run: > 
-          xvfb-run mvn clean verify ${{ matrix.additional-maven-args }} $SONARGOAL
+          xvfb-run mvn -B clean verify ${{ matrix.additional-maven-args }} $SONARGOAL
           -Dsonar.organization=edoardof01
           -Dsonar.host.url=https://sonarcloud.io
           -Dsonar.projectKey=edoardof01_sessionBuilder
