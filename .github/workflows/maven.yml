@@ -45,13 +45,6 @@ jobs:
           POSTGRES_TEST_USER: ${{ secrets.POSTGRES_TEST_USER }}
           POSTGRES_TEST_PASSWORD: ${{ secrets.POSTGRES_TEST_PASSWORD }}
 
-      - name: Analyze with SonarCloud
-        if: success() && matrix.java == '17'
-        run: mvn sonar:sonar -Psonarcloud
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_CLOUD }}
-
       - name: Login to DockerHub
         if: matrix.java == '17' && github.ref == 'refs/heads/main'
         uses: docker/login-action@v3
