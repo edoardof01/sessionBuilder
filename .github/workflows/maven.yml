@@ -35,27 +35,21 @@ jobs:
             ~/.sonar/cache
           key: ${{ runner.os }}-m2-jdk-${{ matrix.java }}-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2-
-
       - name: Build with Maven
-        run: > 
-          xvfb-run mvn -B clean verify ${{ matrix.additional-maven-args }} 
+        run: >
+          xvfb-run mvn -B clean verify ${{ matrix.additional-maven-args }}
           -Dcoveralls.repoToken=${{ secrets.COVERALLS_TOKEN }}
+          ${{ matrix.java == '17' && 'sonar:sonar -Psonarcloud' || '' }}
+        working-directory: ./sessionBuilder
         env:
           POSTGRES_TEST_DB: ${{ secrets.POSTGRES_TEST_DB }}
           POSTGRES_TEST_USER: ${{ secrets.POSTGRES_TEST_USER }}
           POSTGRES_TEST_PASSWORD: ${{ secrets.POSTGRES_TEST_PASSWORD }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_CLOUD }}
           CI_NAME: github
           CI_BUILD_NUMBER: ${{ github.run_number }}
           CI_BRANCH: ${{ github.ref_name }}
-
-      - name: Analyze with SonarCloud
-        if: success() && matrix.java == '17'
-        run: mvn sonar:sonar -Psonarcloud -f sessionBuilder/pom.xml
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_CLOUD }}
-
       - name: Login to DockerHub
         if: matrix.java == '17' && github.ref == 'refs/heads/main'
         uses: docker/login-action@v3
