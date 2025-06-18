@@ -1,15 +1,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	
-  	<modules>
-  		<module>sessionBuilder-core</module>
-  		<module>sessionBuilder-swing</module>
-  		<module>sessionBuilder-it</module>
-  		<module>sessionBuilder-e2e</module>
-  		<module>sessionBuilder-report</module>
-  	</modules>
+	<modules>
+		<module>sessionBuilder-core</module>
+		<module>sessionBuilder-swing</module>
+		<module>sessionBuilder-it</module>
+		<module>sessionBuilder-e2e</module>
+		<module>sessionBuilder-report</module>
+	</modules>
  
- 	<groupId>com.sessionBuilder</groupId>
+	<groupId>com.sessionBuilder</groupId>
 	<artifactId>sessionBuilder</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
@@ -26,22 +26,7 @@
 		<coveralls.version>4.5.0-M6</coveralls.version>
 		<testcontainer.version>1.20.4</testcontainer.version>
 		<picocli.version>4.7.6</picocli.version>
-		
 		<sonar.version>5.0.0.4389</sonar.version>
-		<sonar.coverage.exclusions>**/AppModule.java,**/SessionBuilderApplication.java</sonar.coverage.exclusions>
-		<sonar.issue.ignore.multicriteria>e11,e12,e13,e14,e15,e16</sonar.issue.ignore.multicriteria>
-		<sonar.issue.ignore.multicriteria.e11.ruleKey>java:S117</sonar.issue.ignore.multicriteria.e11.ruleKey>
-		<sonar.issue.ignore.multicriteria.e11.resourceKey>**/*</sonar.issue.ignore.multicriteria.e11.resourceKey>
-		<sonar.issue.ignore.multicriteria.e12.ruleKey>java:S2699</sonar.issue.ignore.multicriteria.e12.ruleKey>
-		<sonar.issue.ignore.multicriteria.e12.resourceKey>**/TopicAndSessionManagerTest.java</sonar.issue.ignore.multicriteria.e12.resourceKey>
-		<sonar.issue.ignore.multicriteria.e13.ruleKey>java:S5778</sonar.issue.ignore.multicriteria.e13.ruleKey>
-		<sonar.issue.ignore.multicriteria.e13.resourceKey>**/*Test.java</sonar.issue.ignore.multicriteria.e13.resourceKey>
-		<sonar.issue.ignore.multicriteria.e14.ruleKey>java:S5785</sonar.issue.ignore.multicriteria.e14.ruleKey>
-		<sonar.issue.ignore.multicriteria.e14.resourceKey>**/*Test.java</sonar.issue.ignore.multicriteria.e14.resourceKey>
-		<sonar.issue.ignore.multicriteria.e15.ruleKey>java:S120</sonar.issue.ignore.multicriteria.e15.ruleKey>
-		<sonar.issue.ignore.multicriteria.e15.resourceKey>**/*</sonar.issue.ignore.multicriteria.e15.resourceKey>
-		<sonar.issue.ignore.multicriteria.e16.ruleKey>java:S3577</sonar.issue.ignore.multicriteria.e16.ruleKey>
-		<sonar.issue.ignore.multicriteria.e16.resourceKey>**/*</sonar.issue.ignore.multicriteria.e16.resourceKey>
 	</properties>
 	
 	<dependencies>
@@ -179,69 +164,68 @@
 					</configuration>
 				</plugin>
 				<plugin>
-  					<groupId>org.codehaus.mojo</groupId>
-  					<artifactId>build-helper-maven-plugin</artifactId>
-  					<version>3.6.0</version>
-  					<executions>
-  						<execution>
-  							<id>add-test-source</id>
-  							<phase>generate-test-sources</phase>
-  							<goals>
-  								<goal>add-test-source</goal>
-  							</goals>
-  							<configuration>
-  								<sources>
-  									<source>src/it/java</source>
-  									<source>src/end-to-end/java</source>
-  								</sources>
-  							</configuration>
-  						</execution>
-  					</executions>
-  				</plugin>
-  				<plugin>
-  					<groupId>org.apache.maven.plugins</groupId>
-  					<artifactId>maven-failsafe-plugin</artifactId>
-  					<version>3.5.2</version>
-  					<executions>
-  						<execution>
-  							<id>default-it</id>
-  							<goals>
-  								<goal>integration-test</goal>
-  								<goal>verify</goal>
-  							</goals>
-  						</execution>
-  						<execution>
-  							<id>e2e-tests</id>
-  							<goals>
-  								<goal>integration-test</goal>
-  								<goal>verify</goal>
-  							</goals>
-  							<configuration>
-  								<excludes>
-  									<exclude>**/*It.java</exclude>
-  								</excludes>
-  								<includes>
-  									<include>**/*E2E.java</include>
-  								</includes>
-  							</configuration>
-  						</execution>
-  					</executions>
-  					<configuration>
-  						<systemPropertyVariables>
-  							<postgres.mapped.port>${postgres.mapped.port}</postgres.mapped.port>
-  						</systemPropertyVariables>
-  					</configuration>
-  				</plugin>
-  				<plugin>
-  					<groupId>org.sonarsource.scanner.maven</groupId>
-  					<artifactId>sonar-maven-plugin</artifactId>
-  					<version>${sonar.version}</version>
-  				</plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>build-helper-maven-plugin</artifactId>
+					<version>3.6.0</version>
+					<executions>
+						<execution>
+							<id>add-test-source</id>
+							<phase>generate-test-sources</phase>
+							<goals>
+								<goal>add-test-source</goal>
+							</goals>
+							<configuration>
+								<sources>
+									<source>src/it/java</source>
+									<source>src/end-to-end/java</source>
+								</sources>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-failsafe-plugin</artifactId>
+					<version>3.5.2</version>
+					<executions>
+						<execution>
+							<id>default-it</id>
+							<goals>
+								<goal>integration-test</goal>
+								<goal>verify</goal>
+							</goals>
+						</execution>
+						<execution>
+							<id>e2e-tests</id>
+							<goals>
+								<goal>integration-test</goal>
+								<goal>verify</goal>
+							</goals>
+							<configuration>
+								<excludes>
+									<exclude>**/*It.java</exclude>
+								</excludes>
+								<includes>
+									<include>**/*E2E.java</include>
+								</includes>
+							</configuration>
+						</execution>
+					</executions>
+					<configuration>
+						<systemPropertyVariables>
+							<postgres.mapped.port>${postgres.mapped.port}</postgres.mapped.port>
+						</systemPropertyVariables>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.sonarsource.scanner.maven</groupId>
+					<artifactId>sonar-maven-plugin</artifactId>
+					<version>${sonar.version}</version>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 	</build>
 	
-	<!--PROFILES-->
 	<profiles>
 		<profile>
 			<id>jacoco</id>
@@ -263,7 +247,6 @@
 											<limits>
 												<limit>
 													<counter>LINE</counter>
-													<!--null for now-->
 													<minimum>0.0</minimum>
 												</limit>
 											</limits>
@@ -274,7 +257,6 @@
 							<execution>
 								<id>prepare-agent</id>
 								<goals>
-									<!--automatic binding: initialize(default)-->
 									<goal>prepare-agent</goal>
 								</goals>
 							</execution>
@@ -311,35 +293,9 @@
 		</profile>
 		<profile>
 			<id>sonarqube</id>
-			<properties>
-				<sonar.host.url>http://localhost:9000</sonar.host.url>
-			</properties>
 		</profile>
 		<profile>
 			<id>sonarcloud</id>
-			<properties>
-				<sonar.host.url>https://sonarcloud.io</sonar.host.url>
-				<sonar.organization>edoardof01</sonar.organization>
-				<sonar.projectKey>edoardof01_sessionBuilder</sonar.projectKey>
-				<sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/sessionBuilder-report/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
-			</properties>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.sonarsource.scanner.maven</groupId>
-						<artifactId>sonar-maven-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>sonar-analysis</id>>
-								<goals>
-									<goal>sonar</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
 		</profile>
 	</profiles>	
 </project>
-

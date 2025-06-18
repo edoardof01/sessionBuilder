@@ -4,19 +4,40 @@
 	<artifactId>sessionBuilder-aggregator</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	
+
 	<modules>
 		<module>sessionBuilder-bom</module>
 		<module>sessionBuilder</module>
 	</modules>
-	
+
+	<properties>
+		<sonar.version>5.0.0.4389</sonar.version>
+		<sonar.coverage.exclusions>**/AppModule.java,**/SessionBuilderApplication.java</sonar.coverage.exclusions>
+		<sonar.issue.ignore.multicriteria>e11,e12,e13,e14,e15,e16</sonar.issue.ignore.multicriteria>
+		<sonar.issue.ignore.multicriteria.e11.ruleKey>java:S117</sonar.issue.ignore.multicriteria.e11.ruleKey>
+		<sonar.issue.ignore.multicriteria.e11.resourceKey>**/*</sonar.issue.ignore.multicriteria.e11.resourceKey>
+		<sonar.issue.ignore.multicriteria.e12.ruleKey>java:S2699</sonar.issue.ignore.multicriteria.e12.ruleKey>
+		<sonar.issue.ignore.multicriteria.e12.resourceKey>**/TopicAndSessionManagerTest.java</sonar.issue.ignore.multicriteria.e12.resourceKey>
+		<sonar.issue.ignore.multicriteria.e13.ruleKey>java:S5778</sonar.issue.ignore.multicriteria.e13.ruleKey>
+		<sonar.issue.ignore.multicriteria.e13.resourceKey>**/*Test.java</sonar.issue.ignore.multicriteria.e13.resourceKey>
+		<sonar.issue.ignore.multicriteria.e14.ruleKey>java:S5785</sonar.issue.ignore.multicriteria.e14.ruleKey>
+		<sonar.issue.ignore.multicriteria.e14.resourceKey>**/*Test.java</sonar.issue.ignore.multicriteria.e14.resourceKey>
+		<sonar.issue.ignore.multicriteria.e15.ruleKey>java:S120</sonar.issue.ignore.multicriteria.e15.ruleKey>
+		<sonar.issue.ignore.multicriteria.e15.resourceKey>**/*</sonar.issue.ignore.multicriteria.e15.resourceKey>
+		<sonar.issue.ignore.multicriteria.e16.ruleKey>java:S3577</sonar.issue.ignore.multicriteria.e16.ruleKey>
+		<sonar.issue.ignore.multicriteria.e16.resourceKey>**/*</sonar.issue.ignore.multicriteria.e16.resourceKey>
+	</properties>
+
 	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.sonarsource.scanner.maven</groupId>
-				<artifactId>sonar-maven-plugin</artifactId>
-			</plugin>
-		</plugins>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.sonarsource.scanner.maven</groupId>
+					<artifactId>sonar-maven-plugin</artifactId>
+					<version>${sonar.version}</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 	</build>
 	
 	<profiles>
@@ -25,6 +46,21 @@
 			<modules>
 				<module>sessionBuilder-app</module>
 			</modules>
+		</profile>
+		<profile>
+			<id>sonarqube</id>
+			<properties>
+				<sonar.host.url>http://localhost:9000</sonar.host.url>
+			</properties>
+		</profile>
+		<profile>
+			<id>sonarcloud</id>
+			<properties>
+				<sonar.host.url>https://sonarcloud.io</sonar.host.url>
+				<sonar.organization>edoardof01</sonar.organization>
+				<sonar.projectKey>edoardof01_sessionBuilder</sonar.projectKey>
+				<sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/sessionBuilder/sessionBuilder-report/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+			</properties>
 		</profile>
 	</profiles>
 </project>
