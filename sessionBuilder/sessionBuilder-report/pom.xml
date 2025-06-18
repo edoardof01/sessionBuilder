@@ -65,6 +65,10 @@
   					<artifactId>coveralls-maven-plugin</artifactId>
   					<version>${coveralls.version}</version>
   					<configuration>
+  						<repoToken>${coveralls.repoToken}</repoToken>
+  						<serviceName>github</serviceName>
+  						<serviceJobId>${env.GITHUB_RUN_ID}</serviceJobId>
+  						<branch>${env.GITHUB_REF_NAME}</branch>
   						<jacocoReports>
   							<jacocoReport>${project.build.directory}/site/jacoco-aggregate/jacoco.xml</jacocoReport>
   						</jacocoReports>
@@ -72,6 +76,7 @@
   							<sourceDirectory>../sessionBuilder-core/src/main/java</sourceDirectory>
   							<sourceDirectory>../sessionBuilder-swing/src/main/java</sourceDirectory>
   						</sourceDirectories>
+  						<sourceEncoding>UTF-8</sourceEncoding>
   					</configuration>
   					<executions>
   						<execution>
