@@ -15,7 +15,7 @@ jobs:
           - java: 17
             additional-maven-args: "-Pjacoco,mutation-testing,app-docker,coveralls,sonarcloud -X"
           - java: 21
-		    additional-maven-args: ""
+            additional-maven-args: ""
     steps:
       - uses: actions/checkout@v4
         with: 
