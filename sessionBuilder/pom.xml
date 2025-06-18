@@ -330,8 +330,7 @@
 						<artifactId>sonar-maven-plugin</artifactId>
 						<executions>
 							<execution>
-								<id>sonar-analysis</id>
-								<phase>verify</phase>
+								<id>sonar-analysis</id>>
 								<goals>
 									<goal>sonar</goal>
 								</goals>
