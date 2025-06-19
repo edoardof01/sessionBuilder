@@ -35,13 +35,13 @@ public class SessionBuilderApplication implements Callable<Integer> {
 	@Option(names = {"--postgres-port"}, description = "PostgreSQL port (default: ${DEFAULT-VALUE})", defaultValue = "5432")
 	private int postgresPort;
 
-	@Option(names = {"--db-name"}, description = "Database name (default: ${DEFAULT-VALUE})", defaultValue = "sessionbuilder")
+	@Option(names = {"--db-name"}, description = "Database name (default: ${DEFAULT-VALUE})", defaultValue = "test")
 	private String databaseName;
 
-	@Option(names = {"--db-user"}, description = "Database user (default: ${DEFAULT-VALUE})", defaultValue = "sessionbuilder")
+	@Option(names = {"--db-user"}, description = "Database user (default: ${DEFAULT-VALUE})", defaultValue = "test")
 	private String username;
 
-	@Option(names = {"--db-password"}, description = "Database password (default: ${DEFAULT-VALUE})", defaultValue = "password")
+	@Option(names = {"--db-password"}, description = "Database password (default: ${DEFAULT-VALUE})", defaultValue = "test")
 	private String password;
 
 	@Option(names = {"--persistence-unit"}, description = "JPA persistence unit name (default: ${DEFAULT-VALUE})", defaultValue = "sessionbuilder-test")
@@ -58,13 +58,19 @@ public class SessionBuilderApplication implements Callable<Integer> {
 	public Integer call() throws Exception {
 		EventQueue.invokeLater(() -> {
 			try {
+				String finalHost = getEnvOrDefault("DB_HOST", postgresHost);
+				int finalPort = Integer.parseInt(getEnvOrDefault("DB_PORT", String.valueOf(postgresPort)));
+				String finalDbName = getEnvOrDefault("POSTGRES_TEST_DB", databaseName);
+				String finalUsername = getEnvOrDefault("POSTGRES_TEST_USER", username);
+				String finalPassword = getEnvOrDefault("POSTGRES_TEST_PASSWORD", password);
+				
 				Map<String, String> properties = new HashMap<>();
-				String jdbcUrl = String.format("jdbc:postgresql://%s:%d/%s", postgresHost, postgresPort, databaseName);
+				String jdbcUrl = String.format("jdbc:postgresql://%s:%d/%s", finalHost, finalPort, finalDbName);
 				
 				properties.put("jakarta.persistence.jdbc.driver", "org.postgresql.Driver");
 				properties.put("jakarta.persistence.jdbc.url", jdbcUrl);
-				properties.put("jakarta.persistence.jdbc.user", username);
-				properties.put("jakarta.persistence.jdbc.password", password);
+				properties.put("jakarta.persistence.jdbc.user", finalUsername);
+				properties.put("jakarta.persistence.jdbc.password", finalPassword);
 				properties.put("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
 				properties.put("hibernate.hbm2ddl.auto", "create-drop");
 				properties.put("hibernate.show_sql", "true");
@@ -74,6 +80,7 @@ public class SessionBuilderApplication implements Callable<Integer> {
 				properties.put("hibernate.cache.use_query_cache", "false");
 				
 				logger.info("Database: {}", jdbcUrl);
+				logger.info("Using host: {}, port: {}, db: {}, user: {}", finalHost, finalPort, finalDbName, finalUsername);
 				
 				EntityManagerFactory emf = Persistence.createEntityManagerFactory(persistenceUnit, properties);
 				
@@ -112,5 +119,15 @@ public class SessionBuilderApplication implements Callable<Integer> {
 			}
 		});
 		return 0;
+	}
+	
+	private String getEnvOrDefault(String envVar, String defaultValue) {
+		String value = System.getenv(envVar);
+		if (value != null && !value.trim().isEmpty()) {
+			logger.info("Using environment variable {}: {}", envVar, value);
+			return value;
+		}
+		logger.info("Using default value for {}: {}", envVar, defaultValue);
+		return defaultValue;
 	}
 }
