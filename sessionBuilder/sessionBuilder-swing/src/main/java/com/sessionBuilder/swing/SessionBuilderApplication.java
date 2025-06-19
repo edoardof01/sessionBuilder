@@ -92,7 +92,10 @@ public class SessionBuilderApplication implements Callable<Integer> {
 						bind(TopicRepositoryInterface.class).to(TopicRepository.class);
 						bind(TransactionManager.class).to(TransactionManagerImpl.class);
 						bind(TopicServiceInterface.class).to(TopicService.class);
+						
 						bind(StudySessionInterface.class).to(StudySessionService.class);
+						bind(TopicViewCallback.class).to(TopicAndSessionManager.class);
+						
 					}
 				});
 				
