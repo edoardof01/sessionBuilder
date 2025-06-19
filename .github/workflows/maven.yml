@@ -56,6 +56,30 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_CLOUD }}
 
+      - name: Create Temporary Junit Reports
+        run: mvn surefire-report:report-only
+        if: ${{ always() }}
+
+      - name: Archive Junit Reports
+        uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: surefire-report-jdk-${{ matrix.java }}
+          path: '**/target/reports'
+
+      - name: Archive Jacoco-Aggregate Report
+        uses: actions/upload-artifact@v4
+		if: ${{ always() }}
+        with:
+          name: jacoco-aggregate-report
+          path: ./sessionBuilder/sessionBuilder-report/target/site/jacoco-aggregate
+
+      - name: Archive Pit Report
+        uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: pit-report
+          path: ./sessionBuilder/sessionBuilder-core/target/pit-reports
       - name: Login to DockerHub
         if: matrix.java == '17' && github.ref == 'refs/heads/main'
         uses: docker/login-action@v3
@@ -69,10 +93,4 @@ jobs:
           docker tag sessionbuilder-app:0.0.1-SNAPSHOT ${{ secrets.DOCKERHUB_USERNAME }}/sessionbuilder-app:latest
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/sessionbuilder-app:latest
         working-directory: ./sessionBuilder-app
-
-      - name: Archive Surefire XML reports
-        uses: actions/upload-artifact@v4
-        if: ${{ always() }}
-        with:
-          name: surefire-xml-jdk-${{ matrix.java }}
-          path: '**/target/surefire-reports/'
+      
