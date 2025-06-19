@@ -1,7 +1,7 @@
 version: '2'
 services:
   sessionbuilder-app:
-    image: sessionbuilder-app:0.0.1-SNAPSHOT
+    image: edoardofanciu/sessionbuilder-app:latest
     networks:
       - my-network
     depends_on:
