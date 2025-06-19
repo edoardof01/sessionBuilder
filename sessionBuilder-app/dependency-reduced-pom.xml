@@ -47,6 +47,7 @@
                 <transformer>
                   <mainClass>com.sessionBuilder.swing.SessionBuilderApplication</mainClass>
                 </transformer>
+                <transformer />
               </transformers>
             </configuration>
           </execution>
