@@ -3,9 +3,14 @@ package com.sessionBuilder.core;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -15,6 +20,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
 
 @RunWith(MockitoJUnitRunner.class)
 public class StudySessionRepositoryTest {
@@ -25,6 +31,9 @@ public class StudySessionRepositoryTest {
 	
 	@Mock
 	private TransactionManager tm;
+	
+	@Mock
+	private TypedQuery<StudySession> typedQuery;
 	
 	@InjectMocks
 	private StudySessionRepository sessionRepository;
@@ -53,6 +62,38 @@ public class StudySessionRepositoryTest {
 	public void testFindByIdFailure() {
 		IllegalArgumentException e = assertThrows(IllegalArgumentException.class, ()-> sessionRepository.findById(id));
 		assertThat(e.getMessage()).isEqualTo("non esiste una session con tale id");
+	}
+	
+	@Test 
+	public void testFindByDateDurationAndNoteSuccess() {
+		LocalDate date = LocalDate.now().plusDays(1);
+		int duration = 60;
+		String note = "una nota";
+		Topic topic = new Topic("Sport Acquatici", "kayak", 2, new ArrayList<>());
+		long otherId = 5L;
+		StudySession other = new StudySession(date, duration, note, new ArrayList<>(List.of(topic)));
+		other.setId(otherId);
+		String jpql = "SELECT s FROM StudySession s WHERE s.date = :date AND s.duraiton = :duration AND s.note = :note";
+		when(em.createQuery(jpql, StudySession.class)).thenReturn(typedQuery);
+		when(typedQuery.setParameter(anyString(), any())).thenReturn(typedQuery);
+		when(typedQuery.getSingleResult()).thenReturn(other);
+		StudySession result = sessionRepository.findByDateDurationAndNote(date, duration, note);
+		assertThat(result).isEqualTo(other);
+	}
+	
+	
+	@Test
+	public void testFindByDateDurationAndNoteFailure() {
+		LocalDate date = LocalDate.now().plusDays(1);
+		int duration = 60;
+		String note = "una nota";
+		String jpql = "SELECT s FROM StudySession s WHERE s.date = :date AND s.duraiton = :duration AND s.note = :note";
+		when(em.createQuery(jpql, StudySession.class)).thenReturn(typedQuery);
+		when(typedQuery.setParameter(anyString(), any())).thenReturn(typedQuery);
+		when(typedQuery.getSingleResult()).thenReturn(null);
+		IllegalArgumentException e = assertThrows(IllegalArgumentException.class, 
+				()-> sessionRepository.findByDateDurationAndNote(date, duration, note));
+		assertThat(e.getMessage()).isEqualTo("non esiste una session con questi valori");
 	}
 
 	@Test

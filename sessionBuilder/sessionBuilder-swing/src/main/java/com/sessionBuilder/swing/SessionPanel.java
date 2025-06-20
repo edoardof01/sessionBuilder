@@ -178,12 +178,9 @@ public class SessionPanel extends JPanel {
 		        LocalDate localDate = instant.atZone(zoneId).toLocalDate();
 		        List<Topic> selectedTopics = sessionPaneltopicList.getSelectedValuesList();
 		        try {
-			        StudySession session = new StudySession(localDate, Integer.parseInt(durationField.getText()), 
-			        		noteField.getText(), new ArrayList<>(selectedTopics));
 			        sessionController.handleCreateSession(localDate, Integer.parseInt(durationField.getText()), 
 			                noteField.getText(), new ArrayList<>(selectedTopics));
 			        errorLbl.setText("");
-			        managerView.sessionAdded(session);
 		        } catch (Exception ex) {
 		        	showGeneralError("Errore nel salvare la sessione: " + ex.getMessage());
 		        }

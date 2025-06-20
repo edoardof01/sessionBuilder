@@ -3,9 +3,12 @@ package com.sessionBuilder.core;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -15,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -25,6 +29,9 @@ public class TopicRepositoryTest {
 	
 	@Mock
 	private TransactionManager tm;
+	
+	@Mock
+	private TypedQuery<Topic> typedQuery;
 	
 	@InjectMocks
 	private TopicRepository topicRepository;
@@ -55,6 +62,38 @@ public class TopicRepositoryTest {
 		IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> topicRepository.findById(id));
 		assertThat(e.getMessage()).isEqualTo("non esiste un topic con tale id");
 	}
+	
+	@Test
+	public void findByNameDescriptionDifficultySuccess() {
+		String name = "Biografie";
+		String description = "Freddy Mercury";
+		int difficulty = 2;
+		long idOther = 5L;
+		Topic other = new Topic(name, description, difficulty, new ArrayList<>());
+		other.setId(idOther);
+		String jpql = "SELECT t FROM Topic t WHERE t.name = :name AND t.description = :description AND t.difficulty = :difficulty";
+		when(em.createQuery(jpql, Topic.class)).thenReturn(typedQuery);
+		when(typedQuery.setParameter(anyString(), any())).thenReturn(typedQuery);
+		when(typedQuery.getSingleResult()).thenReturn(other);
+		Topic result = topicRepository.findByNameDescriptionAndDifficulty(name, description, difficulty);
+		assertThat(result).isEqualTo(other);
+	}
+	
+	@Test
+	public void findByNameDescriptionDifficultyFailure() {
+		String name = "Biografie";
+		String description = "Freddy Mercury";
+		int difficulty = 2;
+		String jpql = "SELECT t FROM Topic t WHERE t.name = :name AND t.description = :description AND t.difficulty = :difficulty";
+		when(em.createQuery(jpql, Topic.class)).thenReturn(typedQuery);
+		when(typedQuery.setParameter(anyString(), any())).thenReturn(typedQuery);
+		when(typedQuery.getSingleResult()).thenReturn(null);
+		IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> 
+			topicRepository.findByNameDescriptionAndDifficulty(name, description, difficulty));
+		assertThat(e.getMessage()).isEqualTo("non esiste un topic con questi valori");
+	}
+	
+	
 	
 	@Test
 	public void testSaveSuccess() {

@@ -1,5 +1,7 @@
 package com.sessionBuilder.core;
 
+import java.time.LocalDate;
+
 import com.google.inject.Inject;
 
 public class StudySessionRepository implements StudySessionRepositoryInterface {
@@ -19,6 +21,21 @@ public class StudySessionRepository implements StudySessionRepositoryInterface {
 			if(session == null) throw new IllegalArgumentException("non esiste una session con tale id");
 			return session;
 		});	
+	}
+	
+	@Override 
+	public StudySession findByDateDurationAndNote(LocalDate date, int duration, String note) {
+		return tm.doInTransaction(em -> {
+			StudySession result = 
+				em.createQuery("SELECT s FROM StudySession s WHERE s.date = :date AND s.duraiton = :duration AND s.note = :note",
+						StudySession.class)
+			.setParameter("date", date)
+			.setParameter("duration", duration)
+			.setParameter("note", note)
+			.getSingleResult();
+			if(result == null) throw new IllegalArgumentException("non esiste una session con questi valori");
+			return result;
+		});
 	}
 
 	@Override

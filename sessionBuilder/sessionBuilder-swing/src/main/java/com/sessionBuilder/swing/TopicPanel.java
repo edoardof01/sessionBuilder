@@ -144,16 +144,11 @@ public class TopicPanel extends JPanel {
 		
 		addTopicButton.addActionListener( e -> {
 			if (topicController != null) {
-				String name = nameField.getText();
-				String description = descriptionField.getText();
-				int difficulty = Integer.parseInt(difficultyField.getText());
 				List<StudySession> selectedSessions = sessionList.getSelectedValuesList();
 				try {
-					Topic topic = new Topic(name, description, difficulty, new ArrayList<>(selectedSessions));
 					topicController.handleCreateTopic(nameField.getText(), descriptionField.getText() , 
 							Integer.parseInt(difficultyField.getText()), new ArrayList<>(selectedSessions));
 					errorLbl.setText(" ");
-					managerView.topicAdded(topic);
 				} catch (Exception ex) {
 					showGeneralError("Errore nel salvare il topic: " + ex.getMessage());
 				}

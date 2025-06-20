@@ -6,4 +6,5 @@ public interface TopicRepositoryInterface {
 	void save(Topic topic);
 	void update(Topic topic);
 	void delete(long id);
+	Topic findByNameDescriptionAndDifficulty(String name, String description, int difficulty);
 }

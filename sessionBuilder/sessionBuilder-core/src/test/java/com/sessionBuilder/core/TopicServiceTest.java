@@ -108,6 +108,16 @@ public class TopicServiceTest {
 	}
 	
 	@Test
+	public void testCreateTopicWithDuplicatedValuesFailure() {
+		when(topicRepository.findByNameDescriptionAndDifficulty(name, description, difficulty)).thenReturn(topic);
+		List<StudySession> list = new ArrayList<>();
+		IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+				()-> service.createTopic(name, description, difficulty, list));
+		assertThat(e.getMessage()).isEqualTo("Esiste già un topic con questi valori");
+		verify(topicRepository, times(0)).save(any(Topic.class));
+	}
+	
+	@Test
 	public void testDeleteTopicSuccess() {
 		when(topicRepository.findById(idt1)).thenReturn(topic);
 		service.deleteTopic(idt1);

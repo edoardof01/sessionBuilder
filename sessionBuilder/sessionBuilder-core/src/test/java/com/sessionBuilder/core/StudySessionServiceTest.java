@@ -109,6 +109,15 @@ public class StudySessionServiceTest {
 		assertThat(session.getTopicList()).isEqualTo(topicList);
 	}
 	
+	@Test
+	public void testCreateSessionWithDuplicatedValuesFailure() {
+		StudySession other = new StudySession(date, duration, note, new ArrayList<>(List.of(topic1)));
+		when(sessionRepository.findByDateDurationAndNote(date, duration, note)).thenReturn(other);
+		IllegalArgumentException e = assertThrows(IllegalArgumentException.class, ()-> 
+			service.createSession(date, duration, note, topicList));
+		assertThat(e.getMessage()).isEqualTo("esiste già una session con questi valori");
+	}
+	
 	
 	@Test
 	public void testCompleteNullSessionFailure() {

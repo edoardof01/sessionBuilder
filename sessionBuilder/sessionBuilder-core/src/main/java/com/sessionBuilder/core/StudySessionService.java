@@ -23,6 +23,9 @@ public class StudySessionService implements StudySessionInterface {
 	public StudySession createSession(LocalDate date, int duration, String note, List<Topic> topicList) {
 		return tm.doInSessionTransaction(sessionRepository -> {
 			StudySession session = new StudySession(date, duration, note, topicList);
+			if(sessionRepository.findByDateDurationAndNote(date, duration, note) != null) {
+				throw new IllegalArgumentException("esiste già una session con questi valori");
+			}
 			sessionRepository.save(session);
 			return session;
 		});

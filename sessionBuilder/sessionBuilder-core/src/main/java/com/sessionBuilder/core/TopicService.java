@@ -17,9 +17,13 @@ public class TopicService implements TopicServiceInterface {
 
 	@Override
 	public Topic createTopic(String name, String description, int difficulty, List<StudySession> sessionList) {
-		Topic topic = new Topic(name, description, difficulty, sessionList);
-		topicRepository.save(topic);
-		return topic;
+		return tm.doInTopicTransaction(repository -> {
+			Topic topic = new Topic(name, description, difficulty, sessionList);
+			if(repository.findByNameDescriptionAndDifficulty(name, description, difficulty) != null) 
+				throw new IllegalArgumentException("Esiste già un topic con questi valori");
+			topicRepository.save(topic);
+			return topic;
+		});
 	}
 
 	@Override

@@ -417,13 +417,11 @@ public class TopicAndSessionManager extends JFrame implements TopicViewCallback,
 	@Override
 	public void onSessionAdded(StudySession session) {
 		sessionAdded(session);
-		
 	}
 
 	@Override
 	public void onSessionRemoved(StudySession session) {
 		sessionRemoved(session);
-		
 	}
 
 	@Override
