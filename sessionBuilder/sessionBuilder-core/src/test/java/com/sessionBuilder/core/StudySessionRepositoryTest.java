@@ -91,9 +91,8 @@ public class StudySessionRepositoryTest {
 		when(em.createQuery(jpql, StudySession.class)).thenReturn(typedQuery);
 		when(typedQuery.setParameter(anyString(), any())).thenReturn(typedQuery);
 		when(typedQuery.getSingleResult()).thenReturn(null);
-		IllegalArgumentException e = assertThrows(IllegalArgumentException.class, 
-				()-> sessionRepository.findByDateDurationAndNote(date, duration, note));
-		assertThat(e.getMessage()).isEqualTo("non esiste una session con questi valori");
+	    StudySession other = sessionRepository.findByDateDurationAndNote(date, duration, note);
+		assertThat(other).isNull();
 	}
 
 	@Test

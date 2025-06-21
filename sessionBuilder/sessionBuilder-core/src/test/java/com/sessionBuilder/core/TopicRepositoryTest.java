@@ -88,9 +88,8 @@ public class TopicRepositoryTest {
 		when(em.createQuery(jpql, Topic.class)).thenReturn(typedQuery);
 		when(typedQuery.setParameter(anyString(), any())).thenReturn(typedQuery);
 		when(typedQuery.getSingleResult()).thenReturn(null);
-		IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> 
-			topicRepository.findByNameDescriptionAndDifficulty(name, description, difficulty));
-		assertThat(e.getMessage()).isEqualTo("non esiste un topic con questi valori");
+		Topic result = topicRepository.findByNameDescriptionAndDifficulty(name, description, difficulty);
+		assertThat(result).isNull();
 	}
 	
 	
