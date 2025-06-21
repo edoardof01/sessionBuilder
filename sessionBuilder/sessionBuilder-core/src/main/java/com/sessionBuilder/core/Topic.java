@@ -21,7 +21,7 @@ public class Topic {
 	private String description;
 	private int difficulty;
 	
-	@ManyToMany(fetch = FetchType.EAGER)
+	@ManyToMany(mappedBy="topicList", fetch = FetchType.EAGER)
 	private List<StudySession> sessionList = new ArrayList<>();
 	
 	private int masteryLevel = 0;

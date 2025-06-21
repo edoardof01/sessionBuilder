@@ -4,6 +4,8 @@ import java.time.LocalDate;
 
 import com.google.inject.Inject;
 
+import jakarta.persistence.NoResultException;
+
 public class StudySessionRepository implements StudySessionRepositoryInterface {
 	
 
@@ -17,10 +19,16 @@ public class StudySessionRepository implements StudySessionRepositoryInterface {
 	@Override
 	public StudySession findById(long id) {
 		return tm.doInTransaction(em -> {
-			StudySession session = em.find(StudySession.class, id);
-			if(session == null) throw new IllegalArgumentException("non esiste una session con tale id");
-			return session;
-		});	
+			try {
+				return em.createQuery(
+					"SELECT s FROM StudySession s LEFT JOIN FETCH s.topicList WHERE s.id = :id", 
+					StudySession.class)
+					.setParameter("id", id)
+					.getSingleResult();
+			} catch (NoResultException e) {
+				throw new IllegalArgumentException("non esiste una session con tale id");
+			}
+		});
 	}
 	
 	@Override 

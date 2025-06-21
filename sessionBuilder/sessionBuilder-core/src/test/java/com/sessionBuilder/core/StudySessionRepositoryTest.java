@@ -20,6 +20,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -53,13 +54,20 @@ public class StudySessionRepositoryTest {
 	
 	@Test
 	public void testfindByIdSuccess() {
-		when(em.find(StudySession.class, id)).thenReturn(session);
+		String jpql = "SELECT s FROM StudySession s LEFT JOIN FETCH s.topicList WHERE s.id = :id";
+		when(em.createQuery(jpql, StudySession.class)).thenReturn(typedQuery);
+		when(typedQuery.setParameter("id", id)).thenReturn(typedQuery);
+		when(typedQuery.getSingleResult()).thenReturn(session);
 		StudySession result = sessionRepository.findById(id);
 		assertThat(result).isEqualTo(session);
 	}
-	
+
 	@Test
 	public void testFindByIdFailure() {
+		String jpql = "SELECT s FROM StudySession s LEFT JOIN FETCH s.topicList WHERE s.id = :id";
+		when(em.createQuery(jpql, StudySession.class)).thenReturn(typedQuery);
+		when(typedQuery.setParameter("id", id)).thenReturn(typedQuery);
+		when(typedQuery.getSingleResult()).thenThrow(new NoResultException());
 		IllegalArgumentException e = assertThrows(IllegalArgumentException.class, ()-> sessionRepository.findById(id));
 		assertThat(e.getMessage()).isEqualTo("non esiste una session con tale id");
 	}

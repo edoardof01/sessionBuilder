@@ -2,6 +2,8 @@ package com.sessionBuilder.core;
 
 import com.google.inject.Inject;
 
+import jakarta.persistence.NoResultException;
+
 
 public class TopicRepository implements TopicRepositoryInterface{
 	
@@ -15,10 +17,16 @@ public class TopicRepository implements TopicRepositoryInterface{
 
 	@Override
 	public Topic findById(long id) {
-		return tm.doInTransaction(em ->{
-			Topic result = em.find(Topic.class, id);
-			if(result == null) throw new IllegalArgumentException("non esiste un topic con tale id");
-			return result;
+		return tm.doInTransaction(em -> {
+			try {
+				return em.createQuery(
+					"SELECT t FROM Topic t LEFT JOIN FETCH t.sessionList WHERE t.id = :id", 
+					Topic.class)
+					.setParameter("id", id)
+					.getSingleResult();
+			} catch (NoResultException e) {
+				throw new IllegalArgumentException("non esiste un topic con tale id");
+			}
 		});
 	}
 

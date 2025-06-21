@@ -18,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
 
 
@@ -51,14 +52,20 @@ public class TopicRepositoryTest {
 	
 	@Test
 	public void testFindByIdSuccess() {
-		when(em.find(Topic.class, id)).thenReturn(topic);
+		String jpql = "SELECT t FROM Topic t LEFT JOIN FETCH t.sessionList WHERE t.id = :id";
+		when(em.createQuery(jpql, Topic.class)).thenReturn(typedQuery);
+		when(typedQuery.setParameter("id", id)).thenReturn(typedQuery);
+		when(typedQuery.getSingleResult()).thenReturn(topic);
 		Topic result = topicRepository.findById(id);
 		assertThat(result).isEqualTo(topic);
 	}
-	
+
 	@Test
 	public void findByIdFailure() {
-		when(em.find(Topic.class, id)).thenReturn(null);
+		String jpql = "SELECT t FROM Topic t LEFT JOIN FETCH t.sessionList WHERE t.id = :id";
+		when(em.createQuery(jpql, Topic.class)).thenReturn(typedQuery);
+		when(typedQuery.setParameter("id", id)).thenReturn(typedQuery);
+		when(typedQuery.getSingleResult()).thenThrow(new NoResultException());
 		IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> topicRepository.findById(id));
 		assertThat(e.getMessage()).isEqualTo("non esiste un topic con tale id");
 	}
