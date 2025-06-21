@@ -33,7 +33,7 @@ public class StudySessionRepository implements StudySessionRepositoryInterface {
 			.setParameter("duration", duration)
 			.setParameter("note", note)
 			.getSingleResult();
-			if(result == null) throw new IllegalArgumentException("non esiste una session con questi valori");
+			if(result == null) return null;
 			return result;
 		});
 	}

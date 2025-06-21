@@ -60,7 +60,7 @@ public class TopicRepository implements TopicRepositoryInterface{
 				.setParameter("description", description)
 				.setParameter("difficulty", difficulty)
 				.getSingleResult();
-			if(result == null) throw new IllegalArgumentException("non esiste un topic con questi valori");
+			if(result == null) return null;
 			return result;
 		});
 		
