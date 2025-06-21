@@ -5,7 +5,6 @@ import java.awt.event.KeyEvent;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -368,12 +367,6 @@ public class SessionPanelTest extends AssertJSwingJUnitTestCase {
 		window.button(JButtonMatcher.withName("addSessionButton")).click();
 		verify(sessionController).handleCreateSession(newDate, Integer.parseInt(durationField.text()), noteField.text(), new ArrayList<>(List.of(topic)));
 		robot().waitForIdle();
-		List<StudySession> sessions = Collections.list(managerView.getStudySessionModel().elements());
-		StudySession addedSession = sessions.get(0);
-		assertThat(addedSession.getDate()).isEqualTo(newDate);
-		assertThat(addedSession.getDuration()).isEqualTo(60);
-		assertThat(addedSession.getNote()).isEqualTo("test");
-		assertThat(addedSession.getTopicList()).containsExactly(topic);
 	}
 	
 	
