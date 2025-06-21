@@ -53,15 +53,17 @@ public class TopicRepository implements TopicRepositoryInterface{
 	@Override
 	public Topic findByNameDescriptionAndDifficulty(String name, String description, int difficulty) {
 		return tm.doInTransaction(em ->{
-			Topic result = em.createQuery(
+			try {
+			return em.createQuery(
 				"SELECT t FROM Topic t WHERE t.name = :name AND t.description = :description AND t.difficulty = :difficulty",
 				Topic.class)
 				.setParameter("name", name)
 				.setParameter("description", description)
 				.setParameter("difficulty", difficulty)
 				.getSingleResult();
-			if(result == null) return null;
-			return result;
+			} catch (Exception e) {
+				return null;
+			}
 		});
 		
 	}

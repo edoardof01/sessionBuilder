@@ -26,15 +26,16 @@ public class StudySessionRepository implements StudySessionRepositoryInterface {
 	@Override 
 	public StudySession findByDateDurationAndNote(LocalDate date, int duration, String note) {
 		return tm.doInTransaction(em -> {
-			StudySession result = 
-				em.createQuery("SELECT s FROM StudySession s WHERE s.date = :date AND s.duraiton = :duration AND s.note = :note",
+			try {
+			return em.createQuery("SELECT s FROM StudySession s WHERE s.date = :date AND s.duraiton = :duration AND s.note = :note",
 						StudySession.class)
-			.setParameter("date", date)
-			.setParameter("duration", duration)
-			.setParameter("note", note)
-			.getSingleResult();
-			if(result == null) return null;
-			return result;
+				.setParameter("date", date)
+				.setParameter("duration", duration)
+				.setParameter("note", note)
+				.getSingleResult();
+			} catch (Exception e) {
+				return null;
+			}
 		});
 	}
 
