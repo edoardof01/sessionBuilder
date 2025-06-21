@@ -264,8 +264,8 @@ public class TopicAndSessionManager extends JFrame implements TopicViewCallback,
 		int selectedIndex = topicList.getSelectedIndex();
 		if (selectedIndex != -1 && topicController != null) {
 			Topic selectedTopic = topicModel.getElementAt(selectedIndex);
-			topicController.handleTotalTime(selectedTopic.getId());
 			resetErrorLabels();
+			topicController.handleTotalTime(selectedTopic.getId());
 		}
 	}
 
