@@ -35,7 +35,7 @@ public class StudySessionRepository implements StudySessionRepositoryInterface {
 	public StudySession findByDateDurationAndNote(LocalDate date, int duration, String note) {
 		return tm.doInTransaction(em -> {
 			try {
-			return em.createQuery("SELECT s FROM StudySession s WHERE s.date = :date AND s.duraiton = :duration AND s.note = :note",
+			return em.createQuery("SELECT s FROM StudySession s WHERE s.date = :date AND s.duration = :duration AND s.note = :note",
 						StudySession.class)
 				.setParameter("date", date)
 				.setParameter("duration", duration)
