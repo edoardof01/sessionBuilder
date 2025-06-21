@@ -66,7 +66,10 @@ public class StudySessionController {
 
 	public void handleCompleteSession(long sessionId) {
 		try {
-			service.completeSession(sessionId);
+			StudySession updatedSession = service.completeSession(sessionId);
+			if(viewCallBack != null) {
+				viewCallBack.onSessionUpdated(updatedSession);
+			}
 		}catch (Exception e){
 			if(viewCallBack != null) {
 				viewCallBack.onSessionError(STRING_ERROR + e.getMessage());

@@ -92,7 +92,18 @@ public class TopicRepositoryTest {
 		assertThat(result).isNull();
 	}
 	
-	
+	@Test
+	public void testFindByNameDescriptionAndDifficultyWithException() {
+		String name = "Test Topic";
+		String description = "Test Description";
+		int difficulty = 3;
+		String jpql = "SELECT t FROM Topic t WHERE t.name = :name AND t.description = :description AND t.difficulty = :difficulty";
+		
+		when(em.createQuery(jpql, Topic.class)).thenThrow(new RuntimeException("Database error"));
+		
+		Topic result = topicRepository.findByNameDescriptionAndDifficulty(name, description, difficulty);
+		assertThat(result).isNull();
+	}
 	
 	@Test
 	public void testSaveSuccess() {

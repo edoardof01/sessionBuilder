@@ -190,15 +190,17 @@ public class StudySessionControllerTest {
 	
 	@Test
 	public void testHandleCompleteSession() {
+		when(service.completeSession(ids1)).thenReturn(session);
 		sessionController.handleCompleteSession(ids1);
 		verify(service).completeSession(ids1);
+		verify(viewCallback).onSessionUpdated(session);
 		verify(viewCallback, never()).onSessionError(org.mockito.ArgumentMatchers.anyString());
 	}
 	
 	@Test
 	public void testHandleCompleteSessionWithException() {
 		RuntimeException exception = new RuntimeException("Complete session failed");
-		doThrow(exception).when(service).completeSession(ids1);
+		when(service.completeSession(ids1)).thenThrow(exception);
 		sessionController.handleCompleteSession(ids1);
 		verify(service).completeSession(ids1);
 		verify(viewCallback).onSessionError("Error: Complete session failed");
@@ -209,6 +211,14 @@ public class StudySessionControllerTest {
 		sessionController.setViewCallBack(null);
 		RuntimeException exception = new RuntimeException("Complete session failed");
 		doThrow(exception).when(service).completeSession(ids1);
+		sessionController.handleCompleteSession(ids1);
+		verify(service).completeSession(ids1);
+	}
+	
+	@Test
+	public void testHandleCompleteSessionWithNullCallbackSuccess() {
+		sessionController.setViewCallBack(null);
+		when(service.completeSession(ids1)).thenReturn(session);
 		sessionController.handleCompleteSession(ids1);
 		verify(service).completeSession(ids1);
 	}

@@ -33,13 +33,13 @@ public class StudySessionService implements StudySessionInterface {
 	
 	
 	@Override
-	public void completeSession(long sessionId) {
-		tm.doInSessionTransaction(sessionRepository ->{
+	public StudySession completeSession(long sessionId) {
+		return tm.doInSessionTransaction(sessionRepository ->{
 			StudySession session = sessionRepository.findById(sessionId);
 			if(session == null) throw new IllegalArgumentException(NULL_SESSION_MESSAGE);
 			session.complete();
 			sessionRepository.update(session);
-			return null;
+			return session;
 		});
 	}
 	

@@ -94,6 +94,17 @@ public class StudySessionRepositoryTest {
 	    StudySession other = sessionRepository.findByDateDurationAndNote(date, duration, note);
 		assertThat(other).isNull();
 	}
+	
+	@Test
+	public void testFindByDateDurationAndNoteWithException() {
+		LocalDate date = LocalDate.now();
+		int duration = 60;
+		String note = "test";
+		String jpql = "SELECT s FROM StudySession s WHERE s.date = :date AND s.duraiton = :duration AND s.note = :note";
+		when(em.createQuery(jpql, StudySession.class)).thenThrow(new RuntimeException("Database error"));
+		StudySession result = sessionRepository.findByDateDurationAndNote(date, duration, note);
+		assertThat(result).isNull();
+	}
 
 	@Test
 	public void testSaveSuccess() {

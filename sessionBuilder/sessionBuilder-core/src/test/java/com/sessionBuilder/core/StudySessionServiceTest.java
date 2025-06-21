@@ -44,7 +44,6 @@ public class StudySessionServiceTest {
 	private Topic topic1;
 	private Topic topic2;
 	
-	//campi per la session da creare
 	private LocalDate date;
 	private int duration;
 	private String note;
@@ -121,6 +120,7 @@ public class StudySessionServiceTest {
 	
 	@Test
 	public void testCompleteNullSessionFailure() {
+		when(sessionRepository.findById(10L)).thenReturn(null);
 		IllegalArgumentException e = assertThrows(IllegalArgumentException.class, ()-> service.completeSession(10L));
 		assertThat(e.getMessage()).isEqualTo("la sessione passata è null");
 	}
@@ -128,9 +128,11 @@ public class StudySessionServiceTest {
 	@Test
 	public void testCompleteSessionSuccess() {
 		when(sessionRepository.findById(ids2)).thenReturn(fullSession);
-		service.completeSession(ids2);
+		StudySession result = service.completeSession(ids2);
 		verify(sessionRepository, times(1)).update(fullSession);
+		assertThat(result).isEqualTo(fullSession);
 		assertThat(fullSession.isComplete()).isTrue();
+		assertThat(result.isComplete()).isTrue();
 	}
 	
 	@Test
