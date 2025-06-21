@@ -390,7 +390,7 @@ public class TopicAndSessionManager extends JFrame implements TopicViewCallback,
 	public void onTopicAdded(Topic topic) {
 		topicAdded(topic);	
 		if (sessionPanel != null && sessionPanel.getTopicModel() != null) {
-			sessionPanel.getTopicModel().removeElement(topic);
+			sessionPanel.getTopicModel().addElement(topic);
 		}
 	}
 
@@ -424,7 +424,7 @@ public class TopicAndSessionManager extends JFrame implements TopicViewCallback,
 	public void onSessionAdded(StudySession session) {
 		sessionAdded(session);
 		if (topicPanel != null && topicPanel.getSessionModel() != null) {
-			topicPanel.getSessionModel().removeElement(session);
+			topicPanel.getSessionModel().addElement(session);
 		}
 	}
 
