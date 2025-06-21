@@ -81,7 +81,7 @@ public class StudySessionRepositoryTest {
 		long otherId = 5L;
 		StudySession other = new StudySession(date, duration, note, new ArrayList<>(List.of(topic)));
 		other.setId(otherId);
-		String jpql = "SELECT s FROM StudySession s WHERE s.date = :date AND s.duraiton = :duration AND s.note = :note";
+		String jpql = "SELECT s FROM StudySession s WHERE s.date = :date AND s.duration = :duration AND s.note = :note";
 		when(em.createQuery(jpql, StudySession.class)).thenReturn(typedQuery);
 		when(typedQuery.setParameter(anyString(), any())).thenReturn(typedQuery);
 		when(typedQuery.getSingleResult()).thenReturn(other);
@@ -95,7 +95,7 @@ public class StudySessionRepositoryTest {
 		LocalDate date = LocalDate.now().plusDays(1);
 		int duration = 60;
 		String note = "una nota";
-		String jpql = "SELECT s FROM StudySession s WHERE s.date = :date AND s.duraiton = :duration AND s.note = :note";
+		String jpql = "SELECT s FROM StudySession s WHERE s.date = :date AND s.duration = :duration AND s.note = :note";
 		when(em.createQuery(jpql, StudySession.class)).thenReturn(typedQuery);
 		when(typedQuery.setParameter(anyString(), any())).thenReturn(typedQuery);
 		when(typedQuery.getSingleResult()).thenReturn(null);
@@ -108,7 +108,7 @@ public class StudySessionRepositoryTest {
 		LocalDate date = LocalDate.now();
 		int duration = 60;
 		String note = "test";
-		String jpql = "SELECT s FROM StudySession s WHERE s.date = :date AND s.duraiton = :duration AND s.note = :note";
+		String jpql = "SELECT s FROM StudySession s WHERE s.date = :date AND s.duration = :duration AND s.note = :note";
 		when(em.createQuery(jpql, StudySession.class)).thenThrow(new RuntimeException("Database error"));
 		StudySession result = sessionRepository.findByDateDurationAndNote(date, duration, note);
 		assertThat(result).isNull();

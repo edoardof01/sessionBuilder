@@ -433,16 +433,19 @@ public class TopicAndSessionManager extends JFrame implements TopicViewCallback,
 	   for (int i = 0; i < studySessionModel.getSize(); i++) {
 	   	StudySession session = studySessionModel.getElementAt(i);
 	   	if (session.getId() == updatedSession.getId()) {
-	   		studySessionModel.setElementAt(updatedSession, i);
+	   		session.setIsComplete(updatedSession.isComplete());
+	   		studySessionModel.setElementAt(session, i);
 	   		break;
 	   	}
 	   }
+	   
 	   if (topicPanel != null && topicPanel.getSessionModel() != null) {
 	   	DefaultListModel<StudySession> topicSessionModel = topicPanel.getSessionModel();
 	   	for (int i = 0; i < topicSessionModel.getSize(); i++) {
 	   		StudySession session = topicSessionModel.getElementAt(i);
 	   		if (session.getId() == updatedSession.getId()) {
-	   			topicSessionModel.setElementAt(updatedSession, i);
+	   			session.setIsComplete(updatedSession.isComplete());
+	   			topicSessionModel.setElementAt(session, i);
 	   			break;
 	   		}
 	   	}
