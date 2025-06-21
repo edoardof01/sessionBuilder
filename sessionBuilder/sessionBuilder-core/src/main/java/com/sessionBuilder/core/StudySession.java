@@ -7,6 +7,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -23,7 +24,7 @@ public class StudySession {
 	private int duration;
 	private String note;
 	
-	@ManyToMany(mappedBy="sessionList")
+	@ManyToMany(mappedBy="sessionList",fetch = FetchType.EAGER)
 	private List<Topic> topicList = new ArrayList<>();
 	
 	private boolean isComplete;

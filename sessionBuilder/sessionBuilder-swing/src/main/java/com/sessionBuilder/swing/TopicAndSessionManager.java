@@ -389,11 +389,17 @@ public class TopicAndSessionManager extends JFrame implements TopicViewCallback,
 	@Override
 	public void onTopicAdded(Topic topic) {
 		topicAdded(topic);	
+		if (sessionPanel != null && sessionPanel.getTopicModel() != null) {
+			sessionPanel.getTopicModel().removeElement(topic);
+		}
 	}
 
 	@Override
 	public void onTopicRemoved(Topic topic) {
 		topicRemoved(topic);
+		if (sessionPanel != null && sessionPanel.getTopicModel() != null) {
+			sessionPanel.getTopicModel().removeElement(topic);
+		}
 	}
 
 	@Override
@@ -417,11 +423,17 @@ public class TopicAndSessionManager extends JFrame implements TopicViewCallback,
 	@Override
 	public void onSessionAdded(StudySession session) {
 		sessionAdded(session);
+		if (topicPanel != null && topicPanel.getSessionModel() != null) {
+			topicPanel.getSessionModel().removeElement(session);
+		}
 	}
 
 	@Override
 	public void onSessionRemoved(StudySession session) {
 		sessionRemoved(session);
+		if (topicPanel != null && topicPanel.getSessionModel() != null) {
+			topicPanel.getSessionModel().removeElement(session);
+		}
 	}
 
 	@Override
@@ -432,6 +444,14 @@ public class TopicAndSessionManager extends JFrame implements TopicViewCallback,
 
 	public StudySessionController getSessionController() {
 		return sessionController;
+	}
+	
+	void setTopicPanel(TopicPanel topicPanel) {
+		this.topicPanel = topicPanel;
+	}
+	
+	void setSessionPanel(SessionPanel sessionPanel) {
+		this.sessionPanel = sessionPanel;
 	}
 	
 

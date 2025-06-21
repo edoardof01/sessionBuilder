@@ -966,5 +966,145 @@ public class TopicAndSessionManagerTest extends AssertJSwingJUnitTestCase {
 		verify(topicController, never()).handlePercentageOfCompletion(anyLong());
 	}
 	
+	@Test
+	public void testOnTopicAddedWithNullSessionPanel() {
+		Topic topic = new Topic("Test Topic", "Description", 3, new ArrayList<>());
+		
+		GuiActionRunner.execute(() -> {
+			managerView.setSessionPanel(null);
+			managerView.onTopicAdded(topic);
+		});
+		
+		assertThat(managerView.getTopicModel().contains(topic)).isTrue();
+		assertThat(managerView.getTopicModel().size()).isEqualTo(1);
+	}
+
+	@Test
+	public void testOnTopicRemovedWithNullSessionPanel() {
+		Topic topic = new Topic("Test Topic", "Description", 3, new ArrayList<>());
+		
+		GuiActionRunner.execute(() -> {
+			managerView.getTopicModel().addElement(topic);
+			managerView.setSessionPanel(null);
+			managerView.onTopicRemoved(topic);
+		});
+		
+		assertThat(managerView.getTopicModel().contains(topic)).isFalse();
+		assertThat(managerView.getTopicModel().size()).isZero();
+	}
+
+	@Test
+	public void testOnTopicAddedWithNullTopicModel() {
+		Topic topic = new Topic("Test Topic", "Description", 3, new ArrayList<>());
+		
+		GuiActionRunner.execute(() -> {
+			SessionPanel mockSessionPanel = new SessionPanel() {
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public DefaultListModel<Topic> getTopicModel() {
+					return null;
+				}
+			};
+			managerView.setSessionPanel(mockSessionPanel);
+			managerView.onTopicAdded(topic);
+		});
+		
+		assertThat(managerView.getTopicModel().contains(topic)).isTrue();
+		assertThat(managerView.getTopicModel().size()).isEqualTo(1);
+	}
+
+	@Test
+	public void testOnTopicRemovedWithNullTopicModel() {
+		Topic topic = new Topic("Test Topic", "Description", 3, new ArrayList<>());
+		
+		GuiActionRunner.execute(() -> {
+			managerView.getTopicModel().addElement(topic);
+			SessionPanel mockSessionPanel = new SessionPanel() {
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public DefaultListModel<Topic> getTopicModel() {
+					return null;
+				}
+			};
+			managerView.setSessionPanel(mockSessionPanel);
+			managerView.onTopicRemoved(topic);
+		});
+		
+		assertThat(managerView.getTopicModel().contains(topic)).isFalse();
+		assertThat(managerView.getTopicModel().size()).isZero();
+	}
+
+	@Test
+	public void testOnSessionAddedWithNullTopicPanel() {
+		StudySession session = new StudySession(LocalDate.now().plusDays(1), 60, "test note", new ArrayList<>());
+		
+		GuiActionRunner.execute(() -> {
+			managerView.setTopicPanel(null);
+			managerView.onSessionAdded(session);
+		});
+		
+		assertThat(managerView.getStudySessionModel().contains(session)).isTrue();
+		assertThat(managerView.getStudySessionModel().size()).isEqualTo(1);
+	}
+
+	@Test
+	public void testOnSessionRemovedWithNullTopicPanel() {
+		StudySession session = new StudySession(LocalDate.now().plusDays(1), 60, "test note", new ArrayList<>());
+		
+		GuiActionRunner.execute(() -> {
+			managerView.getStudySessionModel().addElement(session);
+			managerView.setTopicPanel(null);
+			managerView.onSessionRemoved(session);
+		});
+		
+		assertThat(managerView.getStudySessionModel().contains(session)).isFalse();
+		assertThat(managerView.getStudySessionModel().size()).isZero();
+	}
+
+	@Test
+	public void testOnSessionAddedWithNullSessionModel() {
+		StudySession session = new StudySession(LocalDate.now().plusDays(1), 60, "test note", new ArrayList<>());
+		
+		GuiActionRunner.execute(() -> {
+			TopicPanel mockTopicPanel = new TopicPanel() {
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public DefaultListModel<StudySession> getSessionModel() {
+					return null;
+				}
+			};
+			managerView.setTopicPanel(mockTopicPanel);
+			managerView.onSessionAdded(session);
+		});
+		
+		assertThat(managerView.getStudySessionModel().contains(session)).isTrue();
+		assertThat(managerView.getStudySessionModel().size()).isEqualTo(1);
+	}
+
+	@Test
+	public void testOnSessionRemovedWithNullSessionModel() {
+		StudySession session = new StudySession(LocalDate.now().plusDays(1), 60, "test note", new ArrayList<>());
+		
+		GuiActionRunner.execute(() -> {
+			managerView.getStudySessionModel().addElement(session);
+			TopicPanel mockTopicPanel = new TopicPanel() {
+				private static final long serialVersionUID = 2L;
+
+				@Override
+				public DefaultListModel<StudySession> getSessionModel() {
+					return null;
+				}
+			};
+			managerView.setTopicPanel(mockTopicPanel);
+			managerView.onSessionRemoved(session);
+		});
+		
+		assertThat(managerView.getStudySessionModel().contains(session)).isFalse();
+		assertThat(managerView.getStudySessionModel().size()).isZero();
+	}
+	
 
 }
