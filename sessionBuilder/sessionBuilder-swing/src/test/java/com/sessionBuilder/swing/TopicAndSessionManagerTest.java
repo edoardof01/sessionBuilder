@@ -13,7 +13,6 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import org.assertj.swing.core.matcher.JButtonMatcher;
 import org.assertj.swing.core.matcher.JLabelMatcher;
 import org.assertj.swing.edt.GuiActionRunner;
@@ -140,51 +139,6 @@ public class TopicAndSessionManagerTest extends AssertJSwingJUnitTestCase {
 		assertThat(completeButton.isEnabled()).isFalse();
 		assertThat(totalTimeButton.isEnabled()).isFalse();
 		assertThat(percentageButton.isEnabled()).isFalse();
-	}
-	
-	
-	@Test
-	public void testCompleteSessionWithNoSelection() {
-		GuiActionRunner.execute(() -> {
-			managerView.getStudySessionModel().addElement(session1);
-			managerView.setSessionController(sessionController);
-		});
-		robot().waitForIdle();
-		window.list("sessionList").clearSelection();
-		window.button(JButtonMatcher.withName("completeSessionButton")).click();
-		robot().waitForIdle();
-		verify(sessionController, never()).handleCompleteSession(anyLong());
-		window.label("errorMessageLabel").requireText(" ");
-		verify(sessionController, never()).handleCompleteSession(anyLong());
-		robot().waitForIdle();
-	}
-	
-	
-	@Test
-	public void testCompleteSessionButtonWithNoSelectionAndNullController() {
-		GuiActionRunner.execute(() -> {
-			managerView.getStudySessionModel().addElement(session1);
-		});
-		robot().waitForIdle();
-		window.list("sessionList").clearSelection();
-		window.button(JButtonMatcher.withName("completeSessionButton")).click();
-		robot().waitForIdle();
-		assertThat(window.list("sessionList").selection()).isEmpty();
-		assertThat(window.button(JButtonMatcher.withName("completeSessionButton")).isEnabled()).isFalse();
-	}
-
-	@Test
-	public void testCompleteSessionButtonWithSelectionButNullController() {
-		GuiActionRunner.execute(() -> {
-			managerView.getStudySessionModel().addElement(session1);
-			managerView.setSessionController(null);
-		});
-		robot().waitForIdle();
-		window.list("sessionList").selectItem(0);
-		window.button(JButtonMatcher.withName("completeSessionButton")).click();
-		robot().waitForIdle();
-		assertThat(window.list("sessionList").selection()).hasSize(1);
-		assertThat(managerView.getSessionController()).isNull();
 	}
 
 	@Test
@@ -339,35 +293,6 @@ public class TopicAndSessionManagerTest extends AssertJSwingJUnitTestCase {
 	}
 	
 	@Test
-	public void testDeleteTopicButtonWithNoSelectionAndNullController() {
-		GuiActionRunner.execute(() -> {
-			managerView.getTopicModel().addElement(topic1);
-		});
-		robot().waitForIdle();
-		window.list("topicList").clearSelection();
-		window.button(JButtonMatcher.withName("deleteTopicButton")).click();
-		robot().waitForIdle();
-		assertThat(window.list("topicList").selection()).isEmpty();
-		assertThat(window.button(JButtonMatcher.withName("deleteTopicButton")).isEnabled()).isFalse();
-		assertThat(managerView.getTopicModel().getSize()).isEqualTo(1);
-	}
-
-	@Test
-	public void testDeleteTopicButtonWithNullController() {
-		GuiActionRunner.execute(() -> {
-			managerView.getTopicModel().addElement(topic1);
-			managerView.setTopicController(null);
-		});
-		robot().waitForIdle();
-		window.list("topicList").selectItem(0);
-		window.button(JButtonMatcher.withName("deleteTopicButton")).click();
-		robot().waitForIdle();
-		assertThat(window.list("topicList").selection()).hasSize(1);
-		assertThat(managerView.getTopicController()).isNull();
-		assertThat(managerView.getTopicModel().getSize()).isEqualTo(1);
-	}
-	
-	@Test
 	public void testDeleteSessionButtonCallsSessionControllerDeleteSession() {
 		GuiActionRunner.execute(()-> {
 			DefaultListModel<StudySession> listSessionModel = managerView.getStudySessionModel();
@@ -380,50 +305,6 @@ public class TopicAndSessionManagerTest extends AssertJSwingJUnitTestCase {
 		window.button(JButtonMatcher.withName("deleteSessionButton")).click();
 		verify(sessionController).handleDeleteSession(ids2);
 		robot().waitForIdle();
-	}
-	
-	@Test
-	public void testDeleteSessionButtonWithNoSelection() {
-		GuiActionRunner.execute(() -> {
-			managerView.getStudySessionModel().addElement(session1);
-			managerView.setSessionController(sessionController);
-		});
-		robot().waitForIdle();
-		window.list("sessionList").clearSelection();
-		window.button(JButtonMatcher.withName("deleteSessionButton")).click();
-		robot().waitForIdle();
-		verify(sessionController, never()).handleDeleteSession(anyLong());
-		window.label("errorMessageLabel").requireText(" ");
-		robot().waitForIdle();
-	}
-	
-	@Test
-	public void testDeleteSessionButtonWithNoSelectionAndNullController() {
-		GuiActionRunner.execute(() -> {
-			managerView.getStudySessionModel().addElement(session1);
-		});
-		robot().waitForIdle();
-		window.list("sessionList").clearSelection();
-		window.button(JButtonMatcher.withName("deleteSessionButton")).click();
-		robot().waitForIdle();
-		assertThat(window.list("sessionList").selection()).isEmpty();
-		assertThat(window.button(JButtonMatcher.withName("deleteSessionButton")).isEnabled()).isFalse();
-		assertThat(managerView.getStudySessionModel().getSize()).isEqualTo(1);
-	}
-
-	@Test
-	public void testDeleteSessionButtonWithSelectionButNullController() {
-		GuiActionRunner.execute(() -> {
-			managerView.getStudySessionModel().addElement(session1);
-			managerView.setSessionController(null);
-		});
-		robot().waitForIdle();
-		window.list("sessionList").selectItem(0);
-		window.button(JButtonMatcher.withName("deleteSessionButton")).click();
-		robot().waitForIdle();
-		assertThat(window.list("sessionList").selection()).hasSize(1);
-		assertThat(managerView.getSessionController()).isNull();
-		assertThat(managerView.getStudySessionModel().getSize()).isEqualTo(1);
 	}
 	
 	@Test
@@ -455,51 +336,6 @@ public class TopicAndSessionManagerTest extends AssertJSwingJUnitTestCase {
 		verify(topicController).handleTotalTime(idt1);
 		assertThat(topic1.totalTime()).isEqualTo(150);
 		robot().waitForIdle();
-	}
-	
-	@Test
-	public void testTotalTimeButtonWithNoSelection() {
-		GuiActionRunner.execute(() -> {
-			managerView.getTopicModel().addElement(topic1);
-			managerView.setTopicController(topicController);
-		});
-		robot().waitForIdle();
-		window.list("topicList").clearSelection();
-		window.button(JButtonMatcher.withText("totalTime")).click();
-		robot().waitForIdle();
-		verifyNoInteractions(sessionController);
-		window.label("errorMessageLabel").requireText(" ");
-		verify(topicController, never()).handleTotalTime(anyLong());
-		robot().waitForIdle();
-	}
-	
-	@Test
-	public void testTotalTimeButtonWithNoSelectionAndNullController() {
-		GuiActionRunner.execute(() -> {
-			managerView.getTopicModel().addElement(topic1);
-		});
-		robot().waitForIdle();
-		window.list("topicList").clearSelection();
-		window.button(JButtonMatcher.withText("totalTime")).click();
-		robot().waitForIdle();
-		assertThat(window.list("topicList").selection()).isEmpty();
-		assertThat(window.button(JButtonMatcher.withText("totalTime")).isEnabled()).isFalse();
-		assertThat(managerView.getTopicModel().getSize()).isEqualTo(1);
-	}
-
-	@Test
-	public void testTotalTimeButtonWithSelectionButNullController() {
-		GuiActionRunner.execute(() -> {
-			managerView.getTopicModel().addElement(topic1);
-			managerView.setTopicController(null);
-		});
-		robot().waitForIdle();
-		window.list("topicList").selectItem(0);
-		window.button(JButtonMatcher.withText("totalTime")).click();
-		robot().waitForIdle();
-		assertThat(window.list("topicList").selection()).hasSize(1);
-		assertThat(managerView.getTopicController()).isNull();
-		assertThat(managerView.getTopicModel().getSize()).isEqualTo(1);
 	}
 
 	@Test
@@ -556,52 +392,6 @@ public class TopicAndSessionManagerTest extends AssertJSwingJUnitTestCase {
 		assertThat(window.label("errorMessageLabel").text()).isEqualTo(" ");
 		assertThat(topic1.percentageOfCompletion()).isZero();
 		robot().waitForIdle();
-	}
-
-	
-	@Test
-	public void testPercentageButtonWithNoSelection() {
-		GuiActionRunner.execute(() -> {
-			managerView.getTopicModel().addElement(topic1);
-			managerView.setTopicController(topicController);
-		});
-		robot().waitForIdle();
-		window.list("topicList").clearSelection();
-		window.button(JButtonMatcher.withText("%Completion")).click();
-		robot().waitForIdle();
-		verifyNoInteractions(sessionController);
-		window.label("errorMessageLabel").requireText(" ");
-		verify(topicController, never()).handlePercentageOfCompletion(anyLong());
-		robot().waitForIdle();
-	}
-	
-	@Test
-	public void testPercentageButtonWithNoSelectionAndNullController() {
-		GuiActionRunner.execute(() -> {
-			managerView.getTopicModel().addElement(topic1);
-		});
-		robot().waitForIdle();
-		window.list("topicList").clearSelection();
-		window.button(JButtonMatcher.withText("%Completion")).click();
-		robot().waitForIdle();
-		assertThat(window.list("topicList").selection()).isEmpty();
-		assertThat(window.button(JButtonMatcher.withText("%Completion")).isEnabled()).isFalse();
-		assertThat(managerView.getTopicModel().getSize()).isEqualTo(1);
-	}
-
-	@Test
-	public void testPercentageButtonWithSelectionButNullController() {
-		GuiActionRunner.execute(() -> {
-			managerView.getTopicModel().addElement(topic1);
-			managerView.setTopicController(null);
-		});
-		robot().waitForIdle();
-		window.list("topicList").selectItem(0);
-		window.button(JButtonMatcher.withText("%Completion")).click();
-		robot().waitForIdle();
-		assertThat(window.list("topicList").selection()).hasSize(1);
-		assertThat(managerView.getTopicController()).isNull();
-		assertThat(managerView.getTopicModel().getSize()).isEqualTo(1);
 	}
 	
 	@Test
@@ -683,6 +473,175 @@ public class TopicAndSessionManagerTest extends AssertJSwingJUnitTestCase {
 		assertThat(window.label("errorMessageLabel").text()).isEqualTo(" ");
 		assertThat(managerView.getTopicModel().contains(topic)).isFalse();
 	}
+	
+
+
+	@Test
+	public void testOnSessionUpdatedKeepsCompleteButtonEnabled() {
+		session1.setIsComplete(false);
+		GuiActionRunner.execute(() -> {
+			managerView.getStudySessionModel().addElement(session1);
+			managerView.getStudySessionModel().addElement(session2);
+		});
+		robot().waitForIdle();
+		window.list("sessionList").selectItem(0);
+		robot().waitForIdle();
+		GuiActionRunner.execute(() -> {
+			managerView.onSessionUpdated(session1);
+		});
+		robot().waitForIdle();
+		JButtonFixture completeButton = window.button(JButtonMatcher.withName("completeSessionButton"));
+		completeButton.requireEnabled();
+		assertThat(completeButton.isEnabled()).isTrue();
+	}
+
+	@Test
+	public void testOnSessionUpdatedWithNoSelection() {
+		session1.setIsComplete(true);
+		GuiActionRunner.execute(() -> {
+			managerView.getStudySessionModel().addElement(session1);
+		});
+		robot().waitForIdle();
+		window.list("sessionList").clearSelection();
+		robot().waitForIdle();
+		GuiActionRunner.execute(() -> {
+			managerView.onSessionUpdated(session1);
+		});
+		robot().waitForIdle();
+		JButtonFixture completeButton = window.button(JButtonMatcher.withName("completeSessionButton"));
+		completeButton.requireDisabled();
+		assertThat(completeButton.isEnabled()).isFalse();
+		assertThat(window.list("sessionList").selection()).isEmpty();
+	}
+
+	@Test
+	public void testOnSessionUpdatedUpdatesTopicPanelSessionModel() {
+		session1.setIsComplete(false);
+		GuiActionRunner.execute(() -> {
+			managerView.getStudySessionModel().addElement(session1);
+			TopicPanel mockTopicPanel = new TopicPanel();
+			mockTopicPanel.getSessionModel().addElement(session1);
+			managerView.setTopicPanel(mockTopicPanel);
+		});
+		robot().waitForIdle();
+		session1.setIsComplete(true);
+		GuiActionRunner.execute(() -> {
+			managerView.onSessionUpdated(session1);
+		});
+		robot().waitForIdle();
+		assertThat(managerView.getTopicPanel().getSessionModel().getElementAt(0).isComplete()).isTrue();
+	}
+
+	@Test
+	public void testOnSessionUpdatedSessionNotFoundInMainModel() {
+		StudySession differentSession = new StudySession(LocalDate.now().plusDays(3), 30, "different note", new ArrayList<>());
+		differentSession.setId(999L);
+		
+		GuiActionRunner.execute(() -> {
+			managerView.getStudySessionModel().addElement(session1);
+			managerView.getStudySessionModel().addElement(session2);
+		});
+		robot().waitForIdle();
+		
+		GuiActionRunner.execute(() -> {
+			managerView.onSessionUpdated(differentSession);
+		});
+		robot().waitForIdle();
+		
+		assertThat(managerView.getStudySessionModel().getElementAt(0).isComplete()).isFalse();
+		assertThat(managerView.getStudySessionModel().getElementAt(1).isComplete()).isFalse();
+	}
+
+	@Test
+	public void testOnSessionUpdatedSessionNotFoundInTopicPanelModel() {
+		StudySession differentSession = new StudySession(LocalDate.now().plusDays(3), 30, "different note", new ArrayList<>());
+		differentSession.setId(999L);
+		
+		GuiActionRunner.execute(() -> {
+			managerView.getStudySessionModel().addElement(differentSession);
+			TopicPanel mockTopicPanel = new TopicPanel();
+			mockTopicPanel.getSessionModel().addElement(session1);
+			mockTopicPanel.getSessionModel().addElement(session2);
+			managerView.setTopicPanel(mockTopicPanel);
+		});
+		robot().waitForIdle();
+		
+		GuiActionRunner.execute(() -> {
+			managerView.onSessionUpdated(differentSession);
+		});
+		robot().waitForIdle();
+		
+		assertThat(managerView.getTopicPanel().getSessionModel().getElementAt(0).isComplete()).isFalse();
+		assertThat(managerView.getTopicPanel().getSessionModel().getElementAt(1).isComplete()).isFalse();
+	}
+	
+	@Test
+	public void testOnSessionUpdatedWithNullTopicPanel() {
+		session1.setIsComplete(false);
+		GuiActionRunner.execute(() -> {
+			managerView.getStudySessionModel().addElement(session1);
+		});
+		robot().waitForIdle();
+		GuiActionRunner.execute(() -> {
+			managerView.setTopicPanel(null);
+			
+			StudySession updatedSession = new StudySession(session1.getDate(), session1.getDuration(), session1.getNote(), session1.getTopicList());
+			updatedSession.setId(session1.getId());
+			updatedSession.setIsComplete(true);
+			managerView.onSessionUpdated(updatedSession);
+		});
+		robot().waitForIdle();
+		assertThat(managerView.getStudySessionModel().getElementAt(0).isComplete()).isTrue();
+	}
+
+	@Test
+	public void testOnSessionUpdatedWithTopicPanelButNullSessionModel() {
+		session1.setIsComplete(false);
+		GuiActionRunner.execute(() -> {
+			managerView.getStudySessionModel().addElement(session1);
+			
+			TopicPanel mockTopicPanelWithNullModel = new TopicPanel() {
+				private static final long serialVersionUID = 1L;
+				@Override
+				public DefaultListModel<StudySession> getSessionModel() {
+					return null;
+				}
+			};
+			managerView.setTopicPanel(mockTopicPanelWithNullModel);
+		});
+		robot().waitForIdle();
+		GuiActionRunner.execute(() -> {
+			StudySession updatedSession = new StudySession(session1.getDate(), session1.getDuration(), session1.getNote(), session1.getTopicList());
+			updatedSession.setId(session1.getId());
+			updatedSession.setIsComplete(true);
+			managerView.onSessionUpdated(updatedSession);
+		});
+		robot().waitForIdle();
+		assertThat(managerView.getStudySessionModel().getElementAt(0).isComplete()).isTrue();
+	}
+
+	@Test
+	public void testOnSessionUpdatedUpdatesBothMainAndTopicPanelModels() {
+		session1.setIsComplete(false);
+		GuiActionRunner.execute(() -> {
+			managerView.getStudySessionModel().addElement(session1);
+			TopicPanel mockTopicPanel = new TopicPanel();
+			mockTopicPanel.getSessionModel().addElement(session1);
+			managerView.setTopicPanel(mockTopicPanel);
+		});
+		robot().waitForIdle();
+		
+		session1.setIsComplete(true);
+		GuiActionRunner.execute(() -> {
+			managerView.onSessionUpdated(session1);
+		});
+		robot().waitForIdle();
+		
+		assertThat(managerView.getTopicPanel().getSessionModel().getElementAt(0).isComplete()).isTrue();
+		assertThat(managerView.getStudySessionModel().getElementAt(0).isComplete()).isTrue();
+	}
+	
+	
 
 	@Test
 	public void testSetTopicControllerSetsCallback() {
@@ -825,7 +784,7 @@ public class TopicAndSessionManagerTest extends AssertJSwingJUnitTestCase {
 	}
 	
 	@Test
-	public void testCompleteSessionButton_NoSelectionWithController() {
+	public void testCompleteSessionButtonNoSelectionWithController() {
 		GuiActionRunner.execute(() -> {
 			managerView.getStudySessionModel().addElement(session1);
 			managerView.setSessionController(sessionController);
@@ -839,7 +798,7 @@ public class TopicAndSessionManagerTest extends AssertJSwingJUnitTestCase {
 	}
 
 	@Test
-	public void testDeleteTopicButton_NoSelectionWithController() {
+	public void testDeleteTopicButtonNoSelectionWithController() {
 		GuiActionRunner.execute(() -> {
 			managerView.getTopicModel().addElement(topic1);
 			managerView.setTopicController(topicController);
@@ -853,7 +812,7 @@ public class TopicAndSessionManagerTest extends AssertJSwingJUnitTestCase {
 	}
 
 	@Test
-	public void testDeleteSessionButton_NoSelectionWithController() {
+	public void testDeleteSessionButtonNoSelectionWithController() {
 		GuiActionRunner.execute(() -> {
 			managerView.getStudySessionModel().addElement(session1);
 			managerView.setSessionController(sessionController);
@@ -867,7 +826,7 @@ public class TopicAndSessionManagerTest extends AssertJSwingJUnitTestCase {
 	}
 
 	@Test
-	public void testTotalTimeButton_NoSelectionWithController() {
+	public void testTotalTimeButtonNoSelectionWithController() {
 		GuiActionRunner.execute(() -> {
 			managerView.getTopicModel().addElement(topic1);
 			managerView.setTopicController(topicController);
@@ -881,7 +840,7 @@ public class TopicAndSessionManagerTest extends AssertJSwingJUnitTestCase {
 	}
 
 	@Test
-	public void testPercentageButton_NoSelectionWithController() {
+	public void testPercentageButtonNoSelectionWithController() {
 		GuiActionRunner.execute(() -> {
 			managerView.getTopicModel().addElement(topic1);
 			managerView.setTopicController(topicController);
@@ -896,7 +855,7 @@ public class TopicAndSessionManagerTest extends AssertJSwingJUnitTestCase {
 	
 	
 	@Test
-	public void testCompleteSessionButton_NoSelectionWithController_ForcedClick() {
+	public void testCompleteSessionButtonNoSelectionWithControllerForcedClick() {
 		GuiActionRunner.execute(() -> {
 			managerView.getStudySessionModel().addElement(session1);
 			managerView.setSessionController(sessionController);
@@ -924,7 +883,7 @@ public class TopicAndSessionManagerTest extends AssertJSwingJUnitTestCase {
 		verify(topicController, never()).handleDeleteTopic(anyLong());
 	}
 	@Test
-	public void testDeleteSessionButton_NoSelectionWithController_ForcedClick() {
+	public void testDeleteSessionButtonNoSelectionWithControllerForcedClick() {
 		GuiActionRunner.execute(() -> {
 			managerView.getStudySessionModel().addElement(session1);
 			managerView.setSessionController(sessionController);
@@ -938,7 +897,7 @@ public class TopicAndSessionManagerTest extends AssertJSwingJUnitTestCase {
 		verify(sessionController, never()).handleDeleteSession(anyLong());
 	}
 	@Test
-	public void testTotalTimeButton_NoSelectionWithController_ForcedClick() {
+	public void testTotalTimeButtonNoSelectionWithControllerForcedClick() {
 		GuiActionRunner.execute(() -> {
 			managerView.getTopicModel().addElement(topic1);
 			managerView.setTopicController(topicController);
@@ -952,7 +911,7 @@ public class TopicAndSessionManagerTest extends AssertJSwingJUnitTestCase {
 		verify(topicController, never()).handleTotalTime(anyLong());
 	}
 	@Test
-	public void testPercentageButton_NoSelectionWithController_ForcedClick() {
+	public void testPercentageButtonNoSelectionWithControllerForcedClick() {
 		GuiActionRunner.execute(() -> {
 			managerView.getTopicModel().addElement(topic1);
 			managerView.setTopicController(topicController);

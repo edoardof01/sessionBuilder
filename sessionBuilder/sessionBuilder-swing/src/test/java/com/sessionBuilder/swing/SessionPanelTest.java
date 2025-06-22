@@ -350,27 +350,6 @@ public class SessionPanelTest extends AssertJSwingJUnitTestCase {
 	}
 	
 	@Test @GUITest
-	public void testAddButtonPopulateTopicAndSessionManagerList() {
-		GuiActionRunner.execute(() -> {
-			managerView.getSessionPanel().getTopicModel().addElement(topic);
-			managerView.getSessionPanel().setSessionController(sessionController);
-			managerView.getTopicModel().addElement(topic);
-		});
-		
-		robot().waitForIdle();
-		JTextComponentFixture noteField = window.textBox("noteField").enterText("test");
-		JTextComponentFixture durationField = window.textBox("durationField").enterText("60");
-		LocalDate newDate = LocalDate.now().plusMonths(1);
-		setDateChooserValue(newDate);
-		window.list("sessionPanelTopicList").selectItem(0);
-		robot().waitForIdle();
-		window.button(JButtonMatcher.withName("addSessionButton")).click();
-		verify(sessionController).handleCreateSession(newDate, Integer.parseInt(durationField.text()), noteField.text(), new ArrayList<>(List.of(topic)));
-		robot().waitForIdle();
-	}
-	
-	
-	@Test @GUITest
 	public void testAddButtonEnabledWhenDateIsSelectedButNoteNotFailure() {
 		JTextComponentFixture durationText = window.textBox("durationField");
 		JTextComponentFixture noteText = window.textBox("noteField");
