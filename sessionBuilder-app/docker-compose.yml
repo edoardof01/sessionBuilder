@@ -10,9 +10,9 @@ services:
       - DISPLAY=${DISPLAY:-:0}
       - DB_HOST=postgresdb
       - DB_PORT=5432
-      - POSTGRES_TEST_DB=test
-      - POSTGRES_TEST_USER=test
-      - POSTGRES_TEST_PASSWORD=test
+      - POSTGRES_DB=sessionbuilder
+      - POSTGRES_USER=sessionbuilder
+      - POSTGRES_PASSWORD=sessionbuilder
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - /dev/shm:/dev/shm:rw
@@ -78,7 +78,6 @@ services:
       - POSTGRES_PASSWORD=sonar
       - POSTGRES_DB=sonar
     volumes:
-      - postgresql:/var/lib/postgresql
       - postgresql_data:/var/lib/postgresql/data
     networks:
       - my-network
