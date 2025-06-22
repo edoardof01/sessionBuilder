@@ -20,7 +20,19 @@ public class AppModule extends AbstractModule {
 	@Provides
 	@Singleton
 	EntityManagerFactory provideEntityManagerFactory() {
-		return Persistence.createEntityManagerFactory("sessionbuilder-test");
+	   String persistenceUnit = determinePersistenceUnit();
+	   return Persistence.createEntityManagerFactory(persistenceUnit);
+	}
+
+	String determinePersistenceUnit() {
+	   String environment = System.getProperty("app.environment", 
+	   	System.getenv().getOrDefault("APP_ENVIRONMENT", "production"));
+	   
+	   if ("test".equals(environment)) {
+	   	return "sessionbuilder-test";
+	   }
+	   
+	   return "sessionbuilder-prod";
 	}
 }
 
