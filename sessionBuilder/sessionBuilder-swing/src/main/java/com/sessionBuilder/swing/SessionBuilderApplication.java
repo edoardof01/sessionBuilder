@@ -60,9 +60,9 @@ public class SessionBuilderApplication implements Callable<Integer> {
 			try {
 				String finalHost = getEnvOrDefault("DB_HOST", postgresHost);
 				int finalPort = Integer.parseInt(getEnvOrDefault("DB_PORT", String.valueOf(postgresPort)));
-				String finalDbName = getEnvOrDefault("POSTGRES_TEST_DB", databaseName);
-				String finalUsername = getEnvOrDefault("POSTGRES_TEST_USER", username);
-				String finalPassword = getEnvOrDefault("POSTGRES_TEST_PASSWORD", password);
+				String finalDbName = getEnvOrDefault("POSTGRES_DB", databaseName);
+				String finalUsername = getEnvOrDefault("POSTGRES_USER", username);
+				String finalPassword = getEnvOrDefault("POSTGRES_PASSWORD", password);
 				
 				Map<String, String> properties = new HashMap<>();
 				String jdbcUrl = String.format("jdbc:postgresql://%s:%d/%s", finalHost, finalPort, finalDbName);
