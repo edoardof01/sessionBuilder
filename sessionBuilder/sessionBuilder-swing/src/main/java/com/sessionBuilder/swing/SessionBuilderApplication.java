@@ -44,7 +44,7 @@ public class SessionBuilderApplication implements Callable<Integer> {
 	@Option(names = {"--db-password"}, description = "Database password (default: ${DEFAULT-VALUE})", defaultValue = "test")
 	private String password;
 
-	@Option(names = {"--persistence-unit"}, description = "JPA persistence unit name (default: ${DEFAULT-VALUE})", defaultValue = "sessionbuilder-test")
+	@Option(names = {"--persistence-unit"}, description = "JPA persistence unit name (default: ${DEFAULT-VALUE})", defaultValue = "sessionbuilder-prod")
 	private String persistenceUnit;
 
 	public static void main(String[] args) {
