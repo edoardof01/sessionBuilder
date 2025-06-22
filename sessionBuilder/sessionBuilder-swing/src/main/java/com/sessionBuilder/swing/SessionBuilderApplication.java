@@ -72,7 +72,6 @@ public class SessionBuilderApplication implements Callable<Integer> {
 				properties.put("jakarta.persistence.jdbc.user", finalUsername);
 				properties.put("jakarta.persistence.jdbc.password", finalPassword);
 				properties.put("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
-				properties.put("hibernate.hbm2ddl.auto", "create-drop");
 				properties.put("hibernate.show_sql", "true");
 				properties.put("hibernate.format_sql", "true");
 				properties.put("hibernate.connection.pool_size", "5");

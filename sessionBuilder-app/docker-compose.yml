@@ -13,6 +13,7 @@ services:
       - POSTGRES_DB=sessionbuilder
       - POSTGRES_USER=sessionbuilder
       - POSTGRES_PASSWORD=sessionbuilder
+      - APP_ENVIRONMENT=production
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - /dev/shm:/dev/shm:rw
