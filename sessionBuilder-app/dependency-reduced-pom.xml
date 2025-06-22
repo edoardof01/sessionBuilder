@@ -5,31 +5,6 @@
   <artifactId>sessionBuilder-app</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>exec-maven-plugin</artifactId>
-          <version>1.6.0</version>
-          <executions>
-            <execution>
-              <id>run-jar-with-dependencies</id>
-              <phase>verify</phase>
-              <goals>
-                <goal>exec</goal>
-              </goals>
-              <configuration>
-                <executable>java</executable>
-                <arguments>
-                  <argument>-jar</argument>
-                  <argument>${project.build.directory}/${project.artifactId}-${project.version}-jar-with-dependencies.jar</argument>
-                </arguments>
-              </configuration>
-            </execution>
-          </executions>
-        </plugin>
-      </plugins>
-    </pluginManagement>
     <plugins>
       <plugin>
         <artifactId>maven-shade-plugin</artifactId>
@@ -97,36 +72,6 @@
       </plugin>
     </plugins>
   </build>
-  <profiles>
-    <profile>
-      <id>run-app</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>exec-maven-plugin</artifactId>
-            <version>1.6.0</version>
-            <executions>
-              <execution>
-                <id>run-jar-with-dependencies</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>exec</goal>
-                </goals>
-                <configuration>
-                  <executable>java</executable>
-                  <arguments>
-                    <argument>-jar</argument>
-                    <argument>/home/edoardo/Projects/SessionBuilder/sessionBuilder-app/target/sessionBuilder-app-0.0.1-SNAPSHOT-jar-with-dependencies.jar</argument>
-                  </arguments>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
   <dependencyManagement>
     <dependencies>
       <dependency>
