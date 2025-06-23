@@ -124,7 +124,7 @@
 					<artifactId>maven-surefire-plugin</artifactId>
 					<version>3.5.2</version>
 					<configuration>
-        				<argLine>@{argLine} ${swing.test.jvm.args}</argLine>
+        				<argLine>${swing.test.jvm.args}</argLine>
 						<systemPropertyVariables>
 							<java.awt.headless>false</java.awt.headless>
 						</systemPropertyVariables>
@@ -224,7 +224,7 @@
 						</execution>
 					</executions>
 					<configuration>
-						<argLine>@{argLine} ${swing.test.jvm.args}</argLine>
+						<argLine>${swing.test.jvm.args}</argLine>
 						<systemPropertyVariables>
 							<postgres.mapped.port>${postgres.mapped.port}</postgres.mapped.port>
 							<java.awt.headless>false</java.awt.headless>
