@@ -124,9 +124,7 @@
 					<artifactId>maven-surefire-plugin</artifactId>
 					<version>3.5.2</version>
 					<configuration>
-						<argLine>
-            				<argLine>@{argLine} ${swing.test.jvm.args}</argLine>
-						</argLine>
+        				<argLine>@{argLine} ${swing.test.jvm.args}</argLine>
 						<systemPropertyVariables>
 							<java.awt.headless>false</java.awt.headless>
 						</systemPropertyVariables>

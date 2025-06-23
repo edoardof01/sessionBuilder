@@ -7,8 +7,10 @@
   </parent>
   
   <artifactId>sessionBuilder-e2e</artifactId>
-
- 	
+  
+	<properties>
+		<swing.test.jvm.args>--add-opens java.base/java.util=ALL-UNNAMED</swing.test.jvm.args>
+	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
