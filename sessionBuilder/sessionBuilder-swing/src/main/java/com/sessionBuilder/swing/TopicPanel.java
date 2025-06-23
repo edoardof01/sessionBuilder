@@ -126,7 +126,6 @@ public class TopicPanel extends JPanel {
 		backButtonPanel.add(backButton);
 		bottomPanel.add(backButtonPanel, BorderLayout.SOUTH);
 		
-		
 		add(formPanel, BorderLayout.NORTH);
 		add(sessionPanel, BorderLayout.CENTER);
 		add(bottomPanel, BorderLayout.SOUTH);

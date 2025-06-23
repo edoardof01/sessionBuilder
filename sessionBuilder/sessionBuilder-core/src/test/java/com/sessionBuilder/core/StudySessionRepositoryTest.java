@@ -115,7 +115,7 @@ public class StudySessionRepositoryTest {
 	    		()-> sessionRepository.findByDateDurationAndNote(date, duration, note));
 		assertThat(e.getMessage()).isEqualTo("non esiste una session con tali valori");
 	}
-	
+
 	@Test
 	public void testFindAllSuccess() {
 		Topic topic = new Topic();

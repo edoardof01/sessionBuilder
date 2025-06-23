@@ -8,7 +8,6 @@ import com.google.inject.Inject;
 import jakarta.persistence.NoResultException;
 
 public class StudySessionRepository implements StudySessionRepositoryInterface {
-	
 
 	private TransactionManager tm;
 	

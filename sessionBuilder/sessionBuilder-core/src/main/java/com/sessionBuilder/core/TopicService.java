@@ -6,7 +6,7 @@ import java.util.List;
 import com.google.inject.Inject;
 
 public class TopicService implements TopicServiceInterface {
-	
+
 	@Inject
 	private TopicRepositoryInterface topicRepository;
 	

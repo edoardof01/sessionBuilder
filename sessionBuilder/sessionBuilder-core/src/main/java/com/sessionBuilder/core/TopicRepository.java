@@ -6,7 +6,6 @@ import com.google.inject.Inject;
 
 import jakarta.persistence.NoResultException;
 
-
 public class TopicRepository implements TopicRepositoryInterface{
 	
 	

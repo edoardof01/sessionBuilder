@@ -52,7 +52,7 @@ public class StudySessionService implements StudySessionInterface {
 			return session;
 		});
 	}
-	
+
 	@Override
 	public void addTopic(long sessionId, long topicId) {
 		tm.doInMultiRepositoryTransaction(context -> {

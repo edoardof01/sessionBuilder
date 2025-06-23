@@ -136,7 +136,7 @@ public class StudySessionControllerTest {
 		verify(service).getSessionById(ids1);
 		assertThat(thrown).isEqualTo(exception);
 	}
-	
+
 	@Test
 	public void testHandleGetAllSessionsSuccess() {
 		StudySession sessionTest = new StudySession();

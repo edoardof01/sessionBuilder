@@ -26,7 +26,7 @@ public class StudySession {
 	
 	@ManyToMany(mappedBy="sessionList",fetch = FetchType.EAGER)
 	private List<Topic> topicList = new ArrayList<>();
-	
+
 	private boolean isComplete;
 
 	public StudySession(LocalDate date, int duration, String note, List<Topic> topicList) {
