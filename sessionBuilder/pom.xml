@@ -27,7 +27,6 @@
 		<testcontainer.version>1.20.4</testcontainer.version>
 		<picocli.version>4.7.6</picocli.version>
 		<sonar.version>5.0.0.4389</sonar.version>
-		<swing.test.jvm.args></swing.test.jvm.args>
 	</properties>
 	
 	<dependencies>
@@ -119,17 +118,6 @@
 		</plugins>
 		<pluginManagement>
 			<plugins>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-surefire-plugin</artifactId>
-					<version>3.5.2</version>
-					<configuration>
-        				<argLine>${swing.test.jvm.args}</argLine>
-						<systemPropertyVariables>
-							<java.awt.headless>false</java.awt.headless>
-						</systemPropertyVariables>
-					</configuration>
-				</plugin>
 				<plugin>
 					<groupId>org.jacoco</groupId>
 					<artifactId>jacoco-maven-plugin</artifactId>
@@ -223,13 +211,6 @@
 							</configuration>
 						</execution>
 					</executions>
-					<configuration>
-						<argLine>${swing.test.jvm.args}</argLine>
-						<systemPropertyVariables>
-							<postgres.mapped.port>${postgres.mapped.port}</postgres.mapped.port>
-							<java.awt.headless>false</java.awt.headless>
-						</systemPropertyVariables>
-					</configuration>
 				</plugin>
 				<plugin>
 					<groupId>org.sonarsource.scanner.maven</groupId>
