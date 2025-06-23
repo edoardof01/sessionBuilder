@@ -138,6 +138,39 @@ public class StudySessionControllerTest {
 	}
 	
 	@Test
+	public void testHandleGetAllSessionsSuccess() {
+		StudySession sessionTest = new StudySession();
+		List<StudySession> allSessions = new ArrayList<>(List.of(session, sessionTest));
+		when(service.getAllSessions()).thenReturn(allSessions);
+		List<StudySession> result = sessionController.handleGetAllSessions();
+		assertThat(result).isEqualTo(allSessions);
+		verify(service).getAllSessions();
+	}
+	
+	@Test
+	public void testHandleGetAllTopicsWithExceptions() {
+		RuntimeException exception = new RuntimeException("lista di sessioni non estratta");
+		when(service.getAllSessions()).thenThrow(exception);
+		RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
+			sessionController.handleGetAllSessions();
+		});
+		verify(service).getAllSessions();
+		assertThat(thrown).isEqualTo(exception);
+	}
+	
+	@Test
+	public void testHandleGetAllTopicsWithNullCallback() {
+		sessionController.setViewCallBack(null);
+		RuntimeException exception = new RuntimeException("lista di sessioni non estratta");
+		when(service.getAllSessions()).thenThrow(exception);
+		RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
+			sessionController.handleGetAllSessions();
+		});
+		verify(service).getAllSessions();
+		assertThat(thrown).isEqualTo(exception);
+	}
+	
+	@Test
 	public void testHandleAddTopicSuccess() {
 		sessionController.handleAddTopic(ids1, idt2);
 		verify(service).addTopic(ids1, idt2);

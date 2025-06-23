@@ -42,6 +42,18 @@ public class StudySessionController {
 		}
 		
 	}
+	
+	public List<StudySession> handleGetAllSessions() {
+		try {
+			return service.getAllSessions();
+		} catch(Exception e) {
+			if(viewCallBack != null) {
+				viewCallBack.onSessionError("Errore nel caricamento delle session");
+			}
+			throw e;
+		}
+	}
+	
 
 	public void handleAddTopic(long sessionId, long topicId) {
 		try {
@@ -101,7 +113,8 @@ public class StudySessionController {
 	public SessionViewCallback getViewCallback() {
 		return viewCallBack;
 	}
-	
+
+
 	
 
 }

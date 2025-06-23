@@ -5,6 +5,7 @@ import java.util.List;
 
 public interface StudySessionInterface {
 	StudySession getSessionById(long id);
+	List<StudySession> getAllSessions();
 	StudySession createSession(LocalDate date, int duration, String note, List<Topic> topicList);
 	StudySession completeSession(long sessionId);
 	void addTopic(long sessionId, long topicId);

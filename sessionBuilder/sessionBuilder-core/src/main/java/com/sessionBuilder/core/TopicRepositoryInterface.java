@@ -1,5 +1,7 @@
 package com.sessionBuilder.core;
 
+import java.util.List;
+
 public interface TopicRepositoryInterface {
 	
 	Topic findById(long id);
@@ -7,4 +9,5 @@ public interface TopicRepositoryInterface {
 	void update(Topic topic);
 	void delete(long id);
 	Topic findByNameDescriptionAndDifficulty(String name, String description, int difficulty);
+	List<Topic> findAll();
 }

@@ -34,6 +34,18 @@ public class TopicService implements TopicServiceInterface {
 			return topic;
 		});
 	}
+	
+	@Override
+	public List<Topic> getAllTopics() {
+		return tm.doInTopicTransaction(repository -> {
+			try {
+				return repository.findAll();
+			} catch (Exception e) {
+				throw new IllegalArgumentException("Errore durante il caricamento dei topic");
+			}
+		 });
+	}
+
 
 	@Override
 	public void addSessionToTopic(long topicId, long sessionId) {

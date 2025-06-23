@@ -1,5 +1,7 @@
 package com.sessionBuilder.core;
 
+import java.util.List;
+
 import com.google.inject.Inject;
 
 import jakarta.persistence.NoResultException;
@@ -26,6 +28,34 @@ public class TopicRepository implements TopicRepositoryInterface{
 					.getSingleResult();
 			} catch (NoResultException e) {
 				throw new IllegalArgumentException("non esiste un topic con tale id");
+			}
+		});
+	}
+	
+	@Override
+	public Topic findByNameDescriptionAndDifficulty(String name, String description, int difficulty) {
+		return tm.doInTransaction(em ->{
+			try {
+			return em.createQuery(
+				"SELECT t FROM Topic t WHERE t.name = :name AND t.description = :description AND t.difficulty = :difficulty",
+				Topic.class)
+				.setParameter("name", name)
+				.setParameter("description", description)
+				.setParameter("difficulty", difficulty)
+				.getSingleResult();
+			} catch (RuntimeException e) {
+				throw new IllegalArgumentException("non esiste un topic con tali valori");
+			}
+		});
+	}
+	
+	@Override
+	public List<Topic> findAll() {
+		return tm.doInTransaction(em -> {
+			try {
+				return em.createQuery("SELECT t FROM Topic t", Topic.class).getResultList();
+			} catch(Exception e) {
+				throw new IllegalArgumentException("erorre nell'estrazione dei topic");
 			}
 		});
 	}
@@ -56,24 +86,6 @@ public class TopicRepository implements TopicRepositoryInterface{
 			em.remove(result);
 			return null;
 		});
-	}
-
-	@Override
-	public Topic findByNameDescriptionAndDifficulty(String name, String description, int difficulty) {
-		return tm.doInTransaction(em ->{
-			try {
-			return em.createQuery(
-				"SELECT t FROM Topic t WHERE t.name = :name AND t.description = :description AND t.difficulty = :difficulty",
-				Topic.class)
-				.setParameter("name", name)
-				.setParameter("description", description)
-				.setParameter("difficulty", difficulty)
-				.getSingleResult();
-			} catch (Exception e) {
-				return null;
-			}
-		});
-		
 	}
 
 	

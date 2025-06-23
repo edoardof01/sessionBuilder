@@ -24,6 +24,7 @@ import javax.swing.JSplitPane;
 import javax.swing.ListSelectionModel;
 
 import java.awt.GridLayout;
+import java.util.List;
 
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -76,6 +77,20 @@ public class TopicAndSessionManager extends JFrame implements TopicViewCallback,
 		mainPanel.add(topicPanel, CREATE_TOPIC_VIEW);
 		mainPanel.add(sessionPanel, CREATE_SESSION_VIEW);
 		setContentPane(mainPanel);
+	}
+	
+	public void loadInitialData() {
+		if (topicController != null && sessionController != null) {
+			topicModel.clear();
+			studySessionModel.clear();
+			List<Topic> topics = topicController.handleGetAllTopics();
+			List<StudySession> sessions = sessionController.handleGetAllSessions();
+			topics.forEach(topicModel::addElement);
+			sessions.forEach(studySessionModel::addElement);
+		} 
+		else {
+			throw new IllegalStateException("i record del db non sono stati caricati correttamente");
+		}
 	}
 
 
@@ -367,7 +382,6 @@ public class TopicAndSessionManager extends JFrame implements TopicViewCallback,
 	public DefaultListModel<StudySession> getStudySessionModel(){
 		return this.studySessionModel;
 	}
-
 
 	public void showSessionError(String message, StudySession session) {
 		lblErrorMessage.setText(message + ": " + session);

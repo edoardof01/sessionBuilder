@@ -98,9 +98,10 @@ public class StudySessionRepositoryTest {
 		String jpql = "SELECT s FROM StudySession s WHERE s.date = :date AND s.duration = :duration AND s.note = :note";
 		when(em.createQuery(jpql, StudySession.class)).thenReturn(typedQuery);
 		when(typedQuery.setParameter(anyString(), any())).thenReturn(typedQuery);
-		when(typedQuery.getSingleResult()).thenReturn(null);
-	    StudySession other = sessionRepository.findByDateDurationAndNote(date, duration, note);
-		assertThat(other).isNull();
+		when(typedQuery.getSingleResult()).thenThrow(new IllegalArgumentException());
+	    IllegalArgumentException e = assertThrows(IllegalArgumentException.class, 
+	    		()-> sessionRepository.findByDateDurationAndNote(date, duration, note));
+		assertThat(e.getMessage()).isEqualTo("non esiste una session con tali valori");
 	}
 	
 	@Test
@@ -110,8 +111,32 @@ public class StudySessionRepositoryTest {
 		String note = "test";
 		String jpql = "SELECT s FROM StudySession s WHERE s.date = :date AND s.duration = :duration AND s.note = :note";
 		when(em.createQuery(jpql, StudySession.class)).thenThrow(new RuntimeException("Database error"));
-		StudySession result = sessionRepository.findByDateDurationAndNote(date, duration, note);
-		assertThat(result).isNull();
+		IllegalArgumentException e = assertThrows(IllegalArgumentException.class, 
+	    		()-> sessionRepository.findByDateDurationAndNote(date, duration, note));
+		assertThat(e.getMessage()).isEqualTo("non esiste una session con tali valori");
+	}
+	
+	@Test
+	public void testFindAllSuccess() {
+		Topic topic = new Topic();
+		StudySession sessionA = new StudySession(LocalDate.now().plusDays(1), 60, "una nota", new ArrayList<>(List.of(topic)));
+		StudySession sessionB = new StudySession(LocalDate.now().plusDays(2), 90, "un'altra nota", new ArrayList<>(List.of(topic)));
+		List<StudySession> allSessions = new ArrayList<>(List.of(sessionA, sessionB));
+		String jpql = "SELECT s FROM StudySession s";
+		when(em.createQuery(jpql, StudySession.class)).thenReturn(typedQuery);
+		when(typedQuery.getResultList()).thenReturn(allSessions);
+		List<StudySession> result = sessionRepository.findAll();
+		assertThat(result).isEqualTo(allSessions);
+	}
+	
+	@Test
+	public void testFindAllFailure() {
+		String jpql = "SELECT s FROM StudySession s";
+		when(em.createQuery(jpql, StudySession.class)).thenReturn(typedQuery);
+		when(typedQuery.getResultList()).thenThrow(new IllegalArgumentException());
+		IllegalArgumentException e = assertThrows(IllegalArgumentException.class, 
+	    		()-> sessionRepository.findAll());
+		assertThat(e.getMessage()).isEqualTo("Errore nell'estrazione delle session");
 	}
 
 	@Test

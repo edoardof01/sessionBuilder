@@ -18,6 +18,17 @@ public class StudySessionService implements StudySessionInterface {
 			return session;
 		});
 	}
+	
+	@Override
+	public List<StudySession> getAllSessions() {
+		return tm.doInSessionTransaction(sessionRepository -> {
+			try {
+				return sessionRepository.findAll();
+			} catch(Exception e) {
+				throw new IllegalArgumentException("Errore durante il caricamento delle session");
+			}
+		});
+	}
 
 	@Override
 	public StudySession createSession(LocalDate date, int duration, String note, List<Topic> topicList) {
@@ -30,7 +41,6 @@ public class StudySessionService implements StudySessionInterface {
 			return session;
 		});
 	}
-	
 	
 	@Override
 	public StudySession completeSession(long sessionId) {
@@ -79,6 +89,8 @@ public class StudySessionService implements StudySessionInterface {
 		});
 		
 	}
+
+	
 	
 	
 	

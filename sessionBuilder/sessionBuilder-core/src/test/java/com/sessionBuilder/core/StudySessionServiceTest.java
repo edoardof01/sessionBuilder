@@ -99,6 +99,22 @@ public class StudySessionServiceTest {
 	}
 	
 	@Test
+	public void testGetAllSessionSuccess() {
+		List<StudySession> allSessions = new ArrayList<>(List.of(session1, fullSession));
+		when(sessionRepository.findAll()).thenReturn(allSessions);
+		List<StudySession> result = service.getAllSessions();
+		assertThat(result).isEqualTo(allSessions);
+		verify(sessionRepository).findAll();
+	}
+	
+	@Test
+	public void testGetAllSessionFailure() {
+		when(sessionRepository.findAll()).thenThrow(new IllegalArgumentException());
+		IllegalArgumentException e = assertThrows(IllegalArgumentException.class, ()-> service.getAllSessions());
+		assertThat(e.getMessage()).isEqualTo("Errore durante il caricamento delle session");
+	}
+	
+	@Test
 	public void testCreateSessionSuccess() {
 		StudySession session = service.createSession(date, duration, note, topicList);
 		verify(sessionRepository,times(1)).save(session);

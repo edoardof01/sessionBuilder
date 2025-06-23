@@ -1,6 +1,7 @@
 package com.sessionBuilder.core;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import com.google.inject.Inject;
 
@@ -42,10 +43,24 @@ public class StudySessionRepository implements StudySessionRepositoryInterface {
 				.setParameter("note", note)
 				.getSingleResult();
 			} catch (Exception e) {
-				return null;
+				throw new IllegalArgumentException("non esiste una session con tali valori");
 			}
 		});
 	}
+	
+	@Override
+	public List<StudySession> findAll(){
+		return tm.doInTransaction(em -> {
+			try {
+				return em.createQuery("SELECT s FROM StudySession s", StudySession.class).getResultList();
+			} catch (Exception e) {
+				throw new IllegalArgumentException("Errore nell'estrazione delle session");
+			}
+			
+		});
+	}
+	
+	
 
 	@Override
 	public void save(StudySession session) {

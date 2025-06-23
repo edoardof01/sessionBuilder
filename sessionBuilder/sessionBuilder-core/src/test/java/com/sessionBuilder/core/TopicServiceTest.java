@@ -83,19 +83,33 @@ public class TopicServiceTest {
 	}
 	
 	@Test
-	public void getTopicByIdSuccess(){
+	public void testGetTopicByIdSuccess(){
 		when(topicRepository.findById(idt1)).thenReturn(topic);
 		Topic result = service.getTopicById(idt1);
 		assertThat(result).isEqualTo(topic);
 	}
 	
 	@Test
-	public void getTopicByIdFailure() {
+	public void testGetTopicByIdFailure() {
 		when(topicRepository.findById(idt1)).thenReturn(null);
 		IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> service.getTopicById(idt1));
 		assertThat(e.getMessage()).isEqualTo("il topic cercato non esiste");
 	}
 	
+	@Test
+	public void testGetAllTopicsSuccess() {
+		List<Topic> allTopics = new ArrayList<>(List.of(topic,topic2));
+		when(topicRepository.findAll()).thenReturn(allTopics);
+		List<Topic> result = service.getAllTopics();
+		assertThat(result).isEqualTo(allTopics);
+	}
+	
+	@Test
+	public void testGetAllTopicsFailure() {
+		when(topicRepository.findAll()).thenThrow(new IllegalArgumentException());
+		IllegalArgumentException e = assertThrows(IllegalArgumentException.class, ()-> service.getAllTopics());
+		assertThat(e.getMessage()).isEqualTo("Errore durante il caricamento dei topic");
+	}
 	
 	@Test
 	public void testCreateTopicSuccess() {
@@ -217,6 +231,8 @@ public class TopicServiceTest {
 		IllegalArgumentException e = assertThrows(IllegalArgumentException.class, ()-> service.calculatePercentageOfCompletion(idt1));
 		assertThat(e.getMessage()).isEqualTo("il topic passato è null");
 	}
+	
+	
 	
 	
 	

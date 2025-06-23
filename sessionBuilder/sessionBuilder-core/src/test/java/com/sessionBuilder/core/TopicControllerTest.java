@@ -70,13 +70,13 @@ public class TopicControllerTest {
 	
 	@Test
 	public void testHandleGetTopicWithException() {
-		RuntimeException exception = new RuntimeException("Topic not found");
+		RuntimeException exception = new RuntimeException("il topic non esiste");
 		when(service.getTopicById(idt1)).thenThrow(exception);
 		RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
 			topicController.handleGetTopicById(idt1);
 		});
 		verify(service).getTopicById(idt1);
-		verify(viewCallback).onTopicError("Topic non trovato: Topic not found");
+		verify(viewCallback).onTopicError("Topic non trovato: il topic non esiste");
 		assertThat(thrown).isEqualTo(exception);
 	}
 	
@@ -93,6 +93,39 @@ public class TopicControllerTest {
 	}
 	
 	@Test
+	public void testHandleGetAllTopicsSuccess() {
+		Topic topicTest = new Topic();
+		List<Topic> allTopics = new ArrayList<>(List.of(topic,topicTest));
+		when(service.getAllTopics()).thenReturn(allTopics);
+		List<Topic> result = topicController.handleGetAllTopics();
+		assertThat(result).isEqualTo(allTopics);
+		verify(service).getAllTopics();
+	}
+	
+	@Test
+	public void testHandleGetAllTopicsWithExceptions() {
+		RuntimeException exception = new RuntimeException("lista di topic non estratta");
+		when(service.getAllTopics()).thenThrow(exception);
+		RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
+			topicController.handleGetAllTopics();
+		});
+		verify(service).getAllTopics();
+		assertThat(thrown).isEqualTo(exception);
+	}
+	
+	@Test
+	public void testHandleGetAllTopicsWithNullCallback() {
+		topicController.setViewCallback(null);
+		RuntimeException exception = new RuntimeException("lista di topic non estratta");
+		when(service.getAllTopics()).thenThrow(exception);
+		RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
+			topicController.handleGetAllTopics();
+		});
+		verify(service).getAllTopics();
+		assertThat(thrown).isEqualTo(exception);
+	}
+	
+	@Test
 	public void testHandleCreateTopicSuccess() {
 		when(service.createTopic(name, description, difficulty, new ArrayList<>())).thenReturn(topic);
 		Topic result = topicController.handleCreateTopic(name, description, difficulty, new ArrayList<>());
@@ -104,9 +137,10 @@ public class TopicControllerTest {
 	@Test
 	public void testHandleCreateTopicWithException() {
 		RuntimeException exception = new RuntimeException("Creation failed");
+		List<StudySession> sessionList = new ArrayList<>();
 		when(service.createTopic(name, description, difficulty, new ArrayList<>())).thenThrow(exception);
 		RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
-			topicController.handleCreateTopic(name, description, difficulty, new ArrayList<>());
+			topicController.handleCreateTopic(name, description, difficulty, sessionList);
 		});
 		verify(service).createTopic(name, description, difficulty, new ArrayList<>());
 		verify(viewCallback).onTopicError("Topic non trovato: Creation failed");
@@ -129,12 +163,12 @@ public class TopicControllerTest {
 	topicController.setViewCallback(null);
 	RuntimeException exception = new RuntimeException("Creation failed");
 	when(service.createTopic(name, description, difficulty, new ArrayList<>())).thenThrow(exception);
-
+	List<StudySession> sessionList = new ArrayList<>();
 	RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
-	topicController.handleCreateTopic(name, description, difficulty, new ArrayList<>());
+	topicController.handleCreateTopic(name, description, difficulty, sessionList);
 	});
 
-	verify(service).createTopic(name, description, difficulty, new ArrayList<>());
+	verify(service).createTopic(name, description, difficulty, sessionList);
 	assertThat(thrown).isEqualTo(exception);
 	}
 	
@@ -331,6 +365,8 @@ public class TopicControllerTest {
 	verify(service).getTopicById(idt1);
 	verify(service, never()).deleteTopic(idt1);
 	}
+	
+	
 
 	
 

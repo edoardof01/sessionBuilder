@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -50,6 +51,7 @@ public class TopicRepositoryTest {
 		});
 	}
 	
+	
 	@Test
 	public void testFindByIdSuccess() {
 		String jpql = "SELECT t FROM Topic t LEFT JOIN FETCH t.sessionList WHERE t.id = :id";
@@ -61,17 +63,17 @@ public class TopicRepositoryTest {
 	}
 
 	@Test
-	public void findByIdFailure() {
+	public void testFindByIdFailure() {
 		String jpql = "SELECT t FROM Topic t LEFT JOIN FETCH t.sessionList WHERE t.id = :id";
 		when(em.createQuery(jpql, Topic.class)).thenReturn(typedQuery);
 		when(typedQuery.setParameter("id", id)).thenReturn(typedQuery);
 		when(typedQuery.getSingleResult()).thenThrow(new NoResultException());
-		IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> topicRepository.findById(id));
+		IllegalArgumentException e = assertThrows(IllegalArgumentException.class, ()-> topicRepository.findById(id));
 		assertThat(e.getMessage()).isEqualTo("non esiste un topic con tale id");
 	}
 	
 	@Test
-	public void findByNameDescriptionDifficultySuccess() {
+	public void testFindByNameDescriptionDifficultySuccess() {
 		String name = "Biografie";
 		String description = "Freddy Mercury";
 		int difficulty = 2;
@@ -87,16 +89,17 @@ public class TopicRepositoryTest {
 	}
 	
 	@Test
-	public void findByNameDescriptionDifficultyFailure() {
+	public void testFindByNameDescriptionDifficultyFailure() {
 		String name = "Biografie";
 		String description = "Freddy Mercury";
 		int difficulty = 2;
 		String jpql = "SELECT t FROM Topic t WHERE t.name = :name AND t.description = :description AND t.difficulty = :difficulty";
 		when(em.createQuery(jpql, Topic.class)).thenReturn(typedQuery);
 		when(typedQuery.setParameter(anyString(), any())).thenReturn(typedQuery);
-		when(typedQuery.getSingleResult()).thenReturn(null);
-		Topic result = topicRepository.findByNameDescriptionAndDifficulty(name, description, difficulty);
-		assertThat(result).isNull();
+		when(typedQuery.getSingleResult()).thenThrow(new IllegalArgumentException());
+		IllegalArgumentException e = assertThrows(IllegalArgumentException.class, 
+				()-> topicRepository.findByNameDescriptionAndDifficulty(name, description, difficulty));
+		assertThat(e.getMessage()).isEqualTo("non esiste un topic con tali valori");
 	}
 	
 	@Test
@@ -105,11 +108,31 @@ public class TopicRepositoryTest {
 		String description = "Test Description";
 		int difficulty = 3;
 		String jpql = "SELECT t FROM Topic t WHERE t.name = :name AND t.description = :description AND t.difficulty = :difficulty";
-		
 		when(em.createQuery(jpql, Topic.class)).thenThrow(new RuntimeException("Database error"));
-		
-		Topic result = topicRepository.findByNameDescriptionAndDifficulty(name, description, difficulty);
-		assertThat(result).isNull();
+		IllegalArgumentException e = assertThrows(IllegalArgumentException.class, 
+				()-> topicRepository.findByNameDescriptionAndDifficulty(name, description, difficulty));
+		assertThat(e.getMessage()).isEqualTo("non esiste un topic con tali valori");
+	}
+	
+	@Test
+	public void testFindAllSuccess() {
+		Topic topicA = new Topic();
+		Topic topicB = new Topic();
+		List<Topic> allTopics = new ArrayList<>(List.of(topicA, topicB));
+		String jpql = "SELECT t FROM Topic t";
+		when(em.createQuery(jpql, Topic.class)).thenReturn(typedQuery);
+		when(typedQuery.getResultList()).thenReturn(allTopics);
+		List<Topic> result = topicRepository.findAll();
+		assertThat(result).isEqualTo(allTopics);
+	}
+	
+	@Test
+	public void testFindAllFailure() {
+		String jpql = "SELECT t FROM Topic t";
+		when(em.createQuery(jpql, Topic.class)).thenReturn(typedQuery);
+		when(typedQuery.getResultList()).thenThrow(new RuntimeException("Errore nel caricamento dei topic"));
+		IllegalArgumentException e = assertThrows(IllegalArgumentException.class, ()-> topicRepository.findAll());
+		assertThat(e.getMessage()).isEqualTo("erorre nell'estrazione dei topic");
 	}
 	
 	@Test

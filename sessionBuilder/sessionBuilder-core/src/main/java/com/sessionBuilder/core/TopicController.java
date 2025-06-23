@@ -27,6 +27,19 @@ public class TopicController {
 			throw e;
 		}
 	}
+	
+	public List<Topic> handleGetAllTopics() {
+		try {
+			return service.getAllTopics();
+		} catch(Exception e) {
+			if(viewCallback != null) {
+				viewCallback.onTopicError("Errore nel caricamento dei topic");
+			}
+			throw e;
+		}
+	}
+	
+	
 
 	public Topic handleCreateTopic(String name, String description, int difficulty, List<StudySession> sessionList) {
 		try {
