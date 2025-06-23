@@ -27,15 +27,6 @@
 		<testcontainer.version>1.20.4</testcontainer.version>
 		<picocli.version>4.7.6</picocli.version>
 		<sonar.version>5.0.0.4389</sonar.version>
-		<argLine>
-			@{argLine}
-			--add-opens java.base/java.util=ALL-UNNAMED
-			--add-opens java.base/java.lang=ALL-UNNAMED
-			--add-opens java.base/java.lang.reflect=ALL-UNNAMED
-			--add-opens java.desktop/java.awt=ALL-UNNAMED
-			--add-opens java.desktop/java.awt.event=ALL-UNNAMED
-			--add-opens java.desktop/javax.swing=ALL-UNNAMED
-		</argLine>
 	</properties>
 	
 	<dependencies>
@@ -132,6 +123,15 @@
 					<artifactId>maven-surefire-plugin</artifactId>
 					<version>3.5.2</version>
 					<configuration>
+						<argLine>
+							${argLine}
+							--add-opens java.base/java.util=ALL-UNNAMED
+							--add-opens java.base/java.lang=ALL-UNNAMED
+							--add-opens java.base/java.lang.reflect=ALL-UNNAMED
+							--add-opens java.desktop/java.awt=ALL-UNNAMED
+							--add-opens java.desktop/java.awt.event=ALL-UNNAMED
+							--add-opens java.desktop/javax.swing=ALL-UNNAMED
+						</argLine>
 						<systemPropertyVariables>
 							<java.awt.headless>false</java.awt.headless>
 						</systemPropertyVariables>
