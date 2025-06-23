@@ -27,6 +27,7 @@
 		<testcontainer.version>1.20.4</testcontainer.version>
 		<picocli.version>4.7.6</picocli.version>
 		<sonar.version>5.0.0.4389</sonar.version>
+		<swing.test.jvm.args></swing.test.jvm.args>
 	</properties>
 	
 	<dependencies>
@@ -124,7 +125,7 @@
 					<version>3.5.2</version>
 					<configuration>
 						<argLine>
-            				@{argLine} --add-opens java.base/java.util=ALL-UNNAMED
+            				<argLine>@{argLine} ${swing.test.jvm.args}</argLine>
 						</argLine>
 						<systemPropertyVariables>
 							<java.awt.headless>false</java.awt.headless>
@@ -225,7 +226,7 @@
 						</execution>
 					</executions>
 					<configuration>
-						<argLine>@{argLine} --add-opens java.base/java.util=ALL-UNNAMED</argLine>
+						<argLine>@{argLine} ${swing.test.jvm.args}</argLine>
 						<systemPropertyVariables>
 							<postgres.mapped.port>${postgres.mapped.port}</postgres.mapped.port>
 							<java.awt.headless>false</java.awt.headless>
