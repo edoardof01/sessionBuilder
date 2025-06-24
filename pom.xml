@@ -30,8 +30,8 @@
 		<sonar.issue.ignore.multicriteria.e17.resourceKey>**/*</sonar.issue.ignore.multicriteria.e17.resourceKey>
 		<sonar.issue.ignore.multicriteria.e18.ruleKey>java:S120</sonar.issue.ignore.multicriteria.e18.ruleKey>
 		<sonar.issue.ignore.multicriteria.e18.resourceKey>**/*</sonar.issue.ignore.multicriteria.e18.resourceKey>
-		<sonar.issue.ignore.multicriteria.e18.ruleKey>java:S3577</sonar.issue.ignore.multicriteria.e18.ruleKey>
-		<sonar.issue.ignore.multicriteria.e18.resourceKey>sessionBuilder-it/src/it/java/*PanelIt.java</sonar.issue.ignore.multicriteria.e18.resourceKey>
+		<sonar.issue.ignore.multicriteria.e19.ruleKey>java:S3577</sonar.issue.ignore.multicriteria.e19.ruleKey>
+		<sonar.issue.ignore.multicriteria.e19.resourceKey>sessionBuilder-it/src/it/java/*PanelIt.java</sonar.issue.ignore.multicriteria.e19.resourceKey>
 	</properties>
 
 	<build>
