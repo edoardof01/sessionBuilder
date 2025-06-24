@@ -9,6 +9,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.Before;
@@ -73,45 +75,45 @@ public class TopicRepositoryTest {
 	}
 	
 	@Test
-	public void testFindByNameDescriptionDifficultySuccess() {
+	public void testFindByNameDescriptionAndDifficulty_WhenTopicExists_ShouldReturnTopic() {
 		String name = "Biografie";
 		String description = "Freddy Mercury";
 		int difficulty = 2;
-		long idOther = 5L;
-		Topic other = new Topic(name, description, difficulty, new ArrayList<>());
-		other.setId(idOther);
+		Topic expectedTopic = new Topic(name, description, difficulty, new ArrayList<>());
+		expectedTopic.setId(5L);
 		String jpql = "SELECT t FROM Topic t WHERE t.name = :name AND t.description = :description AND t.difficulty = :difficulty";
 		when(em.createQuery(jpql, Topic.class)).thenReturn(typedQuery);
 		when(typedQuery.setParameter(anyString(), any())).thenReturn(typedQuery);
-		when(typedQuery.getSingleResult()).thenReturn(other);
+		when(typedQuery.getResultList()).thenReturn(List.of(expectedTopic));
 		Topic result = topicRepository.findByNameDescriptionAndDifficulty(name, description, difficulty);
-		assertThat(result).isEqualTo(other);
+		assertThat(result).isEqualTo(expectedTopic);
 	}
-	
+
 	@Test
-	public void testFindByNameDescriptionDifficultyFailure() {
+	public void testFindByNameDescriptionAndDifficulty_WhenTopicDoesNotExist_ShouldReturnNull() {
 		String name = "Biografie";
 		String description = "Freddy Mercury";
 		int difficulty = 2;
 		String jpql = "SELECT t FROM Topic t WHERE t.name = :name AND t.description = :description AND t.difficulty = :difficulty";
 		when(em.createQuery(jpql, Topic.class)).thenReturn(typedQuery);
 		when(typedQuery.setParameter(anyString(), any())).thenReturn(typedQuery);
-		when(typedQuery.getSingleResult()).thenThrow(new IllegalArgumentException());
-		IllegalArgumentException e = assertThrows(IllegalArgumentException.class, 
-				()-> topicRepository.findByNameDescriptionAndDifficulty(name, description, difficulty));
-		assertThat(e.getMessage()).isEqualTo("non esiste un topic con tali valori");
+		when(typedQuery.getResultList()).thenReturn(Collections.emptyList());
+		Topic result = topicRepository.findByNameDescriptionAndDifficulty(name, description, difficulty);
+		assertThat(result).isNull();
 	}
-	
+
 	@Test
-	public void testFindByNameDescriptionAndDifficultyWithException() {
+	public void testFindByNameDescriptionAndDifficulty_WhenDatabaseErrorOccurs_ShouldThrowException() {
 		String name = "Test Topic";
 		String description = "Test Description";
 		int difficulty = 3;
 		String jpql = "SELECT t FROM Topic t WHERE t.name = :name AND t.description = :description AND t.difficulty = :difficulty";
-		when(em.createQuery(jpql, Topic.class)).thenThrow(new RuntimeException("Database error"));
-		IllegalArgumentException e = assertThrows(IllegalArgumentException.class, 
-				()-> topicRepository.findByNameDescriptionAndDifficulty(name, description, difficulty));
-		assertThat(e.getMessage()).isEqualTo("non esiste un topic con tali valori");
+		when(em.createQuery(jpql, Topic.class)).thenReturn(typedQuery);
+		when(typedQuery.setParameter(anyString(), any())).thenReturn(typedQuery);
+		when(typedQuery.getResultList()).thenThrow(new RuntimeException("Database error"));
+		RuntimeException e = assertThrows(RuntimeException.class,
+			() -> topicRepository.findByNameDescriptionAndDifficulty(name, description, difficulty));
+		assertThat(e.getMessage()).isEqualTo("Database error");
 	}
 	
 	@Test

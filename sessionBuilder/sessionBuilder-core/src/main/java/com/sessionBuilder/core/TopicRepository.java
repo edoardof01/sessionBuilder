@@ -33,19 +33,21 @@ public class TopicRepository implements TopicRepositoryInterface{
 	
 	@Override
 	public Topic findByNameDescriptionAndDifficulty(String name, String description, int difficulty) {
-		return tm.doInTransaction(em ->{
-			try {
-			return em.createQuery(
-				"SELECT t FROM Topic t WHERE t.name = :name AND t.description = :description AND t.difficulty = :difficulty",
-				Topic.class)
-				.setParameter("name", name)
-				.setParameter("description", description)
-				.setParameter("difficulty", difficulty)
-				.getSingleResult();
-			} catch (RuntimeException e) {
-				throw new IllegalArgumentException("non esiste un topic con tali valori");
-			}
-		});
+	   return tm.doInTransaction(em -> {
+	   	List<Topic> topics = em.createQuery(
+	   		"SELECT t FROM Topic t WHERE t.name = :name AND t.description = :description AND t.difficulty = :difficulty",
+	   		Topic.class)
+	   		.setParameter("name", name)
+	   		.setParameter("description", description)
+	   		.setParameter("difficulty", difficulty)
+	   		.getResultList();
+	   	
+	   	if (topics.isEmpty()) {
+	   		return null;
+	   	} else {
+	   		return topics.get(0);
+	   	}
+	   });
 	}
 	
 	@Override
