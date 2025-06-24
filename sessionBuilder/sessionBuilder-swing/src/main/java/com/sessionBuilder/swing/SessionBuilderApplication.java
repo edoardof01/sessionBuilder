@@ -83,38 +83,39 @@ public class SessionBuilderApplication implements Callable<Integer> {
 				
 				EntityManagerFactory emf = Persistence.createEntityManagerFactory(persistenceUnit, properties);
 				
+				TopicAndSessionManager mainFrame = new TopicAndSessionManager();
+
 				Injector injector = Guice.createInjector(new AbstractModule() {
 					@Override
 					protected void configure() {
 						bind(EntityManagerFactory.class).toInstance(emf);
+						bind(TopicAndSessionManager.class).toInstance(mainFrame);
+						bind(TopicViewCallback.class).toInstance(mainFrame);
+						bind(SessionViewCallback.class).toInstance(mainFrame);
 						bind(StudySessionRepositoryInterface.class).to(StudySessionRepository.class);
 						bind(TopicRepositoryInterface.class).to(TopicRepository.class);
 						bind(TransactionManager.class).to(TransactionManagerImpl.class);
 						bind(TopicServiceInterface.class).to(TopicService.class);
-						bind(TopicViewCallback.class).to(TopicAndSessionManager.class);
-						bind(SessionViewCallback.class).to(TopicAndSessionManager.class);
 						bind(StudySessionInterface.class).to(StudySessionService.class);
-						bind(TopicViewCallback.class).to(TopicAndSessionManager.class);
-						
 					}
 				});
 				
 				TopicController topicController = injector.getInstance(TopicController.class);
 				StudySessionController sessionController = injector.getInstance(StudySessionController.class);
 				
-				TopicAndSessionManager frame = new TopicAndSessionManager();
-				frame.setTopicController(topicController);
-				frame.setSessionController(sessionController);
+				mainFrame.setTopicController(topicController);
+				mainFrame.setSessionController(sessionController);
 				
-				frame.getTopicPanel().setTopicController(topicController);
-				frame.getTopicPanel().setManagerView(frame);
-				frame.getSessionPanel().setSessionController(sessionController);
-				frame.getSessionPanel().setManagerView(frame);
+				mainFrame.getTopicPanel().setTopicController(topicController);
+				mainFrame.getTopicPanel().setManagerView(mainFrame);
+				mainFrame.getSessionPanel().setSessionController(sessionController);
+				mainFrame.getSessionPanel().setManagerView(mainFrame);
 				
-				frame.setVisible(true);
+				mainFrame.loadInitialData();
+				
+				mainFrame.setVisible(true);
 				
 				logger.info("SessionBuilder avviato con successo!");
-				logger.info("Database: {}", jdbcUrl);
 				
 			} catch (Exception e) {
 				logger.error("Errore durante l'avvio dell'applicazione: {}", e.getMessage(), e);
