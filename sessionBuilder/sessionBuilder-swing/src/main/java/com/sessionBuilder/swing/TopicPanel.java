@@ -34,7 +34,7 @@ public class TopicPanel extends JPanel {
 	
 	private static final String FONT = "Dialog";
 	
-	public TopicPanel() {
+	public TopicPanel(DefaultListModel<StudySession> sharedSessionModel) {
 		setBorder(new EmptyBorder(5,5,5,5));
 		setLayout(new BorderLayout());
 		
@@ -91,7 +91,7 @@ public class TopicPanel extends JPanel {
 		sessionLabel.setName("sessionLbl");
 		sessionLabel.setFont(sessionLabel.getFont().deriveFont(Font.BOLD, 16f));
 		
-		sessionModel = new DefaultListModel<>();
+		this.sessionModel = sharedSessionModel;
 		JList<StudySession> sessionList = new JList<>(sessionModel);
 		sessionList.setName("topicPanelSessionList");
 		JScrollPane sessions = new JScrollPane(sessionList);

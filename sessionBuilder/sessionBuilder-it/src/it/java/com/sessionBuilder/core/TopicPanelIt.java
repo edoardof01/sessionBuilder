@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
 
 import org.assertj.swing.core.matcher.JButtonMatcher;
@@ -92,9 +93,11 @@ public class TopicPanelIt extends AssertJSwingJUnitTestCase {
 
 		GuiActionRunner.execute(() -> {
 			managerView = new TopicAndSessionManager();
-			topicPanel = new TopicPanel();
+			DefaultListModel<StudySession> sessionModelForTopicPanel = new DefaultListModel<>();
+			topicPanel = new TopicPanel(sessionModelForTopicPanel);
 			topicPanel.setTopicController(topicController);
 			topicPanel.setManagerView(managerView);
+			topicController.setViewCallback(managerView);
 			JFrame frame = new JFrame();
 			frame.add(topicPanel);
 			return frame;

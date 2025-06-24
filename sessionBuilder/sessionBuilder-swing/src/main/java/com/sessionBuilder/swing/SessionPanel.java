@@ -44,7 +44,7 @@ public class SessionPanel extends JPanel {
 	
 	private static final String FONT = "Dialog";
 	
-	public SessionPanel () {
+	public SessionPanel (DefaultListModel<Topic> sharedTopicModel) {
 		
 		setBorder(new EmptyBorder(5,5,5,5));
 		setLayout(new BorderLayout());
@@ -97,7 +97,7 @@ public class SessionPanel extends JPanel {
 		topicLabel.setName("topicLbl");
 		topicLabel.setFont(topicLabel.getFont().deriveFont(Font.BOLD, 16f));
 		
-		topicModel = new DefaultListModel<>();
+		this.topicModel = sharedTopicModel;
 		sessionPaneltopicList = new JList<>(topicModel);
 		sessionPaneltopicList.setName("sessionPanelTopicList");
 		

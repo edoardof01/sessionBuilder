@@ -71,8 +71,8 @@ public class TopicAndSessionManager extends JFrame implements TopicViewCallback,
 		cardLayout = new CardLayout();
 		mainPanel = new JPanel(cardLayout);
 		JPanel currentMainView = createMainView();
-		topicPanel = new TopicPanel();
-		sessionPanel = new SessionPanel();
+		topicPanel = new TopicPanel(studySessionModel);
+		sessionPanel = new SessionPanel(topicModel);
 		mainPanel.add(currentMainView, MAIN_VIEW);
 		mainPanel.add(topicPanel, CREATE_TOPIC_VIEW);
 		mainPanel.add(sessionPanel, CREATE_SESSION_VIEW);
@@ -335,26 +335,6 @@ public class TopicAndSessionManager extends JFrame implements TopicViewCallback,
 		}
 	}
 	
-	public void sessionAdded(StudySession session) {
-		studySessionModel.addElement(session);
-		resetErrorLabels();
-	}
-	
-	public void sessionRemoved(StudySession session) {
-		studySessionModel.removeElement(session);
-		resetErrorLabels();
-	}
-	
-	public void topicAdded(Topic topic) {
-		topicModel.addElement(topic);
-		resetErrorLabels();
-	}
-	
-	public void topicRemoved(Topic topic) {
-		topicModel.removeElement(topic);
-		resetErrorLabels();
-	}
-	
 	private void resetErrorLabels() {
 		lblErrorMessage.setText(" ");
 		lblErrorMessage.setForeground(Color.RED);
@@ -402,18 +382,14 @@ public class TopicAndSessionManager extends JFrame implements TopicViewCallback,
 
 	@Override
 	public void onTopicAdded(Topic topic) {
-		topicAdded(topic);	
-		if (sessionPanel != null && sessionPanel.getTopicModel() != null) {
-			sessionPanel.getTopicModel().addElement(topic);
-		}
+		topicModel.addElement(topic);
+		resetErrorLabels();
 	}
 
 	@Override
 	public void onTopicRemoved(Topic topic) {
-		topicRemoved(topic);
-		if (sessionPanel != null && sessionPanel.getTopicModel() != null) {
-			sessionPanel.getTopicModel().removeElement(topic);
-		}
+		topicModel.removeElement(topic);
+		resetErrorLabels();
 	}
 
 	@Override
@@ -436,10 +412,8 @@ public class TopicAndSessionManager extends JFrame implements TopicViewCallback,
 
 	@Override
 	public void onSessionAdded(StudySession session) {
-		sessionAdded(session);
-		if (topicPanel != null && topicPanel.getSessionModel() != null) {
-			topicPanel.getSessionModel().addElement(session);
-		}
+		studySessionModel.addElement(session);
+		resetErrorLabels();
 	}
 	
 	@Override
@@ -468,10 +442,8 @@ public class TopicAndSessionManager extends JFrame implements TopicViewCallback,
 
 	@Override
 	public void onSessionRemoved(StudySession session) {
-		sessionRemoved(session);
-		if (topicPanel != null && topicPanel.getSessionModel() != null) {
-			topicPanel.getSessionModel().removeElement(session);
-		}
+		studySessionModel.removeElement(session);
+		resetErrorLabels();
 	}
 
 	@Override

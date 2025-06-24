@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
 
 import org.assertj.swing.core.ComponentMatcher;
@@ -97,9 +98,11 @@ public class SessionPanelIt extends AssertJSwingJUnitTestCase {
 
 		GuiActionRunner.execute(() -> {
 			managerView = new TopicAndSessionManager();
-			sessionPanel = new SessionPanel();
+			DefaultListModel<Topic> topicModelForSessionPanel = new DefaultListModel<>();
+			sessionPanel = new SessionPanel(topicModelForSessionPanel);
 			sessionPanel.setSessionController(sessionController);
 			sessionPanel.setManagerView(managerView);
+			sessionController.setViewCallBack(managerView);
 			JFrame frame = new JFrame();
 			frame.add(sessionPanel);
 			return frame;
