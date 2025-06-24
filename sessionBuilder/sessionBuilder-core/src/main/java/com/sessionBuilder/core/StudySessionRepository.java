@@ -34,16 +34,14 @@ public class StudySessionRepository implements StudySessionRepositoryInterface {
 	@Override 
 	public StudySession findByDateDurationAndNote(LocalDate date, int duration, String note) {
 		return tm.doInTransaction(em -> {
-			try {
-			return em.createQuery("SELECT s FROM StudySession s WHERE s.date = :date AND s.duration = :duration AND s.note = :note",
+			List<StudySession> sessions =  em.createQuery("SELECT s FROM StudySession s WHERE s.date = :date AND s.duration = :duration AND s.note = :note",
 						StudySession.class)
 				.setParameter("date", date)
 				.setParameter("duration", duration)
 				.setParameter("note", note)
-				.getSingleResult();
-			} catch (Exception e) {
-				throw new IllegalArgumentException("non esiste una session con tali valori");
-			}
+				.getResultList();
+			if(sessions.isEmpty()) return null;
+			else return sessions.get(0);
 		});
 	}
 	

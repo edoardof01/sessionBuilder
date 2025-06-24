@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.Before;
@@ -72,7 +73,7 @@ public class StudySessionRepositoryTest {
 		assertThat(e.getMessage()).isEqualTo("non esiste una session con tale id");
 	}
 	
-	@Test 
+	@Test
 	public void testFindByDateDurationAndNoteSuccess() {
 		LocalDate date = LocalDate.now().plusDays(1);
 		int duration = 60;
@@ -84,36 +85,34 @@ public class StudySessionRepositoryTest {
 		String jpql = "SELECT s FROM StudySession s WHERE s.date = :date AND s.duration = :duration AND s.note = :note";
 		when(em.createQuery(jpql, StudySession.class)).thenReturn(typedQuery);
 		when(typedQuery.setParameter(anyString(), any())).thenReturn(typedQuery);
-		when(typedQuery.getSingleResult()).thenReturn(other);
+		when(typedQuery.getResultList()).thenReturn(List.of(other));
 		StudySession result = sessionRepository.findByDateDurationAndNote(date, duration, note);
 		assertThat(result).isEqualTo(other);
 	}
-	
-	
+
 	@Test
-	public void testFindByDateDurationAndNoteFailure() {
+	public void testFindByDateDurationAndNoteNotFoundShouldReturnNull() {
 		LocalDate date = LocalDate.now().plusDays(1);
 		int duration = 60;
 		String note = "una nota";
 		String jpql = "SELECT s FROM StudySession s WHERE s.date = :date AND s.duration = :duration AND s.note = :note";
 		when(em.createQuery(jpql, StudySession.class)).thenReturn(typedQuery);
 		when(typedQuery.setParameter(anyString(), any())).thenReturn(typedQuery);
-		when(typedQuery.getSingleResult()).thenThrow(new IllegalArgumentException());
-	    IllegalArgumentException e = assertThrows(IllegalArgumentException.class, 
-	    		()-> sessionRepository.findByDateDurationAndNote(date, duration, note));
-		assertThat(e.getMessage()).isEqualTo("non esiste una session con tali valori");
+		when(typedQuery.getResultList()).thenReturn(Collections.emptyList());
+		StudySession result = sessionRepository.findByDateDurationAndNote(date, duration, note);
+		assertThat(result).isNull();
 	}
-	
+
 	@Test
-	public void testFindByDateDurationAndNoteWithException() {
+	public void testFindByDateDurationAndNoteWithExceptionShouldPropagate() {
 		LocalDate date = LocalDate.now();
 		int duration = 60;
 		String note = "test";
 		String jpql = "SELECT s FROM StudySession s WHERE s.date = :date AND s.duration = :duration AND s.note = :note";
 		when(em.createQuery(jpql, StudySession.class)).thenThrow(new RuntimeException("Database error"));
-		IllegalArgumentException e = assertThrows(IllegalArgumentException.class, 
-	    		()-> sessionRepository.findByDateDurationAndNote(date, duration, note));
-		assertThat(e.getMessage()).isEqualTo("non esiste una session con tali valori");
+		RuntimeException e = assertThrows(RuntimeException.class,
+			() -> sessionRepository.findByDateDurationAndNote(date, duration, note));
+		assertThat(e.getMessage()).isEqualTo("Database error");
 	}
 
 	@Test
