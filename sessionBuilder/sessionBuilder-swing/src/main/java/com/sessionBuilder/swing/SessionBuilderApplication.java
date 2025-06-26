@@ -13,15 +13,13 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.sessionBuilder.core.*;
 
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(
-	name = "sessionbuilder", 
-	mixinStandardHelpOptions = true, 
+	name = "sessionbuilder",
+	mixinStandardHelpOptions = true,
 	version = "SessionBuilder 1.0",
 	description = "Study Session Builder - Gestione sessioni di studio"
 )
@@ -71,34 +69,24 @@ public class SessionBuilderApplication implements Callable<Integer> {
 				properties.put("jakarta.persistence.jdbc.url", jdbcUrl);
 				properties.put("jakarta.persistence.jdbc.user", finalUsername);
 				properties.put("jakarta.persistence.jdbc.password", finalPassword);
-				properties.put("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
-				properties.put("hibernate.show_sql", "true");
-				properties.put("hibernate.format_sql", "true");
-				properties.put("hibernate.connection.pool_size", "5");
-				properties.put("hibernate.cache.use_second_level_cache", "false");
-				properties.put("hibernate.cache.use_query_cache", "false");
 				
 				logger.info("Database: {}", jdbcUrl);
+				logger.info("Using persistence unit: {}", persistenceUnit);
 				logger.info("Using host: {}, port: {}, db: {}, user: {}", finalHost, finalPort, finalDbName, finalUsername);
-				
-				EntityManagerFactory emf = Persistence.createEntityManagerFactory(persistenceUnit, properties);
 				
 				TopicAndSessionManager mainFrame = new TopicAndSessionManager();
 
-				Injector injector = Guice.createInjector(new AbstractModule() {
-					@Override
-					protected void configure() {
-						bind(EntityManagerFactory.class).toInstance(emf);
-						bind(TopicAndSessionManager.class).toInstance(mainFrame);
-						bind(TopicViewCallback.class).toInstance(mainFrame);
-						bind(SessionViewCallback.class).toInstance(mainFrame);
-						bind(StudySessionRepositoryInterface.class).to(StudySessionRepository.class);
-						bind(TopicRepositoryInterface.class).to(TopicRepository.class);
-						bind(TransactionManager.class).to(TransactionManagerImpl.class);
-						bind(TopicServiceInterface.class).to(TopicService.class);
-						bind(StudySessionInterface.class).to(StudySessionService.class);
+				Injector injector = Guice.createInjector(
+					new AppModule(persistenceUnit, properties),
+					new AbstractModule() {
+						@Override
+						protected void configure() {
+							bind(TopicAndSessionManager.class).toInstance(mainFrame);
+							bind(TopicViewCallback.class).toInstance(mainFrame);
+							bind(SessionViewCallback.class).toInstance(mainFrame);
+						}
 					}
-				});
+				);
 				
 				TopicController topicController = injector.getInstance(TopicController.class);
 				StudySessionController sessionController = injector.getInstance(StudySessionController.class);

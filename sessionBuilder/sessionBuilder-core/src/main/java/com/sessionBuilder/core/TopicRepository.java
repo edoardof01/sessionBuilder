@@ -77,7 +77,7 @@ public class TopicRepository implements TopicRepositoryInterface{
 			em.merge(topic);
 			return null;
 		});
-	}
+	}    
 	
 	@Override
 	public void delete(long id) {

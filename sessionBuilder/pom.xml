@@ -127,8 +127,6 @@
 								<exclude>**.*Test.class</exclude>
 								<exclude>**.SessionBuilderApplication.class</exclude>
 								<exclude>**/*$*.class</exclude>
-								<exclude>**/AppModule.class</exclude>
-								<exclude>**/SessionBuilderApplication.class</exclude>
 								<exclude>**.*E2E.class</exclude>
 							</excludes>
 						</configuration>
@@ -143,15 +141,11 @@
 						</targetClasses>
 						<excludedClasses>
 							<param>**.*Test</param>
-							<param>**.*It</param>
 							<param>**.AppModule.class</param>
 						</excludedClasses>
 						<targetTests>
 							<param>com.sessionBuilder.core.*Test</param>
 						</targetTests>
-						<excludedGroups>
-							<param>integration</param>
-						</excludedGroups>
 						<mutators>
 							<mutator>DEFAULTS</mutator>
 						</mutators>
@@ -242,7 +236,7 @@
 											<limits>
 												<limit>
 													<counter>LINE</counter>
-													<minimum>0.0</minimum>
+													<minimum>50.0</minimum>
 												</limit>
 											</limits>
 										</rule>
@@ -285,12 +279,6 @@
 					</plugin>
 				</plugins>
 			</build>
-		</profile>
-		<profile>
-			<id>sonarqube</id>
-		</profile>
-		<profile>
-			<id>sonarcloud</id>
 		</profile>
 	</profiles>	
 </project>

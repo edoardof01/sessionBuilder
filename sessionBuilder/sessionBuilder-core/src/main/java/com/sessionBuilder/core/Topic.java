@@ -128,11 +128,11 @@ public class Topic {
 		return "Topic( name: "+ name + ", description: "+ description + ", difficulty: " + difficulty + ", numSessions: " + sessionCount +")";
 	}
 
-	void setName(String name) {
+	public void setName(String name) {
 		this.name = name;
 	}
 
-	void setDescription(String description) {
+	public void setDescription(String description) {
 		this.description = description;	
 	}
 

@@ -1,4 +1,4 @@
-package com.sessionBuilder.core;
+package com.sessionBuilder.it;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.Assert.*;
@@ -19,6 +19,14 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
+import com.sessionBuilder.core.StudySession;
+import com.sessionBuilder.core.StudySessionRepository;
+import com.sessionBuilder.core.StudySessionRepositoryInterface;
+import com.sessionBuilder.core.Topic;
+import com.sessionBuilder.core.TopicRepository;
+import com.sessionBuilder.core.TopicRepositoryInterface;
+import com.sessionBuilder.core.TransactionManager;
+import com.sessionBuilder.core.TransactionManagerImpl;
 
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;

@@ -31,7 +31,7 @@ import javax.swing.JList;
 
 import java.awt.Font;
 
-public class TopicAndSessionManager extends JFrame implements TopicViewCallback,SessionViewCallback {
+public class TopicAndSessionManager extends JFrame implements TopicViewCallback, SessionViewCallback {
 
 	private static final long serialVersionUID = 1L;
 
@@ -395,7 +395,6 @@ public class TopicAndSessionManager extends JFrame implements TopicViewCallback,
 	@Override
 	public void onTopicError(String message) {
 		lblErrorMessage.setText(message);
-		
 	}
 
 	@Override
@@ -419,24 +418,23 @@ public class TopicAndSessionManager extends JFrame implements TopicViewCallback,
 	@Override
 	public void onSessionUpdated(StudySession updatedSession) {
 	   for (int i = 0; i < studySessionModel.getSize(); i++) {
-	   	StudySession session = studySessionModel.getElementAt(i);
-	   	if (session.getId() == updatedSession.getId()) {
-	   		session.setIsComplete(updatedSession.isComplete());
-	   		studySessionModel.setElementAt(session, i);
-	   		break;
-	   	}
+	       StudySession session = studySessionModel.getElementAt(i);
+	       if (session.getId() == updatedSession.getId()) {
+	           session.setIsComplete(updatedSession.isComplete());
+	           studySessionModel.setElementAt(session, i);
+	           break;
+	       }
 	   }
-	   
 	   if (topicPanel != null && topicPanel.getSessionModel() != null) {
-	   	DefaultListModel<StudySession> topicSessionModel = topicPanel.getSessionModel();
-	   	for (int i = 0; i < topicSessionModel.getSize(); i++) {
-	   		StudySession session = topicSessionModel.getElementAt(i);
-	   		if (session.getId() == updatedSession.getId()) {
-	   			session.setIsComplete(updatedSession.isComplete());
-	   			topicSessionModel.setElementAt(session, i);
-	   			break;
-	   		}
-	   	}
+	       DefaultListModel<StudySession> topicSessionModel = topicPanel.getSessionModel();
+	       for (int i = 0; i < topicSessionModel.getSize(); i++) {
+	           StudySession session = topicSessionModel.getElementAt(i);
+	           if (session.getId() == updatedSession.getId()) {
+	               session.setIsComplete(updatedSession.isComplete());
+	               topicSessionModel.setElementAt(session, i);
+	               break;
+	           }
+	       }
 	   }
 	}
 
@@ -448,8 +446,7 @@ public class TopicAndSessionManager extends JFrame implements TopicViewCallback,
 
 	@Override
 	public void onSessionError(String message) {
-		lblErrorMessage.setText(message);
-		
+		lblErrorMessage.setText(message);	
 	}
 
 	public StudySessionController getSessionController() {

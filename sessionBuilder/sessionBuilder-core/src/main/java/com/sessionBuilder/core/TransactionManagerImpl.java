@@ -10,7 +10,6 @@ public class TransactionManagerImpl implements TransactionManager {
    private EntityManagerFactory emf;
    private TopicRepositoryInterface topicRepository;
    private StudySessionRepositoryInterface sessionRepository;
-   
    @Inject
    public TransactionManagerImpl(EntityManagerFactory emf, 
    							TopicRepositoryInterface topicRepository,
@@ -18,8 +17,7 @@ public class TransactionManagerImpl implements TransactionManager {
    	this.emf = emf;
    	this.topicRepository = topicRepository;
    	this.sessionRepository = sessionRepository;
-   }
-   
+   } 
    @Override
    public <T> T doInTransaction(TransactionCode<T> code) {
    	EntityManager em = emf.createEntityManager();

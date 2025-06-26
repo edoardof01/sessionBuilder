@@ -19,4 +19,4 @@ RUN chmod +x wait-for-it.sh
 
 WORKDIR /app
 
-CMD ["java", "-jar", "app.jar"]
+CMD ["/wait-for-it.sh", "postgresdb:5432", "--", "java", "-jar", "app.jar"]

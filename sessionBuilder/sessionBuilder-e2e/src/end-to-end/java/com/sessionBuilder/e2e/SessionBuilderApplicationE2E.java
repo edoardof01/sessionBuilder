@@ -45,7 +45,6 @@ public class SessionBuilderApplicationE2E extends AssertJSwingJUnitTestCase {
 	private static final String TOPIC_FIXTURE_2_NAME = "Corsa";
 	private static final String TOPIC_FIXTURE_2_DESCRIPTION = "cento metri scatto";
 	private static final int TOPIC_FIXTURE_2_DIFFICULTY = 3;
-	
 	private static final LocalDate SESSION_FIXTURE_1_DATE = LocalDate.now().plusDays(1);
 	private static final int SESSION_FIXTURE_1_DURATION = 60;
 	private static final String SESSION_FIXTURE_1_NOTE = "una nota";
@@ -81,7 +80,8 @@ public class SessionBuilderApplicationE2E extends AssertJSwingJUnitTestCase {
 					"--postgres-port", String.valueOf(postgres.getFirstMappedPort()),
 					"--db-name", postgres.getDatabaseName(),
 					"--db-user", postgres.getUsername(),
-					"--db-password", postgres.getPassword()
+					"--db-password", postgres.getPassword(),
+					"--persistence-unit", "sessionbuilder-test"
 				)
 				.start();
 
@@ -138,13 +138,10 @@ public class SessionBuilderApplicationE2E extends AssertJSwingJUnitTestCase {
 	@Test
 	public void testAddTopicButtonSuccess() {
 		window.button(JButtonMatcher.withName("addTopicNavButton")).click();
-		
 		window.textBox("nameField").enterText("Fisica");
 		window.textBox("descriptionField").enterText("Meccanica");
 		window.textBox("difficultyField").enterText("4");
-		
 		window.button(JButtonMatcher.withName("addTopicButton")).click();
-		
 		window.button(JButtonMatcher.withName("backButton")).click();
 		
 		assertThat(window.list("topicList").contents()).anySatisfy(e -> 
@@ -154,11 +151,9 @@ public class SessionBuilderApplicationE2E extends AssertJSwingJUnitTestCase {
 	@Test
 	public void testAddTopicButtonError() {
 		window.button(JButtonMatcher.withName("addTopicNavButton")).click();
-		
 		window.textBox("nameField").enterText(TOPIC_FIXTURE_1_NAME);
 		window.textBox("descriptionField").enterText(TOPIC_FIXTURE_1_DESCRIPTION);
 		window.textBox("difficultyField").enterText(String.valueOf(TOPIC_FIXTURE_1_DIFFICULTY));
-		
 		window.button(JButtonMatcher.withName("addTopicButton")).click();
 		
 		String errorText = window.label(JLabelMatcher.withName("errorTopicPanelLbl")).text();
@@ -185,9 +180,7 @@ public class SessionBuilderApplicationE2E extends AssertJSwingJUnitTestCase {
 		window.textBox("durationField").enterText("120");
 		window.textBox("noteField").enterText("Nuova sessione");
 		window.list("sessionPanelTopicList").selectItem(Pattern.compile(".*" + TOPIC_FIXTURE_1_NAME + ".*"));
-		
 		window.button(JButtonMatcher.withName("addSessionButton")).click();
-		
 		window.button(JButtonMatcher.withName("backSessionButton")).click();
 		
 		assertThat(window.list("sessionList").contents()).anySatisfy(e -> 
@@ -213,7 +206,6 @@ public class SessionBuilderApplicationE2E extends AssertJSwingJUnitTestCase {
 		window.textBox("durationField").enterText("60");
 		window.textBox("noteField").enterText("Sessione passata");
 		window.list("sessionPanelTopicList").selectItem(Pattern.compile(".*" + TOPIC_FIXTURE_1_NAME + ".*"));
-		
 		window.button(JButtonMatcher.withName("addSessionButton")).click();
 		
 		String errorText = window.label(JLabelMatcher.withName("sessionErrorMessage")).text();
@@ -239,7 +231,6 @@ public class SessionBuilderApplicationE2E extends AssertJSwingJUnitTestCase {
 		window.textBox("durationField").enterText(String.valueOf(SESSION_FIXTURE_1_DURATION));
 		window.textBox("noteField").enterText(SESSION_FIXTURE_1_NOTE);
 		window.list("sessionPanelTopicList").selectItem(Pattern.compile(".*" + TOPIC_FIXTURE_1_NAME + ".*"));
-		
 		window.button(JButtonMatcher.withName("addSessionButton")).click();
 		
 		String errorText = window.label(JLabelMatcher.withName("sessionErrorMessage")).text();
@@ -343,9 +334,7 @@ public class SessionBuilderApplicationE2E extends AssertJSwingJUnitTestCase {
 		window.textBox("nameField").enterText("Geografia");
 		window.textBox("descriptionField").enterText("Capitali europee");
 		window.textBox("difficultyField").enterText("2");
-		
 		window.button(JButtonMatcher.withName("addTopicButton")).click();
-		
 		window.button(JButtonMatcher.withName("backButton")).click();
 		
 		assertThat(window.list("topicList").contents()).anySatisfy(e -> 
@@ -372,9 +361,7 @@ public class SessionBuilderApplicationE2E extends AssertJSwingJUnitTestCase {
 		window.textBox("durationField").enterText("75");
 		window.textBox("noteField").enterText("Sessione di prova");
 		window.list("sessionPanelTopicList").selectItem(Pattern.compile(".*" + TOPIC_FIXTURE_1_NAME + ".*"));
-		
 		window.button(JButtonMatcher.withName("addSessionButton")).click();
-		
 		window.button(JButtonMatcher.withName("backSessionButton")).click();
 		
 		assertThat(window.list("sessionList").contents()).anySatisfy(e -> 
@@ -384,7 +371,6 @@ public class SessionBuilderApplicationE2E extends AssertJSwingJUnitTestCase {
 	@Test
 	public void testSessionPanelAddButtonError() {
 		window.button(JButtonMatcher.withName("addSessionNavButton")).click();
-		
 		GuiActionRunner.execute(() -> {
 			ComponentMatcher matcher = new GenericTypeMatcher<JDateChooser>(JDateChooser.class) {
 				@Override
@@ -400,9 +386,7 @@ public class SessionBuilderApplicationE2E extends AssertJSwingJUnitTestCase {
 		window.textBox("durationField").enterText("60");
 		window.textBox("noteField").enterText("Sessione passata");
 		window.list("sessionPanelTopicList").selectItem(Pattern.compile(".*" + TOPIC_FIXTURE_1_NAME + ".*"));
-		
 		window.button(JButtonMatcher.withName("addSessionButton")).click();
-		
 		String errorText = window.label(JLabelMatcher.withName("sessionErrorMessage")).text();
 		assertThat(errorText).contains("Errore nel salvare la sessione:");
 	}

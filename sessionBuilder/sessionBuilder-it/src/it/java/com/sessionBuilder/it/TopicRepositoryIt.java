@@ -1,4 +1,4 @@
-package com.sessionBuilder.core;
+package com.sessionBuilder.it;
 
 import org.junit.After;
 import org.junit.Before;
@@ -8,6 +8,12 @@ import org.junit.Test;
 import org.testcontainers.containers.PostgreSQLContainer;
 import com.google.inject.*;
 import com.google.inject.Module;
+import com.sessionBuilder.core.Topic;
+import com.sessionBuilder.core.TopicRepository;
+import com.sessionBuilder.core.TopicRepositoryInterface;
+import com.sessionBuilder.core.TransactionManager;
+import com.sessionBuilder.core.TransactionManagerImpl;
+
 import static org.assertj.core.api.Assertions.*;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;

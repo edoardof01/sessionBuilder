@@ -48,9 +48,8 @@ public class TransactionManagerImplTest {
 		@SuppressWarnings("unchecked")
 		TransactionCode<String> code = mock(TransactionCode.class);
 		when(code.apply(em)).thenReturn(expectedResult);
-		
 		String result = transactionManager.doInTransaction(code);
-		
+	
 		verify(transaction).begin();
 		verify(code).apply(em);
 		verify(transaction).commit();
@@ -68,7 +67,6 @@ public class TransactionManagerImplTest {
 		RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
 			transactionManager.doInTransaction(code);
 		});
-		
 		verify(transaction).begin();
 		verify(transaction).rollback();
 		verify(em).close();
@@ -86,7 +84,6 @@ public class TransactionManagerImplTest {
 		RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
 			transactionManager.doInTransaction(code);
 		});
-		
 		verify(transaction).begin();
 		verify(transaction, never()).rollback();
 		verify(em).close();
@@ -99,7 +96,6 @@ public class TransactionManagerImplTest {
 		@SuppressWarnings("unchecked")
 		TopicTransactionCode<String> code = mock(TopicTransactionCode.class);
 		when(code.apply(topicRepository)).thenReturn(expectedResult);
-		
 		String result = transactionManager.doInTopicTransaction(code);
 		
 		verify(transaction).begin();
@@ -119,7 +115,6 @@ public class TransactionManagerImplTest {
 		RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
 			transactionManager.doInTopicTransaction(code);
 		});
-		
 		verify(transaction).begin();
 		verify(transaction).rollback();
 		verify(em).close();
@@ -134,7 +129,6 @@ public class TransactionManagerImplTest {
 		when(code.apply(sessionRepository)).thenReturn(expectedResult);
 		
 		String result = transactionManager.doInSessionTransaction(code);
-		
 		verify(transaction).begin();
 		verify(code).apply(sessionRepository);
 		verify(transaction).commit();
@@ -152,7 +146,6 @@ public class TransactionManagerImplTest {
 		RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
 			transactionManager.doInSessionTransaction(code);
 		});
-		
 		verify(transaction).begin();
 		verify(transaction).rollback();
 		verify(em).close();
@@ -167,7 +160,6 @@ public class TransactionManagerImplTest {
 		when(code.apply(any(RepositoryContext.class))).thenReturn(expectedResult);
 		
 		String result = transactionManager.doInMultiRepositoryTransaction(code);
-		
 		verify(transaction).begin();
 		verify(code).apply(any(RepositoryContext.class));
 		verify(transaction).commit();
@@ -185,7 +177,6 @@ public class TransactionManagerImplTest {
 		RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
 			transactionManager.doInMultiRepositoryTransaction(code);
 		});
-		
 		verify(transaction).begin();
 		verify(transaction).rollback();
 		verify(em).close();
@@ -203,7 +194,6 @@ public class TransactionManagerImplTest {
 		RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
 			transactionManager.doInTopicTransaction(code);
 		});
-		
 		verify(transaction).begin();
 		verify(transaction, never()).rollback();
 		verify(em).close();
@@ -221,7 +211,6 @@ public class TransactionManagerImplTest {
 		RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
 			transactionManager.doInSessionTransaction(code);
 		});
-		
 		verify(transaction).begin();
 		verify(transaction, never()).rollback();
 		verify(em).close();
@@ -239,7 +228,6 @@ public class TransactionManagerImplTest {
 		RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
 			transactionManager.doInMultiRepositoryTransaction(code);
 		});
-		
 		verify(transaction).begin();
 		verify(transaction, never()).rollback();
 		verify(em).close();
@@ -253,9 +241,7 @@ public class TransactionManagerImplTest {
 			assertThat(context.getSessionRepository()).isEqualTo(sessionRepository);
 			return null;
 		};
-		
 		transactionManager.doInMultiRepositoryTransaction(code);
-		
 		verify(transaction).begin();
 		verify(transaction).commit();
 		verify(em).close();

@@ -6,9 +6,6 @@ import java.util.List;
 import com.google.inject.Inject;
 
 public class TopicService implements TopicServiceInterface {
-
-	@Inject
-	private TopicRepositoryInterface topicRepository;
 	
 	@Inject
 	private TransactionManager tm;
@@ -21,7 +18,7 @@ public class TopicService implements TopicServiceInterface {
 			Topic topic = new Topic(name, description, difficulty, sessionList);
 			if(repository.findByNameDescriptionAndDifficulty(name, description, difficulty) != null) 
 				throw new IllegalArgumentException("Esiste già un topic con questi valori");
-			topicRepository.save(topic);
+			repository.save(topic);
 			return topic;
 		});
 	}
