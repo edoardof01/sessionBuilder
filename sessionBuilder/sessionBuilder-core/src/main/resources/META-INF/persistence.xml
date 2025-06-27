@@ -12,9 +12,9 @@
    	
    	<properties>
    		<property name="jakarta.persistence.jdbc.driver" value="org.postgresql.Driver"/>
-   		<property name="jakarta.persistence.jdbc.url" value="jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${POSTGRES_TEST_DB:test}"/>
-   		<property name="jakarta.persistence.jdbc.user" value="${POSTGRES_TEST_USER:test}"/>
-   		<property name="jakarta.persistence.jdbc.password" value="${POSTGRES_TEST_PASSWORD:test}"/>
+   		<property name="jakarta.persistence.jdbc.url" value="jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${POSTGRES_DB:test}"/>
+   		<property name="jakarta.persistence.jdbc.user" value="${POSTGRES_USER:test}"/>
+   		<property name="jakarta.persistence.jdbc.password" value="${POSTGRES_PASSWORD:test}"/>
    		
    		<property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
    		<property name="hibernate.hbm2ddl.auto" value="create-drop"/>

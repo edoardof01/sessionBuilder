@@ -41,9 +41,9 @@ jobs:
           xvfb-run mvn -B clean install ${{ matrix.additional-maven-args }}
           -Dcoveralls.repoToken=${{ secrets.COVERALLS_TOKEN }}
         env:
-          POSTGRES_TEST_DB: ${{ secrets.POSTGRES_TEST_DB }}
-          POSTGRES_TEST_USER: ${{ secrets.POSTGRES_TEST_USER }}
-          POSTGRES_TEST_PASSWORD: ${{ secrets.POSTGRES_TEST_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_TEST_DB }}
+          POSTGRES_USER: ${{ secrets.POSTGRES_TEST_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_TEST_PASSWORD }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CI_NAME: github
           CI_BUILD_NUMBER: ${{ github.run_number }}
