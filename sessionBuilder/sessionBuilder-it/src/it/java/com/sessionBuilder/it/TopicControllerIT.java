@@ -5,7 +5,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-
+import com.google.inject.AbstractModule;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,6 +17,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 import com.google.inject.Guice;
@@ -38,6 +39,7 @@ public class TopicControllerIT {
 	private EntityManagerFactory emf;
 	private TopicController topicController;
 	private StudySessionRepositoryInterface  sessionRepository;
+	@Mock
 	private TopicViewCallback viewCallback;
 	private TopicServiceInterface topicService;
 	
@@ -67,7 +69,14 @@ public class TopicControllerIT {
 		
 		emf = Persistence.createEntityManagerFactory("sessionbuilder-test", properties);
 		AppModule module = new AppModule("sessionbuilder-test", properties);
-		Injector injector = Guice.createInjector(module);
+		AbstractModule testModule = new AbstractModule() {
+			@Override
+			public void configure() {
+				bind(TopicViewCallback.class).toInstance(viewCallback);
+			}
+			
+		};
+		Injector injector = Guice.createInjector(module,testModule);
 		topicController = injector.getInstance(TopicController.class);
 		sessionRepository = injector.getInstance(StudySessionRepositoryInterface.class);
 		viewCallback = spy(TopicViewCallback.class);

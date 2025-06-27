@@ -49,7 +49,13 @@ public class TopicRepositoryIT {
 		
 		emf = Persistence.createEntityManagerFactory("sessionbuilder-test", properties);
 		AppModule module = new AppModule("sessionbuilder-test", properties);
-		Injector injector = Guice.createInjector(module);
+		AbstractModule testModule = new AbstractModule() {
+			@Override
+			public void configure() {
+				bind(EntityManagerFactory.class).toInstance(emf);
+			}
+		};
+		Injector injector = Guice.createInjector(module, testModule);
 		topicRepository = injector.getInstance(TopicRepositoryInterface.class);
 	}
 	

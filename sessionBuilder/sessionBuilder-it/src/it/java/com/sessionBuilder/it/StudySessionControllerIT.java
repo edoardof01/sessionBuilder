@@ -12,11 +12,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import static org.assertj.core.api.Assertions.*;
+import com.google.inject.AbstractModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.testcontainers.containers.PostgreSQLContainer;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -27,6 +29,7 @@ import com.sessionbuilder.core.StudySessionController;
 import com.sessionbuilder.core.StudySessionInterface;
 import com.sessionbuilder.core.Topic;
 import com.sessionbuilder.core.TopicRepositoryInterface;
+
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 
@@ -35,6 +38,7 @@ public class StudySessionControllerIT {
 	private EntityManagerFactory emf;
 	private StudySessionController sessionController;
 	private TopicRepositoryInterface topicRepository;
+	@Mock
 	private SessionViewCallback viewCallback;
 	private StudySessionInterface sessionService;
 	
@@ -64,7 +68,13 @@ public class StudySessionControllerIT {
 		
 		emf = Persistence.createEntityManagerFactory("sessionbuilder-test", properties);
 		AppModule module = new AppModule("sessionbuilder-test", properties);
-		Injector injector = Guice.createInjector(module);
+		AbstractModule testModule = new AbstractModule() {
+			@Override
+			public void configure() {
+				bind(SessionViewCallback.class).toInstance(viewCallback);
+			}
+		};
+		Injector injector = Guice.createInjector(module, testModule);
 		sessionController = injector.getInstance(StudySessionController.class);
 		topicRepository = injector.getInstance(TopicRepositoryInterface.class);
 		viewCallback = spy(SessionViewCallback.class);

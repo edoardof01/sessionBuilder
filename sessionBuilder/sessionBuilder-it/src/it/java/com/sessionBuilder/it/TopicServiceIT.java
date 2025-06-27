@@ -12,6 +12,8 @@ import org.junit.Test;
 import org.testcontainers.containers.PostgreSQLContainer;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.Assert.*;
+
+import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.sessionbuilder.core.AppModule;
@@ -63,7 +65,13 @@ public class TopicServiceIT {
 		
 		emf = Persistence.createEntityManagerFactory("sessionbuilder-test", properties);
 		AppModule module = new AppModule("sessionbuilder-test", properties);
-		Injector injector = Guice.createInjector(module);
+		AbstractModule testModule = new AbstractModule() {
+			@Override
+			public void configure() {
+				bind(EntityManagerFactory.class).toInstance(emf);
+			}
+		};
+		Injector injector = Guice.createInjector(module, testModule);
 		topicService = injector.getInstance(TopicServiceInterface.class);
 		sessionRepository = injector.getInstance(StudySessionRepositoryInterface.class);
 	}

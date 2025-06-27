@@ -28,15 +28,19 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.testcontainers.containers.PostgreSQLContainer;
+
+import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.sessionbuilder.core.AppModule;
+import com.sessionbuilder.core.SessionViewCallback;
 import com.sessionbuilder.core.StudySession;
 import com.sessionbuilder.core.StudySessionController;
 import com.sessionbuilder.core.StudySessionRepositoryInterface;
 import com.sessionbuilder.core.Topic;
 import com.sessionbuilder.core.TopicController;
 import com.sessionbuilder.core.TopicRepositoryInterface;
+import com.sessionbuilder.core.TopicViewCallback;
 import com.sessionbuilder.swing.SessionPanel;
 import com.sessionbuilder.swing.TopicAndSessionManager;
 import com.toedter.calendar.JDateChooser;
@@ -82,8 +86,16 @@ public class SessionPanelIT extends AssertJSwingJUnitTestCase {
 		emf = Persistence.createEntityManagerFactory("sessionbuilder-test", properties);
 
 		AppModule module = new AppModule("sessionbuilder-test", properties);
-
-		Injector injector = Guice.createInjector(module);
+		AbstractModule testModule = new AbstractModule() {
+			@Override
+			public void configure() {
+				bind(EntityManagerFactory.class).toInstance(emf);
+				bind(TopicAndSessionManager.class).toInstance(managerView);
+				bind(TopicViewCallback.class).toInstance(managerView);
+				bind(SessionViewCallback.class).toInstance(managerView);
+			}
+		};
+		Injector injector = Guice.createInjector(module,testModule);
 		sessionController = injector.getInstance(StudySessionController.class);
 		topicController = injector.getInstance(TopicController.class);
 		topicRepository = injector.getInstance(TopicRepositoryInterface.class);
