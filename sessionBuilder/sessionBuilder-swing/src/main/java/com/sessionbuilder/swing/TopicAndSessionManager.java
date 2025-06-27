@@ -63,6 +63,8 @@ public class TopicAndSessionManager extends JFrame implements TopicViewCallback,
 
 
 	public TopicAndSessionManager() {
+		topicModel = new DefaultListModel<>();
+		studySessionModel = new DefaultListModel<>();
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		setBounds(100, 100, 800, 600);
 		setupCardLayout();

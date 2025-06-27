@@ -28,15 +28,22 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.sessionbuilder.core.AppModule;
 import com.sessionbuilder.core.SessionViewCallback;
 import com.sessionbuilder.core.StudySession;
 import com.sessionbuilder.core.StudySessionController;
+import com.sessionbuilder.core.StudySessionInterface;
+import com.sessionbuilder.core.StudySessionRepository;
 import com.sessionbuilder.core.StudySessionRepositoryInterface;
+import com.sessionbuilder.core.StudySessionService;
 import com.sessionbuilder.core.Topic;
 import com.sessionbuilder.core.TopicController;
+import com.sessionbuilder.core.TopicRepository;
 import com.sessionbuilder.core.TopicRepositoryInterface;
+import com.sessionbuilder.core.TopicService;
+import com.sessionbuilder.core.TopicServiceInterface;
 import com.sessionbuilder.core.TopicViewCallback;
+import com.sessionbuilder.core.TransactionManager;
+import com.sessionbuilder.core.TransactionManagerImpl;
 import com.sessionbuilder.swing.TopicAndSessionManager;
 
 import jakarta.persistence.EntityManagerFactory;
@@ -78,18 +85,26 @@ public class TopicAndSessionManagerIT extends AssertJSwingJUnitTestCase {
 		properties.put("hibernate.format_sql", "true");
 		
 		emf = Persistence.createEntityManagerFactory("sessionbuilder-test", properties);
-		managerView = GuiActionRunner.execute(() -> new TopicAndSessionManager());
-		AppModule module = new AppModule("sessionbuilder-test", properties);
-		AbstractModule testModule = new AbstractModule() {
+		GuiActionRunner.execute(() -> {
+			managerView = new TopicAndSessionManager();
+		});
+		
+		AbstractModule module = new AbstractModule() {
 			@Override
-			public void configure() {
-				bind(TopicAndSessionManager.class).toInstance(managerView);
+			protected void configure() {
+				bind(EntityManagerFactory.class).toInstance(emf);
+				bind(TopicRepositoryInterface.class).to(TopicRepository.class);
+				bind(StudySessionRepositoryInterface.class).to(StudySessionRepository.class);
+				bind(TransactionManager.class).to(TransactionManagerImpl.class);
+				bind(TopicServiceInterface.class).to(TopicService.class);
+				bind(StudySessionInterface.class).to(StudySessionService.class);
 				bind(TopicViewCallback.class).toInstance(managerView);
 				bind(SessionViewCallback.class).toInstance(managerView);
+				bind(TopicAndSessionManager.class).toInstance(managerView);
 			}
 		};
 		
-		Injector injector = Guice.createInjector(module, testModule);
+		Injector injector = Guice.createInjector(module);
 		topicController = injector.getInstance(TopicController.class);
 		sessionController = injector.getInstance(StudySessionController.class);
 		topicRepository = injector.getInstance(TopicRepositoryInterface.class);
@@ -106,9 +121,13 @@ public class TopicAndSessionManagerIT extends AssertJSwingJUnitTestCase {
 	
 	@Override
 	protected void onTearDown() throws Exception {
-		if (emf != null && emf.isOpen()) {
-			emf.close();
-		}
+	    if (window != null) {
+	        window.cleanUp();
+	    }
+	    if (emf != null && emf.isOpen()) {
+	        emf.close();
+	    }
+	    super.onTearDown();
 	}
 
 	@Test
@@ -197,7 +216,7 @@ public class TopicAndSessionManagerIT extends AssertJSwingJUnitTestCase {
 		window.list("sessionList").requireItemCount(0);
 		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, 
 			() -> sessionRepository.findById(sessionId));
-		assertThat(exception.getMessage()).contains("la sessione cercata non esiste");
+		assertThat(exception.getMessage()).contains("non esiste una session con tale id");
 	}
 
 	@Test

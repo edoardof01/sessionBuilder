@@ -28,15 +28,22 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.sessionbuilder.core.AppModule;
 import com.sessionbuilder.core.SessionViewCallback;
 import com.sessionbuilder.core.StudySession;
 import com.sessionbuilder.core.StudySessionController;
+import com.sessionbuilder.core.StudySessionInterface;
+import com.sessionbuilder.core.StudySessionRepository;
 import com.sessionbuilder.core.StudySessionRepositoryInterface;
+import com.sessionbuilder.core.StudySessionService;
 import com.sessionbuilder.core.Topic;
 import com.sessionbuilder.core.TopicController;
+import com.sessionbuilder.core.TopicRepository;
 import com.sessionbuilder.core.TopicRepositoryInterface;
+import com.sessionbuilder.core.TopicService;
+import com.sessionbuilder.core.TopicServiceInterface;
 import com.sessionbuilder.core.TopicViewCallback;
+import com.sessionbuilder.core.TransactionManager;
+import com.sessionbuilder.core.TransactionManagerImpl;
 import com.sessionbuilder.swing.TopicAndSessionManager;
 import com.sessionbuilder.swing.TopicPanel;
 import jakarta.persistence.EntityManagerFactory;
@@ -79,17 +86,25 @@ public class TopicPanelIT extends AssertJSwingJUnitTestCase {
 		properties.put("hibernate.format_sql", "true");
 
 		emf = Persistence.createEntityManagerFactory("sessionbuilder-test", properties);
-		managerView = GuiActionRunner.execute(() -> new TopicAndSessionManager());
-		AppModule module = new AppModule("sessionbuilder-test", properties);
-		AbstractModule testModule = new AbstractModule() {
+
+		GuiActionRunner.execute(() -> {
+			managerView = new TopicAndSessionManager();
+		});
+		AbstractModule module = new AbstractModule() {
 			@Override
-			public void configure() {
-				bind(TopicAndSessionManager.class).toInstance(managerView);
+			protected void configure() {
+				bind(EntityManagerFactory.class).toInstance(emf);
+				bind(TopicRepositoryInterface.class).to(TopicRepository.class);
+				bind(StudySessionRepositoryInterface.class).to(StudySessionRepository.class);
+				bind(TransactionManager.class).to(TransactionManagerImpl.class);
+				bind(TopicServiceInterface.class).to(TopicService.class);
+				bind(StudySessionInterface.class).to(StudySessionService.class);
 				bind(TopicViewCallback.class).toInstance(managerView);
 				bind(SessionViewCallback.class).toInstance(managerView);
 			}
 		};
-		Injector injector = Guice.createInjector(module,testModule);
+
+		Injector injector = Guice.createInjector(module);
 		topicController = injector.getInstance(TopicController.class);
 		sessionController = injector.getInstance(StudySessionController.class);
 		topicRepository = injector.getInstance(TopicRepositoryInterface.class);
@@ -218,18 +233,20 @@ public class TopicPanelIT extends AssertJSwingJUnitTestCase {
 	@Test
 	public void testButtonStateChangesWithFieldModificationIt() {
 		window.button(JButtonMatcher.withName("addTopicButton")).requireDisabled();
+		assertThat(window.button(JButtonMatcher.withName("addTopicButton")).isEnabled()).isFalse();
 		window.textBox("nameField").enterText("Test");
+		assertThat(window.button(JButtonMatcher.withName("addTopicButton")).isEnabled()).isFalse();
 		window.button(JButtonMatcher.withName("addTopicButton")).requireDisabled();
 		window.textBox("descriptionField").enterText("Descrizione");
+		assertThat(window.button(JButtonMatcher.withName("addTopicButton")).isEnabled()).isFalse();
 		window.button(JButtonMatcher.withName("addTopicButton")).requireDisabled();
 		window.textBox("difficultyField").enterText("2");
+		assertThat(window.button(JButtonMatcher.withName("addTopicButton")).isEnabled()).isTrue();
 		window.button(JButtonMatcher.withName("addTopicButton")).requireEnabled();
 		window.textBox("nameField").deleteText();
+		assertThat(window.button(JButtonMatcher.withName("addTopicButton")).isEnabled()).isFalse();
 		window.button(JButtonMatcher.withName("addTopicButton")).requireDisabled();
-		assertThat(window.button(JButtonMatcher.withName("addTopicButton")).isEnabled()).isFalse();
-		assertThat(window.button(JButtonMatcher.withName("addTopicButton")).isEnabled()).isFalse();
-		assertThat(window.button(JButtonMatcher.withName("addTopicButton")).isEnabled()).isFalse();
-		assertThat(window.button(JButtonMatcher.withName("addTopicButton")).isEnabled()).isTrue();
-		assertThat(window.button(JButtonMatcher.withName("addTopicButton")).isEnabled()).isFalse();
+		
+		
 	}
 }

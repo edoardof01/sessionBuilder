@@ -17,19 +17,22 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.sessionbuilder.core.AppModule;
 import com.sessionbuilder.core.StudySession;
+import com.sessionbuilder.core.StudySessionRepository;
 import com.sessionbuilder.core.StudySessionRepositoryInterface;
 import com.sessionbuilder.core.Topic;
 import com.sessionbuilder.core.TopicController;
+import com.sessionbuilder.core.TopicRepository;
+import com.sessionbuilder.core.TopicRepositoryInterface;
+import com.sessionbuilder.core.TopicService;
 import com.sessionbuilder.core.TopicServiceInterface;
 import com.sessionbuilder.core.TopicViewCallback;
-
+import com.sessionbuilder.core.TransactionManager;
+import com.sessionbuilder.core.TransactionManagerImpl;
 
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
@@ -39,7 +42,6 @@ public class TopicControllerIT {
 	private EntityManagerFactory emf;
 	private TopicController topicController;
 	private StudySessionRepositoryInterface  sessionRepository;
-	@Mock
 	private TopicViewCallback viewCallback;
 	private TopicServiceInterface topicService;
 	
@@ -68,15 +70,17 @@ public class TopicControllerIT {
 		properties.put("hibernate.format_sql", "true");
 		
 		emf = Persistence.createEntityManagerFactory("sessionbuilder-test", properties);
-		AppModule module = new AppModule("sessionbuilder-test", properties);
-		AbstractModule testModule = new AbstractModule() {
+		AbstractModule module = new AbstractModule() {
 			@Override
-			public void configure() {
-				bind(TopicViewCallback.class).toInstance(viewCallback);
+			protected void configure() {
+				bind(EntityManagerFactory.class).toInstance(emf);
+				bind(TopicRepositoryInterface.class).to(TopicRepository.class);
+				bind(StudySessionRepositoryInterface.class).to(StudySessionRepository.class);
+				bind(TransactionManager.class).to(TransactionManagerImpl.class);
+				bind(TopicServiceInterface.class).to(TopicService.class);
 			}
-			
 		};
-		Injector injector = Guice.createInjector(module,testModule);
+		Injector injector = Guice.createInjector(module);
 		topicController = injector.getInstance(TopicController.class);
 		sessionRepository = injector.getInstance(StudySessionRepositoryInterface.class);
 		viewCallback = spy(TopicViewCallback.class);

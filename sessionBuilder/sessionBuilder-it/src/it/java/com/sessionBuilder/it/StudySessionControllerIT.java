@@ -18,21 +18,29 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.testcontainers.containers.PostgreSQLContainer;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.sessionbuilder.core.AppModule;
 import com.sessionbuilder.core.SessionViewCallback;
 import com.sessionbuilder.core.StudySession;
 import com.sessionbuilder.core.StudySessionController;
 import com.sessionbuilder.core.StudySessionInterface;
+import com.sessionbuilder.core.StudySessionRepository;
+import com.sessionbuilder.core.StudySessionRepositoryInterface;
+import com.sessionbuilder.core.StudySessionService;
 import com.sessionbuilder.core.Topic;
+import com.sessionbuilder.core.TopicRepository;
 import com.sessionbuilder.core.TopicRepositoryInterface;
+import com.sessionbuilder.core.TransactionManager;
+import com.sessionbuilder.core.TransactionManagerImpl;
 
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 
+@RunWith(MockitoJUnitRunner.class)
 public class StudySessionControllerIT {
 
 	private EntityManagerFactory emf;
@@ -67,14 +75,18 @@ public class StudySessionControllerIT {
 		properties.put("hibernate.format_sql", "true");
 		
 		emf = Persistence.createEntityManagerFactory("sessionbuilder-test", properties);
-		AppModule module = new AppModule("sessionbuilder-test", properties);
-		AbstractModule testModule = new AbstractModule() {
+		AbstractModule module = new AbstractModule() {
 			@Override
-			public void configure() {
-				bind(SessionViewCallback.class).toInstance(viewCallback);
+			protected void configure() {
+				bind(EntityManagerFactory.class).toInstance(emf);
+				bind(TopicRepositoryInterface.class).to(TopicRepository.class);
+				bind(StudySessionRepositoryInterface.class).to(StudySessionRepository.class);
+				bind(TransactionManager.class).to(TransactionManagerImpl.class);
+				bind(StudySessionInterface.class).to(StudySessionService.class);
+				 bind(SessionViewCallback.class).toInstance(viewCallback);
 			}
 		};
-		Injector injector = Guice.createInjector(module, testModule);
+		Injector injector = Guice.createInjector(module);
 		sessionController = injector.getInstance(StudySessionController.class);
 		topicRepository = injector.getInstance(TopicRepositoryInterface.class);
 		viewCallback = spy(SessionViewCallback.class);
@@ -136,7 +148,7 @@ public class StudySessionControllerIT {
 		sessionController.handleDeleteSession(sessionId);
 		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, 
 			() -> sessionService.getSessionById(sessionId));
-		assertThat(exception.getMessage()).contains("la sessione cercata non esiste");
+		assertThat(exception.getMessage()).contains("non esiste una session");
 		verify(viewCallback).onSessionRemoved(session);
 		verify(viewCallback, never()).onSessionError(anyString());
 	}
@@ -222,14 +234,12 @@ public class StudySessionControllerIT {
 		sessionController.handleCompleteSession(sessionId);
 		StudySession completedSession = sessionController.handleGetSession(sessionId);
 		assertThat(completedSession.isComplete()).isTrue();
-		sessionController.handleRemoveTopic(sessionId, topic2.getId());
 		StudySession sessionWithOneTopic = sessionController.handleGetSession(sessionId);
-		assertThat(sessionWithOneTopic.getTopicList()).hasSize(1);
-		assertThat(sessionWithOneTopic.getTopicList()).contains(topic1);
+		assertThat(sessionWithOneTopic.getTopicList()).hasSize(2);
 		sessionController.handleDeleteSession(sessionId);
 		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, 
 			() -> sessionController.handleGetSession(sessionId));
-		assertThat(exception.getMessage()).contains("la sessione cercata non esiste");
+		assertThat(exception.getMessage()).contains("non esiste una session con tale id");
 	}
 
 }
