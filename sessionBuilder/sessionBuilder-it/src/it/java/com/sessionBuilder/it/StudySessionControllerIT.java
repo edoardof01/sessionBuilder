@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import static org.assertj.core.api.Assertions.*;
-import com.google.inject.AbstractModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -68,13 +67,7 @@ public class StudySessionControllerIT {
 		
 		emf = Persistence.createEntityManagerFactory("sessionbuilder-test", properties);
 		AppModule module = new AppModule("sessionbuilder-test", properties);
-		AbstractModule testModule = new AbstractModule() {
-			@Override
-			public void configure() {
-				bind(SessionViewCallback.class).toInstance(viewCallback);
-			}
-		};
-		Injector injector = Guice.createInjector(module, testModule);
+		Injector injector = Guice.createInjector(module);
 		sessionController = injector.getInstance(StudySessionController.class);
 		topicRepository = injector.getInstance(TopicRepositoryInterface.class);
 		viewCallback = spy(SessionViewCallback.class);

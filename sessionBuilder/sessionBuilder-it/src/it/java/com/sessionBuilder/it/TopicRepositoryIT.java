@@ -7,9 +7,12 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.testcontainers.containers.PostgreSQLContainer;
 import com.google.inject.*;
-import com.sessionbuilder.core.AppModule;
 import com.sessionbuilder.core.Topic;
+import com.sessionbuilder.core.TopicRepository;
 import com.sessionbuilder.core.TopicRepositoryInterface;
+import com.sessionbuilder.core.TransactionManager;
+import com.sessionbuilder.core.TransactionManagerImpl;
+
 import static org.assertj.core.api.Assertions.*;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
@@ -48,14 +51,15 @@ public class TopicRepositoryIT {
 		properties.put("hibernate.format_sql", "true");
 		
 		emf = Persistence.createEntityManagerFactory("sessionbuilder-test", properties);
-		AppModule module = new AppModule("sessionbuilder-test", properties);
-		AbstractModule testModule = new AbstractModule() {
+		AbstractModule module = new AbstractModule() {
 			@Override
-			public void configure() {
+			protected void configure() {
 				bind(EntityManagerFactory.class).toInstance(emf);
+				bind(TopicRepositoryInterface.class).to(TopicRepository.class);
+				bind(TransactionManager.class).to(TransactionManagerImpl.class);
 			}
 		};
-		Injector injector = Guice.createInjector(module, testModule);
+		Injector injector = Guice.createInjector(module);
 		topicRepository = injector.getInstance(TopicRepositoryInterface.class);
 	}
 	
