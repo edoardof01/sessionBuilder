@@ -13,19 +13,13 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.Assert.*;
 
-import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.sessionbuilder.core.AppModule;
 import com.sessionbuilder.core.StudySession;
-import com.sessionbuilder.core.StudySessionRepository;
 import com.sessionbuilder.core.StudySessionRepositoryInterface;
 import com.sessionbuilder.core.Topic;
-import com.sessionbuilder.core.TopicRepository;
-import com.sessionbuilder.core.TopicRepositoryInterface;
-import com.sessionbuilder.core.TopicService;
 import com.sessionbuilder.core.TopicServiceInterface;
-import com.sessionbuilder.core.TransactionManager;
-import com.sessionbuilder.core.TransactionManagerImpl;
 
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
@@ -69,16 +63,7 @@ public class TopicServiceIT {
 		properties.put("hibernate.format_sql", "true");
 		
 		emf = Persistence.createEntityManagerFactory("sessionbuilder-test", properties);
-		AbstractModule module = new AbstractModule() {
-			@Override
-			protected void configure() {
-				bind(EntityManagerFactory.class).toInstance(emf);
-				bind(StudySessionRepositoryInterface.class).to(StudySessionRepository.class);
-				bind(TopicRepositoryInterface.class).to(TopicRepository.class);
-				bind(TransactionManager.class).to(TransactionManagerImpl.class);
-				bind(TopicServiceInterface.class).to(TopicService.class);
-			}
-		};
+		AppModule module = new AppModule("sessionbuilder-test", properties);
 		Injector injector = Guice.createInjector(module);
 		topicService = injector.getInstance(TopicServiceInterface.class);
 		sessionRepository = injector.getInstance(StudySessionRepositoryInterface.class);
