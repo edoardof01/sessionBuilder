@@ -127,7 +127,7 @@
 								<exclude>**.*Test.class</exclude>
 								<exclude>**.SessionBuilderApplication.class</exclude>
 								<exclude>**/*$*.class</exclude>
-								<exclude>**.*E2E.class</exclude>
+								<exclude>**.*IT.class</exclude>
 							</excludes>
 						</configuration>
 				</plugin>
@@ -137,14 +137,14 @@
 					<version>${pitest.version}</version>
 					<configuration>
 						<targetClasses>
-							<param>com.sessionBuilder.core.*</param>
+							<param>com.sessionbuilder.core.*</param>
 						</targetClasses>
 						<excludedClasses>
 							<param>**.*Test</param>
 							<param>**.AppModule.class</param>
 						</excludedClasses>
 						<targetTests>
-							<param>com.sessionBuilder.core.*Test</param>
+							<param>com.sessionbuilder.core.*Test</param>
 						</targetTests>
 						<mutators>
 							<mutator>DEFAULTS</mutator>
@@ -197,10 +197,10 @@
 							</goals>
 							<configuration>
 								<excludes>
-									<exclude>**/*It.java</exclude>
+									<exclude>**/*IT.java</exclude>
 								</excludes>
 								<includes>
-									<include>**/*E2E.java</include>
+									<include>**/*e2eIT.java</include>
 								</includes>
 							</configuration>
 						</execution>
