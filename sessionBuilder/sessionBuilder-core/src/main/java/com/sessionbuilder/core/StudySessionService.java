@@ -95,7 +95,7 @@ public class StudySessionService implements StudySessionInterface {
 			if(session == null) throw new IllegalArgumentException("la sessione da rimuovere è null");
 			List<Topic> topicsToRemoveFrom = new ArrayList<>(session.getTopicList());
 			for (Topic topic : topicsToRemoveFrom) {
-				topic.removeSession(session);
+				topic.getSessionList().remove(session);
 				context.getTopicRepository().update(topic);
 			}
 			context.getSessionRepository().delete(sessionId);

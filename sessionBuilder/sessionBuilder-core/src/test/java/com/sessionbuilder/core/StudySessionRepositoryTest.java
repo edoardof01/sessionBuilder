@@ -19,13 +19,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import com.sessionbuilder.core.StudySession;
-import com.sessionbuilder.core.StudySessionRepository;
-import com.sessionbuilder.core.Topic;
-import com.sessionbuilder.core.TransactionCode;
-import com.sessionbuilder.core.TransactionManager;
-
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;

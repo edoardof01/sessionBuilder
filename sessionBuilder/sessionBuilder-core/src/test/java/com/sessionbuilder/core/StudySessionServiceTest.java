@@ -18,17 +18,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import com.sessionbuilder.core.MultiRepositoryTransactionCode;
-import com.sessionbuilder.core.RepositoryContext;
-import com.sessionbuilder.core.StudySession;
-import com.sessionbuilder.core.StudySessionRepositoryInterface;
-import com.sessionbuilder.core.StudySessionService;
-import com.sessionbuilder.core.StudySessionTransactionCode;
-import com.sessionbuilder.core.Topic;
-import com.sessionbuilder.core.TopicRepositoryInterface;
-import com.sessionbuilder.core.TransactionManager;
-
-
 @RunWith(MockitoJUnitRunner.class)
 public class StudySessionServiceTest {
 	
@@ -105,7 +94,7 @@ public class StudySessionServiceTest {
 	public void testGetSessionByIdFailure() {
 		when(sessionRepository.findById(ids1)).thenReturn(null);
 		IllegalArgumentException e = assertThrows(IllegalArgumentException.class, ()-> service.getSessionById(ids1));
-		assertThat(e.getMessage()).isEqualTo("la sessione cercata non esiste");
+		assertThat(e.getMessage()).isEqualTo("non esiste una session con tale id");
 	}
 	
 	@Test
@@ -128,6 +117,9 @@ public class StudySessionServiceTest {
 	public void testCreateSessionSuccess() {
 		StudySession session = service.createSession(date, duration, note, topicList);
 		verify(sessionRepository,times(1)).save(session);
+		verify(topicRepository, times(topicList.size())).update(any(Topic.class));
+		verify(topicRepository).update(topic1);
+		verify(topicRepository).update(topic2);
 		assertThat(session).isNotNull();
 		assertThat(session.getDate()).isEqualTo(date);
 		assertThat(session.getDuration()).isEqualTo(duration);
@@ -156,6 +148,9 @@ public class StudySessionServiceTest {
 		when(sessionRepository.findById(ids2)).thenReturn(fullSession);
 		StudySession result = service.completeSession(ids2);
 		verify(sessionRepository, times(1)).update(fullSession);
+		verify(topicRepository, times(fullSession.getTopicList().size())).update(any(Topic.class));
+		verify(topicRepository).update(topic1);
+		verify(topicRepository).update(topic2);
 		assertThat(result).isEqualTo(fullSession);
 		assertThat(fullSession.isComplete()).isTrue();
 		assertThat(result.isComplete()).isTrue();
@@ -181,6 +176,7 @@ public class StudySessionServiceTest {
 		assertThat(fullSession.getTopicList()).hasSize(3);
 		assertThat(fullSession.getTopicList()).containsExactly(topic1, topic2, topic3);
 		verify(sessionRepository, times(1)).update(fullSession);
+		verify(topicRepository, times(1)).update(topic3);
 	}
 	
 	@Test
@@ -206,6 +202,7 @@ public class StudySessionServiceTest {
 		service.removeTopic(ids2, idt2);
 		assertThat(fullSession.getTopicList()).containsExactly(topic1);
 		verify(sessionRepository, times(1)).update(fullSession);
+		verify(topicRepository, times(1)).update(topic2);
 	}
 	
 	@Test 
@@ -235,6 +232,35 @@ public class StudySessionServiceTest {
 		verify(sessionRepository, times(0)).delete(10L);
 	}
 	
+	@Test
+	public void testDeleteSessionVerifyTopicRemoveSessionCall() {
+		StudySession sessionWithTwoTopics = new StudySession(LocalDate.now().plusDays(1), 60, "una nota", 
+			new ArrayList<>(List.of(topic1, topic2)));
+		sessionWithTwoTopics.setId(3L);
+		when(sessionRepository.findById(3L)).thenReturn(sessionWithTwoTopics);
+		service.deleteSession(3L);
+		assertThat(topic1.getSessionList()).doesNotContain(sessionWithTwoTopics);
+		verify(sessionRepository, times(1)).delete(3L);
+		verify(topicRepository, times(2)).update(any(Topic.class));
+	}
 	
+	@Test
+	public void testCreateSessionWithEmptyTopicListStillUpdatesCorrectly() {
+		ArrayList<Topic> emptyTopicList = new ArrayList<>();
+		StudySession session = service.createSession(date, duration, note, emptyTopicList);
+		verify(sessionRepository, times(1)).save(session);
+		verify(topicRepository, times(0)).update(any(Topic.class));
+	}
 	
+	@Test
+	public void testCompleteSessionWithSingleTopicUpdatesCorrectly() {
+		StudySession singleTopicSession = new StudySession(LocalDate.now().plusDays(1), 60, "una nota", 
+			new ArrayList<>(List.of(topic1)));
+		singleTopicSession.setId(3L);
+		when(sessionRepository.findById(3L)).thenReturn(singleTopicSession);
+		StudySession result = service.completeSession(3L);
+		verify(sessionRepository, times(1)).update(singleTopicSession);
+		verify(topicRepository, times(1)).update(topic1);
+		assertThat(result.isComplete()).isTrue();
+	}
 }

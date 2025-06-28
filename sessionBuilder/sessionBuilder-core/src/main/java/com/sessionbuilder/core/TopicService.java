@@ -64,6 +64,7 @@ public class TopicService implements TopicServiceInterface {
 			StudySession session = context.getSessionRepository().findById(sessionId);
 			if(topic == null) throw new IllegalArgumentException(TOPIC_EXCEPTION_MESSAGE);
 			if(session == null) throw new IllegalArgumentException("la sessione passata è null");
+			if(session.getTopicList().size() == 1) throw new IllegalArgumentException("la session deve avere almeno un topic");
 			topic.removeSession(session);
 			context.getTopicRepository().update(topic);
 			return null;

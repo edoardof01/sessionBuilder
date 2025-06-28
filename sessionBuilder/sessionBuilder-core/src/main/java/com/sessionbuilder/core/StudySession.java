@@ -33,19 +33,17 @@ public class StudySession {
 		if(date == null) throw new IllegalArgumentException("la date non può essere null");
 		if(date.isBefore(LocalDate.now())) throw new IllegalArgumentException("la date non può essere nel passato");
 		this.date = date;
-		if(duration<=0) throw new IllegalArgumentException("la durata deve essere positiva");
+		if(duration <= 0) throw new IllegalArgumentException("la durata deve essere positiva");
 		this.duration = duration;
 		if(note == null) throw new IllegalArgumentException("la note non può essere null");
 		this.note = note;
 		if(topicList == null) throw new IllegalArgumentException("deve esserci almeno un topic");
 		if(topicList.stream().anyMatch(Objects::isNull)) throw new IllegalArgumentException("almeno un Topic è null");
 		for(Topic topic : topicList) {
-			if(!topic.getSessionList().contains(this)) {
-				topic.addSession(this);
-			}
+			topic.addSession(this);
 		}
-		this.topicList = topicList;
 		this.isComplete = false;
+		this.topicList = topicList;
 	}
 	
 	public StudySession() {}
@@ -94,7 +92,9 @@ public class StudySession {
 		boolean found = topicList.contains(topic);
 		if (!found) throw new IllegalArgumentException("il topic non è presente nella lista");
 		this.getTopicList().remove(topic);
-		topic.removeSession(this);
+		if (topic.getSessionList().contains(this)) {
+			topic.removeSession(this);
+		}
 	}
 
 	public void complete() {
@@ -114,13 +114,12 @@ public class StudySession {
 		if(this == obj) return true;
 		if(obj == null || getClass() != obj.getClass()) return false;
 		StudySession other = (StudySession) obj;
-		return Objects.equals(this.date, other.getDate()) && this.duration == other.getDuration() &&
-				Objects.equals(this.note, other.note);
+		return this.id > 0 && Objects.equals(this.id, other.id);
 	}
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(date, duration, note);
+		return Objects.hash(id);
 	}
 	
 	public void setDuration(int duration) {

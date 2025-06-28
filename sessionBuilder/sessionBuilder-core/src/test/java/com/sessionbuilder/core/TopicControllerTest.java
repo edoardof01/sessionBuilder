@@ -19,12 +19,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import com.sessionbuilder.core.StudySession;
-import com.sessionbuilder.core.Topic;
-import com.sessionbuilder.core.TopicController;
-import com.sessionbuilder.core.TopicServiceInterface;
-import com.sessionbuilder.core.TopicViewCallback;
-
 @RunWith(MockitoJUnitRunner.class)
 public class TopicControllerTest {
 	
@@ -116,6 +110,7 @@ public class TopicControllerTest {
 			topicController.handleGetAllTopics();
 		});
 		verify(service).getAllTopics();
+		verify(viewCallback).onTopicError("Errore nel caricamento dei topic");
 		assertThat(thrown).isEqualTo(exception);
 	}
 	

@@ -18,17 +18,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import com.sessionbuilder.core.MultiRepositoryTransactionCode;
-import com.sessionbuilder.core.RepositoryContext;
-import com.sessionbuilder.core.StudySession;
-import com.sessionbuilder.core.StudySessionRepositoryInterface;
-import com.sessionbuilder.core.Topic;
-import com.sessionbuilder.core.TopicRepositoryInterface;
-import com.sessionbuilder.core.TopicService;
-import com.sessionbuilder.core.TopicTransactionCode;
-import com.sessionbuilder.core.TransactionManager;
-
-
 @RunWith(MockitoJUnitRunner.class)
 public class TopicServiceTest {
 	
@@ -184,6 +173,7 @@ public class TopicServiceTest {
 		when(topicRepository.findById(idt1)).thenReturn(topic);
 		when(sessionRepository.findById(ids1)).thenReturn(session);
 		topic.setSessions(new ArrayList<StudySession>(List.of(session)));
+		session.addTopic(topic2);
 		service.removeSessionFromTopic(idt1, ids1);
 		assertThat(topic.getSessionList()).isEmpty();
 		verify(topicRepository, times(1)).update(topic);

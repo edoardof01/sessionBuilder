@@ -3,11 +3,15 @@ package com.sessionbuilder.core;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
 
 @Entity
@@ -20,8 +24,13 @@ public class Topic {
 	private String name;
 	private String description;
 	private int difficulty;
-	
-	@ManyToMany(fetch = FetchType.EAGER)
+
+	@ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+	@JoinTable(
+			name = "Topic_StudySession",
+			joinColumns = @JoinColumn(name = "topic_id"),
+			inverseJoinColumns = @JoinColumn(name = "session_id")
+	)
 	private List<StudySession> sessionList = new ArrayList<>();
 	
 	private int masteryLevel = 0;
@@ -73,7 +82,7 @@ public class Topic {
 		if(session == null) throw new IllegalArgumentException("la sessione non può essere nulla");
 		this.sessionList.add(session);
 		if(!session.getTopicList().contains(this)) {
-			session.getTopicList().add(this);
+			session.addTopic(this);
 		}
 	}
 	
@@ -81,7 +90,9 @@ public class Topic {
 		if(session == null) throw new IllegalArgumentException("la sessione da rimuovere è null");
 		if(!this.sessionList.contains(session)) throw new IllegalArgumentException("sessione da rimuovere non trovata");
 		this.sessionList.remove(session);
-		session.getTopicList().remove(this);
+		if (session.getTopicList().contains(this)) {
+			session.removeTopic(this);
+		}
 	}
 	
 	public int totalTime() {
@@ -113,13 +124,12 @@ public class Topic {
 		if(this == obj) return true;
 		if(obj == null || getClass() != obj.getClass()) return false;
 		Topic other = (Topic) obj;
-		return Objects.equals(this.name, other.name) && Objects.equals(this.description, other.description)
-				&& this.difficulty == other.getDifficulty();
+		return this.id > 0 && Objects.equals(this.id, other.id) ;
 	}
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(name, description, difficulty);
+		return Objects.hash(id);
 	}
 	
 	@Override
@@ -135,18 +145,5 @@ public class Topic {
 	public void setDescription(String description) {
 		this.description = description;	
 	}
-
-
-	
-	
-	
-	
-
-	
-
-	
-	
-
-
 
 }

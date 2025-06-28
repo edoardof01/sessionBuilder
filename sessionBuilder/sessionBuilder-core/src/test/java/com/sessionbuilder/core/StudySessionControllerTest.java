@@ -16,12 +16,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import com.sessionbuilder.core.SessionViewCallback;
-import com.sessionbuilder.core.StudySession;
-import com.sessionbuilder.core.StudySessionController;
-import com.sessionbuilder.core.StudySessionInterface;
-import com.sessionbuilder.core.Topic;
-
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
@@ -152,6 +146,18 @@ public class StudySessionControllerTest {
 		List<StudySession> result = sessionController.handleGetAllSessions();
 		assertThat(result).isEqualTo(allSessions);
 		verify(service).getAllSessions();
+	}
+	
+	@Test
+	public void testHandleGetAllSessionsWithExceptions() {
+	   RuntimeException exception = new RuntimeException("lista di sessioni non estratta");
+	   when(service.getAllSessions()).thenThrow(exception);
+	   RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
+	   	sessionController.handleGetAllSessions();
+	   });
+	   verify(service).getAllSessions();
+	   verify(viewCallback).onSessionError("Errore nel caricamento delle session");
+	   assertThat(thrown).isEqualTo(exception);
 	}
 	
 	@Test

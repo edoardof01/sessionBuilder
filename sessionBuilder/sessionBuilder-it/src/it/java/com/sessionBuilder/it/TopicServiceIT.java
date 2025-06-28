@@ -3,6 +3,7 @@ package com.sessionBuilder.it;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.junit.After;
 import org.junit.Before;
@@ -35,6 +36,7 @@ public class TopicServiceIT {
 	private EntityManagerFactory emf;
 	private TopicServiceInterface topicService;
 	private StudySessionRepositoryInterface sessionRepository;
+	private TransactionManager transactionManager;
 	
 	private String name;
 	private String description;
@@ -82,6 +84,7 @@ public class TopicServiceIT {
 		Injector injector = Guice.createInjector(module);
 		topicService = injector.getInstance(TopicServiceInterface.class);
 		sessionRepository = injector.getInstance(StudySessionRepositoryInterface.class);
+		transactionManager = injector.getInstance(TransactionManager.class);
 	}
 	
 	@After
@@ -124,23 +127,38 @@ public class TopicServiceIT {
 	}
 	
 	@Test
-	public void testRemoveSessionFromTopicIt() {
-		Topic topic = topicService.createTopic("Documentari", "studio del nazismo", 1, new ArrayList<>());
-		long topicId = topic.getId();
-		
-		StudySession session = new StudySession(LocalDate.now().plusDays(1), 60, "una nota", new ArrayList<>());
-		sessionRepository.save(session);
-		long sessionId = session.getId();
-		
-		topicService.addSessionToTopic(topicId, sessionId);
-		
-		Topic topicWithSession = topicService.getTopicById(topicId);
-		assertThat(topicWithSession.getSessionList()).hasSize(1);
-		
-		topicService.removeSessionFromTopic(topicId, sessionId);
-		
-		Topic topicWithoutSession = topicService.getTopicById(topicId);
-		assertThat(topicWithoutSession.getSessionList()).isEmpty();
+	public void removeSessionFromTopic_whenSessionHasMultipleTopics_shouldSucceed() {
+	    final long[] ids = new long[3];
+	    transactionManager.doInTransaction(em -> {
+	        Topic topic1 = new Topic("Documentari", "studio del nazismo", 1, new ArrayList<>());
+	        Topic topic2 = new Topic("Cucina", "pasticceria francese", 2, new ArrayList<>());
+	        em.persist(topic1);
+	        em.persist(topic2);
+	        StudySession session = new StudySession(
+	            LocalDate.now().plusDays(1),
+	            60,
+	            "una nota",
+	            new ArrayList<>(List.of(topic1, topic2))
+	        );
+	        em.persist(session);
+	        em.merge(topic1);
+	        em.merge(topic2);
+	        ids[0] = topic1.getId();
+	        ids[1] = topic2.getId();
+	        ids[2] = session.getId();
+	        return null;
+	    });
+	    long topic1Id = ids[0];
+	    long topic2Id = ids[1];
+	    long sessionId = ids[2];
+	    Topic reloadedTopic = topicService.getTopicById(topic1Id);
+	    assertThat(reloadedTopic.getSessionList()).hasSize(1);
+	    topicService.removeSessionFromTopic(topic1Id, sessionId);
+	    Topic finalTopic = topicService.getTopicById(topic1Id);
+	    StudySession finalSession = sessionRepository.findById(sessionId);
+	    assertThat(finalTopic.getSessionList()).isEmpty();
+	    assertThat(finalSession.getTopicList()).hasSize(1);
+	    assertThat(finalSession.getTopicList().get(0).getId()).isEqualTo(topic2Id);
 	}
 	
 	@Test
@@ -183,13 +201,12 @@ public class TopicServiceIT {
 		
 		StudySession uncompletedSession = new StudySession(LocalDate.now().plusDays(1), 60, "una nota", new ArrayList<>());
 		sessionRepository.save(uncompletedSession);
-		
 		StudySession completedSession = new StudySession(LocalDate.now().plusDays(2), 60, "un'altra nota", new ArrayList<>());
-		completedSession.setIsComplete(true);
 		sessionRepository.save(completedSession);
-		
 		topicService.addSessionToTopic(topicId, uncompletedSession.getId());
 		topicService.addSessionToTopic(topicId, completedSession.getId());
+		completedSession.setIsComplete(true);
+		sessionRepository.update(completedSession);
 		
 		Integer percentage = topicService.calculatePercentageOfCompletion(topicId);
 		assertThat(percentage).isEqualTo(50);

@@ -1,16 +1,12 @@
 package com.sessionbuilder.core;
 
 import static org.assertj.core.api.Assertions.*;
-import org.junit.Test;
-
-import com.sessionbuilder.core.StudySession;
-import com.sessionbuilder.core.Topic;
-
-import org.junit.Before;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThrows;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import org.junit.Before;
+import org.junit.Test;
 
 public class StudySessionTest {
 	
@@ -20,11 +16,6 @@ public class StudySessionTest {
 	private ArrayList<Topic> topics;
 	private Topic fullTopic;
 	private StudySession session;
-	
-	//campi per l'equals
-	private StudySession s1;
-	private StudySession s2;
-
 
 	@Before
 	public void setup() {
@@ -34,9 +25,6 @@ public class StudySessionTest {
 		topics = new ArrayList<Topic>(List.of(topic1));
 		fullTopic = new Topic("scacchi","impara nuove aperture", 5, new ArrayList<StudySession>());
 		session = new StudySession(date, 60, note, topics);
-		//Campi per l'equals 
-		s1 = new StudySession(date, 60, note, topics);
-		s2 = new StudySession(date, 60, note, topics);
 	}
 
 	@Test
@@ -360,78 +348,70 @@ public class StudySessionTest {
 		assertThat(fullTopic.getMasteryLevel()).isEqualTo(13);
 	}
 	
-	// TEST PER L'EQUALS & HASHCODE
 	@Test
-	public void testIsEqual() {
-		assertThat(s1.equals(s1)).isTrue();
+	public void testEqualsWithSameObject() {
+		StudySession other = new StudySession(date, 60, note, topics);
+		assertThat(other.equals(other)).isTrue();
 	}
 	
+	@Test
+	public void testEqualsWithNull() {
+		StudySession other = new StudySession(date, 60, note, topics);
+		assertThat(other.equals(null)).isFalse();
+	}
+
 	@SuppressWarnings("unlikely-arg-type")
 	@Test
-	public void testEqualsDifferentClass() {
-		assertThat(s1.equals("non una sessione")).isFalse();
+	public void testEqualsWithDifferentClass() {
+		StudySession other = new StudySession(date, 60, note, topics);
+		assertThat(other.equals("a string")).isFalse();
 	}
-	
+
 	@Test
-	public void testEqualsNull() {
-		assertThat(s1.equals(null)).isFalse();
-	}
-	
-	@Test
-	public void testEqualsDifferentDate() {
-		StudySession other = new StudySession(date.plusDays(1), 60, note, topics);
-		assertThat(s1.equals(other)).isFalse();
-	}
-	
-	@Test
-	public void testEqualsDifferentDuration() {
-		StudySession other = new StudySession(date, 30, note, topics);
-		assertThat(s1.equals(other)).isFalse();
-	}
-	
-	@Test
-	public void testEqualsIdenticalObjects() {
+	public void testEqualsWithDifferentId() {
 		StudySession session1 = new StudySession(date, 60, note, topics);
+		session1.setId(1L);
 		StudySession session2 = new StudySession(date, 60, note, topics);
+		session2.setId(2L);
+		assertThat(session1.equals(session2)).isFalse();
+	}
+
+	@Test
+	public void testEqualsWithSameId() {
+		StudySession session1 = new StudySession(date, 60, note, topics);
+		session1.setId(1L);
+		StudySession session2 = new StudySession(date.plusDays(1), 30, "another note", topics);
+		session2.setId(1L);
 		assertThat(session1.equals(session2)).isTrue();
 	}
-	
+
 	@Test
-	public void testEqualsDifferentNote() {
-		StudySession other = new StudySession(date, 30, "una nota diversa", topics);
-		assertThat(s1.equals(other)).isFalse();
+	public void testEqualsIsFalseForUnsavedEntities() {
+		StudySession session1 = new StudySession(date, 60, note, topics);
+		StudySession session2 = new StudySession(date, 60, note, topics);
+		assertThat(session1.getId()).isZero();
+		assertThat(session2.getId()).isZero();
+		assertThat(session1.equals(session2)).isFalse();
 	}
-	
-	@Test
-	public void testEqualsDifferentTopics() {
-		StudySession other = new StudySession(date, 60, note, new ArrayList<>(List.of(fullTopic)));
-		fullTopic.setSessions(new ArrayList<>(List.of(other)));
-		assertThat(s1.equals(other)).isTrue();
-	}
-	
-	@Test
-	public void testEqualsDifferentNoteAndTopics() {
-		StudySession other = new StudySession(date, 60, "nota diversa", new ArrayList<>(List.of(fullTopic)));
-		fullTopic.setSessions(new ArrayList<>(List.of(other)));
-		assertThat(s1.equals(other)).isFalse();
-	}
-	
-	@Test
-	public void testHashCodeEqualsObjects() {
-		assertThat(s1).hasSameHashCodeAs(s2);
-	}
-	
+
 	@Test
 	public void testHashCodeConsistency() {
-		assertThat(s1).hasSameHashCodeAs(s1).hasSameHashCodeAs(s1);
+		StudySession other = new StudySession(date, 60, note, topics);
+		other.setId(1L);
+		int initialHashCode = other.hashCode();
+		assertThat(other.hashCode()).isEqualTo(initialHashCode);
+		assertThat(initialHashCode).isNotZero();
 	}
-	
+
 	@Test
-	public void testHashCodeDifferentObjects() {
-		StudySession other = new StudySession(date.plusDays(1), 60, note, topics);
-		assertThat(s1.hashCode()).isNotEqualTo(other.hashCode());
+	public void testHashCodeForEqualObjects() {
+		StudySession session1 = new StudySession(date, 60, note, topics);
+		session1.setId(1L);
+		StudySession session2 = new StudySession(date.plusDays(1), 30, "another note", topics);
+		session2.setId(1L);
+		assertThat(session1).hasSameHashCodeAs(session2);
 	}
-	
+
 	@Test
 	public void testToStringWithSingleTopic() {
 	   LocalDate localDate = LocalDate.now().plusDays(2);
@@ -458,11 +438,4 @@ public class StudySessionTest {
 		other.setDuration(90);
 		assertThat(other.getDuration()).isEqualTo(90);
 	}
-	
-	
-	
-	
-		
-
-
 }

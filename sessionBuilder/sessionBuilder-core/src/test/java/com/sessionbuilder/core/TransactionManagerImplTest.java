@@ -10,14 +10,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import com.sessionbuilder.core.MultiRepositoryTransactionCode;
-import com.sessionbuilder.core.RepositoryContext;
-import com.sessionbuilder.core.StudySessionRepositoryInterface;
-import com.sessionbuilder.core.StudySessionTransactionCode;
-import com.sessionbuilder.core.TopicRepositoryInterface;
-import com.sessionbuilder.core.TopicTransactionCode;
-import com.sessionbuilder.core.TransactionCode;
-import com.sessionbuilder.core.TransactionManagerImpl;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;

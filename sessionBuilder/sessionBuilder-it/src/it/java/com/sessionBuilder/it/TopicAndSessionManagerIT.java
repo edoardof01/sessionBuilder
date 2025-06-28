@@ -274,15 +274,21 @@ public class TopicAndSessionManagerIT extends AssertJSwingJUnitTestCase {
 			return sessionController.handleCreateSession(
 				LocalDate.now().plusDays(1), 60, "Sessione non completata", new ArrayList<>(List.of(topic)));
 		});
+		System.out.println(topic.toString());
+		System.out.println(sessionController.handleGetAllSessions().size());
 		StudySession session2 = GuiActionRunner.execute(() -> {
 			StudySession s = sessionController.handleCreateSession(
 				LocalDate.now().plusDays(2), 90, "Sessione completata", new ArrayList<>(List.of(topic)));
 			sessionController.handleCompleteSession(s.getId());
 			return s;
 		});
+		System.out.println(topic.toString());
+		System.out.println(sessionController.handleGetAllSessions().size());
 		assertThat(sessionRepository.findById(session1.getId())).isNotNull();
 		assertThat(sessionRepository.findById(session2.getId())).isNotNull();
 		Topic persistedTopic = topicRepository.findById(topic.getId());
+		System.out.println(persistedTopic.toString());
+		System.out.println(sessionController.handleGetAllSessions().size());
 		assertThat(persistedTopic.getSessionList()).hasSize(2);
 		assertThat(persistedTopic.percentageOfCompletion()).isEqualTo(50);
 		window.list("topicList").selectItem(0);
