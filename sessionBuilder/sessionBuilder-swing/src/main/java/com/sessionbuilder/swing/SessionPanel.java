@@ -14,7 +14,6 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
@@ -176,10 +175,11 @@ public class SessionPanel extends JPanel {
 		        Instant instant = date.toInstant();
 		        ZoneId zoneId = ZoneId.systemDefault();
 		        LocalDate localDate = instant.atZone(zoneId).toLocalDate();
-		        List<Topic> selectedTopics = sessionPaneltopicList.getSelectedValuesList();
+		        List<Long> selectedTopicIds = sessionPaneltopicList.getSelectedValuesList().stream().map(Topic::getId).toList();
+		        
 		        try {
 			        sessionController.handleCreateSession(localDate, Integer.parseInt(durationField.getText()), 
-			                noteField.getText(), new ArrayList<>(selectedTopics));
+			                noteField.getText(), new ArrayList<>(selectedTopicIds));
 			        errorLbl.setText("");
 		        } catch (Exception ex) {
 		        	showGeneralError("Errore nel salvare la sessione: " + ex.getMessage());

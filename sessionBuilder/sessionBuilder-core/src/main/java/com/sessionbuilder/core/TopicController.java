@@ -40,10 +40,10 @@ public class TopicController {
 	}
 	
 	
-
 	public Topic handleCreateTopic(String name, String description, int difficulty, List<StudySession> sessionList) {
 		try {
-			Topic topic = service.createTopic(name, description, difficulty, sessionList);
+			List<Long> sessionIds = sessionList.stream().map(StudySession::getId).toList();
+			Topic topic = service.createTopic(name, description, difficulty, sessionIds);
 			if (viewCallback != null) {
 				viewCallback.onTopicAdded(topic);
 			}

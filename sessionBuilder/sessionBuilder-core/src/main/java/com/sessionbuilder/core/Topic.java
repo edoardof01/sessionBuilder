@@ -82,7 +82,7 @@ public class Topic {
 		if(session == null) throw new IllegalArgumentException("la sessione non può essere nulla");
 		this.sessionList.add(session);
 		if(!session.getTopicList().contains(this)) {
-			session.addTopic(this);
+			session.getTopicList().add(this);
 		}
 	}
 	
@@ -91,7 +91,7 @@ public class Topic {
 		if(!this.sessionList.contains(session)) throw new IllegalArgumentException("sessione da rimuovere non trovata");
 		this.sessionList.remove(session);
 		if (session.getTopicList().contains(this)) {
-			session.removeTopic(this);
+			session.getTopicList().remove(this);
 		}
 	}
 	

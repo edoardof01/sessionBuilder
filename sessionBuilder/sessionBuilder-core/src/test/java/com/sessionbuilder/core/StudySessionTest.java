@@ -200,9 +200,6 @@ public class StudySessionTest {
 				()-> studySession.removeTopic(topic2));
 		assertThat(e.getMessage()).isEqualTo("null Topic");
 	}
-	
-
-	
 
 	@Test 
 	public void testRemovingTopicsToCompletedSessionFailure() {
@@ -235,16 +232,25 @@ public class StudySessionTest {
 	
 	@Test 
 	public void testRemovingTopicSuccess() {
-		Topic topic = new Topic("Cultura Calcistica","impara le formazioni delle squadre più importanti",1,
-				new ArrayList<StudySession>());
-		Topic topic3 = new Topic("Cucina","impara primi piatti",2,
-				new ArrayList<StudySession>());
+		Topic topic = new Topic("Cultura Calcistica","impara le formazioni delle squadre più importanti", 1, new ArrayList<StudySession>());
+		Topic topic3 = new Topic("Cucina","impara primi piatti",2, new ArrayList<StudySession>());
 		ArrayList<Topic> topicsList = new ArrayList<Topic>();
 		topicsList.add(topic);
 		topicsList.add(topic3);
 		StudySession studySession = new StudySession(date , 60, note, topicsList);
-		topic.setSessions(new ArrayList<>(List.of(studySession)));
-		topic3.setSessions(new ArrayList<>(List.of(studySession)));
+		studySession.removeTopic(topic3);
+		assertThat(studySession.getTopicList()).doesNotContain(topic3).containsExactly(topic);
+	}
+	
+	@Test
+	public void testRemovingTopicThatDoesNotContainSession(){
+		Topic topic = new Topic("Cultura Calcistica","impara le formazioni delle squadre più importanti", 1, new ArrayList<StudySession>());
+		Topic topic3 = new Topic("Cucina","impara primi piatti", 2, new ArrayList<StudySession>());
+		ArrayList<Topic> topicsList = new ArrayList<Topic>();
+		topicsList.add(topic);
+		topicsList.add(topic3);
+		StudySession studySession = new StudySession(date , 60, note, topicsList);
+		topic3.setSessions(new ArrayList<StudySession>());
 		studySession.removeTopic(topic3);
 		assertThat(studySession.getTopicList()).doesNotContain(topic3).containsExactly(topic);
 	}

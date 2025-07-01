@@ -3,12 +3,14 @@ package com.sessionbuilder.core;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Before;
@@ -123,12 +125,35 @@ public class TopicServiceTest {
 	@Test
 	public void testCreateTopicWithDuplicatedValuesFailure() {
 		when(topicRepository.findByNameDescriptionAndDifficulty(name, description, difficulty)).thenReturn(topic);
-		List<StudySession> list = new ArrayList<>();
+		List<Long> list = new ArrayList<>();
 		IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
 				()-> service.createTopic(name, description, difficulty, list));
 		assertThat(e.getMessage()).isEqualTo("Esiste già un topic con questi valori");
 		verify(topicRepository, times(0)).save(any(Topic.class));
 	}
+	@Test
+	public void testCreateTopicWithNonExistingSessionIdFailure() {
+		List<Long> sessionIds = Arrays.asList(ids1, 999L);
+		when(sessionRepository.findById(ids1)).thenReturn(session);
+		when(sessionRepository.findById(999L)).thenReturn(null);
+		IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+				() -> service.createTopic(name, description, difficulty, sessionIds));
+		assertThat(e.getMessage()).isEqualTo("Sessione con ID 999 non trovata.");
+		verify(topicRepository, never()).save(any(Topic.class));
+	}
+
+	@Test
+	public void testCreateTopicWithMultipleSessionsSuccess() {
+		List<Long> sessionIds = Arrays.asList(ids1, ids2);
+		when(sessionRepository.findById(ids1)).thenReturn(session);
+		when(sessionRepository.findById(ids2)).thenReturn(session2);
+		when(topicRepository.findByNameDescriptionAndDifficulty(name, description, difficulty)).thenReturn(null);
+		Topic createdTopic = service.createTopic(name, description, difficulty, sessionIds);
+		assertThat(createdTopic).isNotNull();
+		assertThat(createdTopic.getSessionList()).containsExactlyInAnyOrder(session, session2);
+		verify(topicRepository, times(1)).save(createdTopic);
+	}
+
 	
 	@Test
 	public void testDeleteTopicSuccess() {
@@ -173,7 +198,7 @@ public class TopicServiceTest {
 		when(topicRepository.findById(idt1)).thenReturn(topic);
 		when(sessionRepository.findById(ids1)).thenReturn(session);
 		topic.setSessions(new ArrayList<StudySession>(List.of(session)));
-		session.addTopic(topic2);
+		session.getTopicList().add(topic2);
 		service.removeSessionFromTopic(idt1, ids1);
 		assertThat(topic.getSessionList()).isEmpty();
 		verify(topicRepository, times(1)).update(topic);
@@ -185,6 +210,17 @@ public class TopicServiceTest {
 		when(sessionRepository.findById(ids1)).thenReturn(session);
 		IllegalArgumentException e = assertThrows(IllegalArgumentException.class, ()-> service.removeSessionFromTopic(idt1, ids1));
 		assertThat(e.getMessage()).isEqualTo("il topic passato è null");
+	}
+	
+	@Test
+	public void testRemoveSessionWhenItHasOnlyOneTopicFailure() {
+	    when(topicRepository.findById(idt1)).thenReturn(topic);
+	    when(sessionRepository.findById(ids1)).thenReturn(session);
+	    IllegalArgumentException e = assertThrows(IllegalArgumentException.class, 
+	        () -> service.removeSessionFromTopic(idt1, ids1)
+	    );
+	    assertThat(e.getMessage()).isEqualTo("la session deve avere almeno un topic");
+	    verify(topicRepository, never()).update(any(Topic.class));
 	}
 	
 	@Test

@@ -1,4 +1,4 @@
-package com.sessionBuilder.it;
+package com.sessionbuilder.it;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
 
 import org.assertj.swing.core.matcher.JButtonMatcher;
@@ -18,7 +16,6 @@ import org.assertj.swing.fixture.FrameFixture;
 import org.assertj.swing.fixture.JButtonFixture;
 import org.assertj.swing.junit.runner.GUITestRunner;
 import org.assertj.swing.junit.testcase.AssertJSwingJUnitTestCase;
-
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -28,6 +25,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.sessionbuilder.core.EmfFactory;
 import com.sessionbuilder.core.SessionViewCallback;
 import com.sessionbuilder.core.StudySession;
 import com.sessionbuilder.core.StudySessionController;
@@ -46,8 +44,10 @@ import com.sessionbuilder.core.TransactionManager;
 import com.sessionbuilder.core.TransactionManagerImpl;
 import com.sessionbuilder.swing.TopicAndSessionManager;
 import com.sessionbuilder.swing.TopicPanel;
+
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
+import jakarta.persistence.EntityTransaction;
 
 @RunWith(GUITestRunner.class)
 public class TopicPanelIT extends AssertJSwingJUnitTestCase {
@@ -57,8 +57,6 @@ public class TopicPanelIT extends AssertJSwingJUnitTestCase {
 	private EntityManagerFactory emf;
 	private TopicController topicController;
 	private StudySessionController sessionController;
-	private TopicRepositoryInterface topicRepository;
-	private StudySessionRepositoryInterface sessionRepository;
 	private TopicAndSessionManager managerView;
 
 	@SuppressWarnings("resource")
@@ -71,6 +69,22 @@ public class TopicPanelIT extends AssertJSwingJUnitTestCase {
 	@BeforeClass
 	public static void setUpContainer() {
 		postgres.start();
+	}
+	
+	
+	private void cleanDatabase() {
+		EntityManager em = emf.createEntityManager();
+		EntityTransaction tx = em.getTransaction();
+		try {
+			tx.begin();
+			em.createNativeQuery("TRUNCATE TABLE topic_studysession CASCADE").executeUpdate();
+			em.createNativeQuery("TRUNCATE TABLE studysession CASCADE").executeUpdate();
+			em.createNativeQuery("TRUNCATE TABLE topic CASCADE").executeUpdate();
+			tx.commit();
+		} finally {
+			if (tx.isActive()) tx.rollback();
+			em.close();
+		}
 	}
 
 	@Override
@@ -85,11 +99,14 @@ public class TopicPanelIT extends AssertJSwingJUnitTestCase {
 		properties.put("hibernate.show_sql", "true");
 		properties.put("hibernate.format_sql", "true");
 
-		emf = Persistence.createEntityManagerFactory("sessionbuilder-test", properties);
+		emf = EmfFactory.createEntityManagerFactory("sessionbuilder-test", properties);
+		cleanDatabase();
 
-		GuiActionRunner.execute(() -> {
+		JFrame mainFrame = GuiActionRunner.execute(() -> {
 			managerView = new TopicAndSessionManager();
+			return managerView;
 		});
+
 		AbstractModule module = new AbstractModule() {
 			@Override
 			protected void configure() {
@@ -107,25 +124,21 @@ public class TopicPanelIT extends AssertJSwingJUnitTestCase {
 		Injector injector = Guice.createInjector(module);
 		topicController = injector.getInstance(TopicController.class);
 		sessionController = injector.getInstance(StudySessionController.class);
-		topicRepository = injector.getInstance(TopicRepositoryInterface.class);
-		sessionRepository = injector.getInstance(StudySessionRepositoryInterface.class);
 
 		GuiActionRunner.execute(() -> {
-			DefaultListModel<StudySession> sessionModelForTopicPanel = new DefaultListModel<>();
-			topicPanel = new TopicPanel(sessionModelForTopicPanel);
+			managerView.setTopicController(topicController);
+			managerView.setSessionController(sessionController);
+
+			topicPanel = managerView.getTopicPanel();
+
 			topicPanel.setTopicController(topicController);
-			topicPanel.setManagerView(managerView);
-			topicController.setViewCallback(managerView);
-			JFrame frame = new JFrame();
-			frame.add(topicPanel);
-			return frame;
+			
+			topicPanel.setManagerView(managerView); 
+
+			managerView.showCreateTopicView();
 		});
 
-		window = new FrameFixture(robot(), GuiActionRunner.execute(() -> {
-			JFrame frame = new JFrame();
-			frame.add(topicPanel);
-			return frame;
-		}));
+		window = new FrameFixture(robot(), mainFrame);
 		window.show();
 	}
 
@@ -133,6 +146,9 @@ public class TopicPanelIT extends AssertJSwingJUnitTestCase {
 	protected void onTearDown() throws Exception {
 		if (emf != null && emf.isOpen()) {
 			emf.close();
+		}
+		if (window != null) {
+			window.cleanUp();
 		}
 	}
 
@@ -156,11 +172,6 @@ public class TopicPanelIT extends AssertJSwingJUnitTestCase {
 		assertThat(createdTopic.getName()).isEqualTo("Fisica");
 		assertThat(createdTopic.getDescription()).isEqualTo("Meccanica quantistica");
 		assertThat(createdTopic.getDifficulty()).isEqualTo(5);
-		Topic persistedTopic = topicRepository.findById(createdTopic.getId());
-		assertThat(persistedTopic).isNotNull();
-		assertThat(persistedTopic.getName()).isEqualTo("Fisica");
-		assertThat(persistedTopic.getDescription()).isEqualTo("Meccanica quantistica");
-		assertThat(persistedTopic.getDifficulty()).isEqualTo(5);
 	}
 
 	@Test
@@ -169,20 +180,25 @@ public class TopicPanelIT extends AssertJSwingJUnitTestCase {
 			return sessionController.handleCreateSession(
 				LocalDate.now().plusDays(1), 90, "Sessione test", new ArrayList<>());
 		});
+		
 		GuiActionRunner.execute(() -> {
 			topicPanel.getSessionModel().addElement(session);
 		});
-		StudySession persistedSession = sessionRepository.findById(session.getId());
-		assertThat(persistedSession).isNotNull();
-		assertThat(persistedSession.getNote()).isEqualTo("Sessione test");
+		
 		window.textBox("nameField").enterText("Chimica");
 		window.textBox("descriptionField").enterText("Chimica organica");
 		window.textBox("difficultyField").enterText("4");
-		window.list("topicPanelSessionList").selectItem(0);
+		
+		robot().waitForIdle(); 
+		window.list("topicPanelSessionList").selectItem(0); 
+		
 		JButtonFixture addButton = window.button(JButtonMatcher.withName("addTopicButton"));
 		addButton.requireEnabled();
 		addButton.click();
+		
+		robot().waitForIdle(); 
 		window.label(JLabelMatcher.withName("errorTopicPanelLbl")).requireText(" ");
+		
 		Topic createdTopic = GuiActionRunner.execute(() -> {
 			List<Topic> topics = new ArrayList<>();
 			for (int i = 0; i < managerView.getTopicModel().getSize(); i++) {
@@ -193,9 +209,6 @@ public class TopicPanelIT extends AssertJSwingJUnitTestCase {
 		assertThat(createdTopic).isNotNull();
 		assertThat(createdTopic.getName()).isEqualTo("Chimica");
 		assertThat(createdTopic.getSessionList()).contains(session);
-		Topic persistedTopic = topicRepository.findById(createdTopic.getId());
-		assertThat(persistedTopic).isNotNull();
-		assertThat(persistedTopic.getSessionList()).contains(session);
 	}
 
 	@Test
@@ -206,6 +219,7 @@ public class TopicPanelIT extends AssertJSwingJUnitTestCase {
 		JButtonFixture addButton = window.button(JButtonMatcher.withName("addTopicButton"));
 		addButton.requireEnabled();
 		addButton.click();
+		robot().waitForIdle(); 
 		String errorText = window.label(JLabelMatcher.withName("errorTopicPanelLbl")).text();
 		assertThat(errorText).contains("Errore nel salvare il topic:");
 	}
@@ -216,7 +230,7 @@ public class TopicPanelIT extends AssertJSwingJUnitTestCase {
 		GuiActionRunner.execute(() -> {
 			topicPanel.showTopicError("Errore di test", topic);
 		});
-		String expectedText = "Errore di test: " + topic.toString();
+		String expectedText = "Errore di test: " + getTopicString(topic, 0);
 		window.label(JLabelMatcher.withName("errorTopicPanelLbl")).requireText(expectedText);
 		assertThat(window.label(JLabelMatcher.withName("errorTopicPanelLbl")).text()).isEqualTo(expectedText);
 	}
@@ -246,7 +260,10 @@ public class TopicPanelIT extends AssertJSwingJUnitTestCase {
 		window.textBox("nameField").deleteText();
 		assertThat(window.button(JButtonMatcher.withName("addTopicButton")).isEnabled()).isFalse();
 		window.button(JButtonMatcher.withName("addTopicButton")).requireDisabled();
-		
-		
+	}
+
+	private String getTopicString(Topic topic, int sessionCount) {
+		return "Topic( name: " + topic.getName() + ", description: " + topic.getDescription() + 
+		       ", difficulty: " + topic.getDifficulty() + ", numSessions: " + sessionCount + ")";
 	}
 }

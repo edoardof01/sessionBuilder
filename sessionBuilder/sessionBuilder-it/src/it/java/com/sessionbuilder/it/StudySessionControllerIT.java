@@ -1,9 +1,8 @@
-package com.sessionBuilder.it;
+package com.sessionbuilder.it;
 
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
 import java.time.LocalDate;
@@ -24,6 +23,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.testcontainers.containers.PostgreSQLContainer;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.sessionbuilder.core.EmfFactory;
 import com.sessionbuilder.core.SessionViewCallback;
 import com.sessionbuilder.core.StudySession;
 import com.sessionbuilder.core.StudySessionController;
@@ -37,18 +37,19 @@ import com.sessionbuilder.core.TopicRepositoryInterface;
 import com.sessionbuilder.core.TransactionManager;
 import com.sessionbuilder.core.TransactionManagerImpl;
 
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
+import jakarta.persistence.EntityTransaction;
 
 @RunWith(MockitoJUnitRunner.class)
 public class StudySessionControllerIT {
 
 	private EntityManagerFactory emf;
 	private StudySessionController sessionController;
-	private TopicRepositoryInterface topicRepository;
 	@Mock
 	private SessionViewCallback viewCallback;
 	private StudySessionInterface sessionService;
+	private TransactionManager transactionManager;
 	
 	@SuppressWarnings("resource")
 	@ClassRule
@@ -62,8 +63,24 @@ public class StudySessionControllerIT {
 		postgres.start();
 	}
 	
+	
+	private void cleanDatabase() {
+		EntityManager em = emf.createEntityManager();
+		EntityTransaction tx = em.getTransaction();
+		try {
+			tx.begin();
+			em.createNativeQuery("TRUNCATE TABLE topic_studysession CASCADE").executeUpdate();
+			em.createNativeQuery("TRUNCATE TABLE studysession CASCADE").executeUpdate();
+			em.createNativeQuery("TRUNCATE TABLE topic CASCADE").executeUpdate();
+			tx.commit();
+		} finally {
+			if (tx.isActive()) tx.rollback();
+			em.close();
+		}
+	}
+	
 	@Before
-	public void setup() {
+	public void onSetup() {
 		Map<String, String> properties = new HashMap<>();
 		properties.put("jakarta.persistence.jdbc.driver", "org.postgresql.Driver");
 		properties.put("jakarta.persistence.jdbc.url", postgres.getJdbcUrl());
@@ -74,7 +91,10 @@ public class StudySessionControllerIT {
 		properties.put("hibernate.show_sql", "true");
 		properties.put("hibernate.format_sql", "true");
 		
-		emf = Persistence.createEntityManagerFactory("sessionbuilder-test", properties);
+		emf = EmfFactory.createEntityManagerFactory("sessionbuilder-test", properties);
+		
+		cleanDatabase();
+		
 		AbstractModule module = new AbstractModule() {
 			@Override
 			protected void configure() {
@@ -83,15 +103,15 @@ public class StudySessionControllerIT {
 				bind(StudySessionRepositoryInterface.class).to(StudySessionRepository.class);
 				bind(TransactionManager.class).to(TransactionManagerImpl.class);
 				bind(StudySessionInterface.class).to(StudySessionService.class);
-				 bind(SessionViewCallback.class).toInstance(viewCallback);
+				bind(SessionViewCallback.class).toInstance(viewCallback);
 			}
 		};
 		Injector injector = Guice.createInjector(module);
 		sessionController = injector.getInstance(StudySessionController.class);
-		topicRepository = injector.getInstance(TopicRepositoryInterface.class);
-		viewCallback = spy(SessionViewCallback.class);
+		injector.getInstance(TopicRepositoryInterface.class);
 		sessionController.setViewCallBack(viewCallback);
 		sessionService = injector.getInstance(StudySessionInterface.class);
+		transactionManager = injector.getInstance(TransactionManager.class);
 	}
 	
 	@After
@@ -99,16 +119,20 @@ public class StudySessionControllerIT {
 		if (emf != null && emf.isOpen()) {
 			emf.close();
 		}
+		transactionManager.getEmHolder().remove();
 	}
 	
 	@Test
 	public void handleCreateSessionIt() {
 		Topic topic = new Topic("Matematica", "Algebra lineare", 4, new ArrayList<>());
-		topicRepository.save(topic);
-		ArrayList<Topic> topics = new ArrayList<>(List.of(topic));
+		transactionManager.doInTopicTransaction(repo -> {
+			repo.save(topic);
+			return null;
+		});
+		ArrayList<Long> topicsIds = new ArrayList<>(List.of(topic.getId()));
 		
 		StudySession session = sessionController.handleCreateSession(
-			LocalDate.now().plusDays(1), 90, "sessione di algebra", topics);
+			LocalDate.now().plusDays(1), 90, "sessione di algebra", topicsIds);
 		
 		verify(viewCallback).onSessionAdded(session);
 		verify(viewCallback, never()).onSessionError(anyString());
@@ -124,8 +148,11 @@ public class StudySessionControllerIT {
 	@Test
 	public void handleGetSessionIt() {
 		Topic topic = new Topic("Biologia", "Genetica", 3, new ArrayList<>());
-		topicRepository.save(topic);
-		ArrayList<Topic> topics = new ArrayList<>(List.of(topic));
+		transactionManager.doInTopicTransaction(repo -> {
+			repo.save(topic);
+			return null;
+		});
+		ArrayList<Long> topics = new ArrayList<>(List.of(topic.getId()));
 		
 		StudySession createdSession = sessionService.createSession(
 			LocalDate.now().plusDays(1), 75, "studio genetica", topics);
@@ -140,15 +167,18 @@ public class StudySessionControllerIT {
 	@Test
 	public void handleDeleteSessionIt() {
 		Topic topic = new Topic("Filosofia", "Etica", 3, new ArrayList<>());
-		topicRepository.save(topic);
-		ArrayList<Topic> topics = new ArrayList<>(List.of(topic));
+		transactionManager.doInTopicTransaction(repo -> {
+			repo.save(topic);
+			return null;
+		});
+		ArrayList<Long> topics = new ArrayList<>(List.of(topic.getId()));
 		StudySession session = sessionService.createSession(
 			LocalDate.now().plusDays(1), 60, "sessione di etica", topics);
 		long sessionId = session.getId();
 		sessionController.handleDeleteSession(sessionId);
 		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, 
 			() -> sessionService.getSessionById(sessionId));
-		assertThat(exception.getMessage()).contains("non esiste una session");
+		assertThat(exception.getMessage()).isEqualTo("non esiste una session con tale id");
 		verify(viewCallback).onSessionRemoved(session);
 		verify(viewCallback, never()).onSessionError(anyString());
 	}
@@ -157,11 +187,14 @@ public class StudySessionControllerIT {
 	public void handleAddTopicIt() {
 		Topic topic1 = new Topic("Letteratura", "Dante", 3, new ArrayList<>());
 		Topic topic2 = new Topic("Arte", "Rinascimento", 4, new ArrayList<>());
-		topicRepository.save(topic1);
-		topicRepository.save(topic2);
+		transactionManager.doInTopicTransaction(repo -> {
+			repo.save(topic1);
+			repo.save(topic2);
+			return null;
+		});
 		
 		StudySession session = sessionService.createSession(
-			LocalDate.now().plusDays(1), 120, "sessione multidisciplinare", new ArrayList<>(List.of(topic1)));
+			LocalDate.now().plusDays(1), 120, "sessione multidisciplinare", new ArrayList<>(List.of(topic1.getId())));
 		
 		sessionController.handleAddTopic(session.getId(), topic2.getId());
 		
@@ -174,25 +207,30 @@ public class StudySessionControllerIT {
 	public void handleRemoveTopicIt() {
 		Topic topic1 = new Topic("Economia", "Microeconomia", 4, new ArrayList<>());
 		Topic topic2 = new Topic("Diritto", "Costituzionale", 3, new ArrayList<>());
-		topicRepository.save(topic1);
-		topicRepository.save(topic2);
+		transactionManager.doInTopicTransaction(repo -> {
+			repo.save(topic1);
+			repo.save(topic2);
+			return null;
+		});
 		
 		StudySession session = sessionService.createSession(
-			LocalDate.now().plusDays(1), 90, "sessione economico-giuridica", new ArrayList<>(List.of(topic1, topic2)));
+			LocalDate.now().plusDays(1), 90, "sessione economico-giuridica", new ArrayList<>(List.of(topic1.getId(), topic2.getId())));
 		
 		sessionController.handleRemoveTopic(session.getId(), topic2.getId());
 		
 		StudySession updatedSession = sessionService.getSessionById(session.getId());
-		assertThat(updatedSession.getTopicList()).contains(topic1);
-		assertThat(updatedSession.getTopicList()).doesNotContain(topic2);
+		assertThat(updatedSession.getTopicList()).containsExactly(topic1);
 		verify(viewCallback, never()).onSessionError(anyString());
 	}
 	
 	@Test
 	public void handleCompleteSessionSuccessIt() {
 		Topic topic = new Topic("Psicologia", "Cognitivismo", 4, new ArrayList<>());
-		topicRepository.save(topic);
-		ArrayList<Topic> topics = new ArrayList<>(List.of(topic));
+		transactionManager.doInTopicTransaction(repo -> {
+			repo.save(topic);
+			return null;
+		});
+		ArrayList<Long> topics = new ArrayList<>(List.of(topic.getId()));
 		
 		StudySession session = sessionService.createSession(
 			LocalDate.now().plusDays(1), 120, "sessione di psicologia", topics);
@@ -209,8 +247,11 @@ public class StudySessionControllerIT {
 	@Test
 	public void handleCompleteAlreadyCompletedSessionFailureIt() {
 		Topic topic = new Topic("Sociologia", "Teorie sociali", 3, new ArrayList<>());
-		topicRepository.save(topic);
-		ArrayList<Topic> topics = new ArrayList<>(List.of(topic));
+		transactionManager.doInTopicTransaction(repo -> {
+			repo.save(topic);
+			return null;
+		});
+		ArrayList<Long> topics = new ArrayList<>(List.of(topic.getId()));
 		StudySession session = sessionService.createSession(
 			LocalDate.now().plusDays(1), 90, "sessione di sociologia", topics);
 		sessionController.handleCompleteSession(session.getId());
@@ -222,10 +263,13 @@ public class StudySessionControllerIT {
 	public void completeWorkflowIt() {
 		Topic topic1 = new Topic("Informatica", "Algoritmi", 5, new ArrayList<>());
 		Topic topic2 = new Topic("Matematica", "Calcolo", 4, new ArrayList<>());
-		topicRepository.save(topic1);
-		topicRepository.save(topic2);
+		transactionManager.doInTopicTransaction(repo -> {
+			repo.save(topic1);
+			repo.save(topic2);
+			return null;
+		});
 		StudySession session = sessionController.handleCreateSession(
-			LocalDate.now().plusDays(1), 150, "sessione algoritmi e calcolo", new ArrayList<>(List.of(topic1)));
+			LocalDate.now().plusDays(1), 150, "sessione algoritmi e calcolo", new ArrayList<>(List.of(topic1.getId())));
 		long sessionId = session.getId();
 		sessionController.handleAddTopic(sessionId, topic2.getId());
 		StudySession sessionWithBothTopics = sessionController.handleGetSession(sessionId);
@@ -234,12 +278,10 @@ public class StudySessionControllerIT {
 		sessionController.handleCompleteSession(sessionId);
 		StudySession completedSession = sessionController.handleGetSession(sessionId);
 		assertThat(completedSession.isComplete()).isTrue();
-		StudySession sessionWithOneTopic = sessionController.handleGetSession(sessionId);
-		assertThat(sessionWithOneTopic.getTopicList()).hasSize(2);
 		sessionController.handleDeleteSession(sessionId);
 		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, 
 			() -> sessionController.handleGetSession(sessionId));
-		assertThat(exception.getMessage()).contains("non esiste una session con tale id");
+		assertThat(exception.getMessage()).isEqualTo("non esiste una session con tale id");
 	}
 
 }

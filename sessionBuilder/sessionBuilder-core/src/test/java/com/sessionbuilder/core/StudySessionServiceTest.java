@@ -46,7 +46,7 @@ public class StudySessionServiceTest {
 	private LocalDate date;
 	private int duration;
 	private String note;
-	private ArrayList<Topic> topicList;
+	private ArrayList<Long> topicIds;
 	
 	@Before
 	public void setup() {
@@ -80,7 +80,8 @@ public class StudySessionServiceTest {
 		date = LocalDate.now().plusDays(1);
 		duration = 60;
 		note = "una nota";
-		topicList = new ArrayList<>(List.of(topic1,topic2));
+		new ArrayList<>(List.of(topic1,topic2));
+		topicIds = new ArrayList<>(List.of(topic1.getId(),topic2.getId()));
 	}
 	
 	@Test
@@ -115,15 +116,20 @@ public class StudySessionServiceTest {
 	
 	@Test
 	public void testCreateSessionSuccess() {
-		StudySession session = service.createSession(date, duration, note, topicList);
+		when(topicRepository.findById(idt1)).thenReturn(topic1);
+		when(topicRepository.findById(idt2)).thenReturn(topic2);
+		StudySession session = service.createSession(date, duration, note, topicIds);
 		verify(sessionRepository,times(1)).save(session);
-		verify(topicRepository, times(topicList.size())).update(any(Topic.class));
-		verify(topicRepository).update(topic1);
-		verify(topicRepository).update(topic2);
 		assertThat(session).isNotNull();
 		assertThat(session.getDate()).isEqualTo(date);
 		assertThat(session.getDuration()).isEqualTo(duration);
-		assertThat(session.getTopicList()).isEqualTo(topicList);
+		assertThat(session.getTopicList()).containsExactlyInAnyOrder(topic1, topic2);
+	}
+	
+	@Test
+	public void testCreateSessionWithoutTopicsThrowsException() {
+		IllegalArgumentException e = assertThrows(IllegalArgumentException.class, ()-> service.createSession(date, duration, note, null));
+		assertThat(e.getMessage()).isEqualTo("la session deve avere almeno un topic");
 	}
 	
 	@Test
@@ -131,7 +137,7 @@ public class StudySessionServiceTest {
 		StudySession other = new StudySession(date, duration, note, new ArrayList<>(List.of(topic1)));
 		when(sessionRepository.findByDateDurationAndNote(date, duration, note)).thenReturn(other);
 		IllegalArgumentException e = assertThrows(IllegalArgumentException.class, ()-> 
-			service.createSession(date, duration, note, topicList));
+			service.createSession(date, duration, note, topicIds));
 		assertThat(e.getMessage()).isEqualTo("esiste già una session con questi valori");
 	}
 	
@@ -148,9 +154,6 @@ public class StudySessionServiceTest {
 		when(sessionRepository.findById(ids2)).thenReturn(fullSession);
 		StudySession result = service.completeSession(ids2);
 		verify(sessionRepository, times(1)).update(fullSession);
-		verify(topicRepository, times(fullSession.getTopicList().size())).update(any(Topic.class));
-		verify(topicRepository).update(topic1);
-		verify(topicRepository).update(topic2);
 		assertThat(result).isEqualTo(fullSession);
 		assertThat(fullSession.isComplete()).isTrue();
 		assertThat(result.isComplete()).isTrue();
@@ -246,7 +249,7 @@ public class StudySessionServiceTest {
 	
 	@Test
 	public void testCreateSessionWithEmptyTopicListStillUpdatesCorrectly() {
-		ArrayList<Topic> emptyTopicList = new ArrayList<>();
+		ArrayList<Long> emptyTopicList = new ArrayList<>();
 		StudySession session = service.createSession(date, duration, note, emptyTopicList);
 		verify(sessionRepository, times(1)).save(session);
 		verify(topicRepository, times(0)).update(any(Topic.class));
@@ -260,7 +263,6 @@ public class StudySessionServiceTest {
 		when(sessionRepository.findById(3L)).thenReturn(singleTopicSession);
 		StudySession result = service.completeSession(3L);
 		verify(sessionRepository, times(1)).update(singleTopicSession);
-		verify(topicRepository, times(1)).update(topic1);
 		assertThat(result.isComplete()).isTrue();
 	}
 }

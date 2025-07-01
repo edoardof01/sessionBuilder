@@ -1,4 +1,4 @@
-package com.sessionBuilder.it;
+package com.sessionbuilder.it;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.Assert.*;
@@ -18,6 +18,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.sessionbuilder.core.EmfFactory;
 import com.sessionbuilder.core.StudySession;
 import com.sessionbuilder.core.StudySessionRepository;
 import com.sessionbuilder.core.StudySessionRepositoryInterface;
@@ -27,14 +28,14 @@ import com.sessionbuilder.core.TopicRepositoryInterface;
 import com.sessionbuilder.core.TransactionManager;
 import com.sessionbuilder.core.TransactionManagerImpl;
 
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
+import jakarta.persistence.EntityTransaction;
 
 public class StudySessionRepositoryIT {
 	
-	private StudySessionRepositoryInterface sessionRepository;
-	private TopicRepositoryInterface topicRepository;
 	private EntityManagerFactory emf;
+	private TransactionManager transactionManager;
 
 	@SuppressWarnings("resource")
 	@ClassRule
@@ -46,6 +47,21 @@ public class StudySessionRepositoryIT {
 	@BeforeClass
 	public static void setUpContainer() {
 		postgres.start();
+	}
+	
+	private void cleanDatabase() {
+		EntityManager em = emf.createEntityManager();
+		EntityTransaction tx = em.getTransaction();
+		try {
+			tx.begin();
+			em.createNativeQuery("TRUNCATE TABLE topic_studysession CASCADE").executeUpdate();
+			em.createNativeQuery("TRUNCATE TABLE studysession CASCADE").executeUpdate();
+			em.createNativeQuery("TRUNCATE TABLE topic CASCADE").executeUpdate();
+			tx.commit();
+		} finally {
+			if (tx.isActive()) tx.rollback();
+			em.close();
+		}
 	}
 	
 	@Before
@@ -60,7 +76,8 @@ public class StudySessionRepositoryIT {
 		properties.put("hibernate.show_sql", "true");
 		properties.put("hibernate.format_sql", "true");
 		
-		emf = Persistence.createEntityManagerFactory("sessionbuilder-test", properties);
+		emf = EmfFactory.createEntityManagerFactory("sessionbuilder-test", properties);
+		cleanDatabase();
 		AbstractModule module = new AbstractModule() {
 			@Override
 			protected void configure() {
@@ -71,8 +88,9 @@ public class StudySessionRepositoryIT {
 			}
 		};
 		Injector injector = Guice.createInjector(module);
-		sessionRepository = injector.getInstance(StudySessionRepositoryInterface.class);
-		topicRepository = injector.getInstance(TopicRepositoryInterface.class);
+		injector.getInstance(StudySessionRepositoryInterface.class);
+		injector.getInstance(TopicRepositoryInterface.class);
+		transactionManager = injector.getInstance(TransactionManager.class);
 	}
 	
 	@After
@@ -80,24 +98,35 @@ public class StudySessionRepositoryIT {
 		if (emf != null && emf.isOpen()) {
 			emf.close();
 		}
+		transactionManager.getEmHolder().remove();
 	}
 
 	@Test
 	public void testFindByIdFailureIt() {
 		long id = 10000000;
-		IllegalArgumentException e = assertThrows(IllegalArgumentException.class, ()-> sessionRepository.findById(id));
+		IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> transactionManager.doInSessionTransaction(repo -> repo.findById(id)));
 		assertThat(e.getMessage()).isEqualTo("non esiste una session con tale id");
 	}
 	
 	@Test 
 	public void testSaveAndFindSessionIt() {
 		Topic topic = new Topic("Corsa", "allena lo scatto", 1, new ArrayList<>());
-		topicRepository.save(topic);
-		StudySession session = new StudySession(LocalDate.now().plusDays(1), 60, "una nota", new ArrayList<>());
-		sessionRepository.save(session);
+		transactionManager.doInTopicTransaction(repo -> {
+			repo.save(topic);
+			return null;
+		});
+		
+		StudySession session = new StudySession(LocalDate.now().plusDays(1), 60, "una nota", new ArrayList<>(java.util.List.of(topic)));
+		transactionManager.doInSessionTransaction(repo -> {
+			repo.save(session);
+			return null;
+		});
+		
 		long sessionId = session.getId();
 		assertThat(sessionId).isPositive();
-		StudySession retrievedSession = sessionRepository.findById(sessionId);
+		
+		StudySession retrievedSession = transactionManager.doInSessionTransaction(repo -> repo.findById(sessionId));
+		
 		assertThat(retrievedSession).isNotNull();
 		assertThat(retrievedSession.getNote()).isEqualTo("una nota");
 		assertThat(retrievedSession.getDuration()).isEqualTo(60);
@@ -106,27 +135,58 @@ public class StudySessionRepositoryIT {
 	@Test
 	public void testUpdateSessionIt() {
 		Topic topic = new Topic("Corsa", "allena lo scatto", 1, new ArrayList<>());
-		topicRepository.save(topic);
-		StudySession session = new StudySession(LocalDate.now().plusDays(1), 60, "una nota", new ArrayList<>());
-		sessionRepository.save(session);
+		transactionManager.doInTopicTransaction(repo -> {
+			repo.save(topic);
+			return null;
+		});
+		
+		StudySession session = new StudySession(LocalDate.now().plusDays(1), 60, "una nota", new ArrayList<>(java.util.List.of(topic)));
+		transactionManager.doInSessionTransaction(repo -> {
+			repo.save(session);
+			return null;
+		});
+		
 		long sessionId = session.getId();
-		assertThat(sessionRepository.findById(sessionId).getDuration()).isEqualTo(60);
-		session.setDuration(90);
-		sessionRepository.update(session);
-		assertThat(sessionRepository.findById(sessionId).getDuration()).isEqualTo(90);
+		
+		StudySession retrievedSession = transactionManager.doInSessionTransaction(repo -> repo.findById(sessionId));
+		assertThat(retrievedSession.getDuration()).isEqualTo(60);
+		
+		retrievedSession.setDuration(90);
+		transactionManager.doInSessionTransaction(repo -> {
+			repo.update(retrievedSession);
+			return null;
+		});
+		
+		StudySession updatedSession = transactionManager.doInSessionTransaction(repo -> repo.findById(sessionId));
+		assertThat(updatedSession.getDuration()).isEqualTo(90);
 	}
 	
 	@Test
 	public void testDeleteSessionIt() {
 		Topic topic = new Topic("Corsa", "allena lo scatto", 1, new ArrayList<>());
-		topicRepository.save(topic);
-		StudySession session = new StudySession(LocalDate.now().plusDays(1), 60, "una nota", new ArrayList<>());
-		sessionRepository.save(session);
+		transactionManager.doInTopicTransaction(repo -> {
+			repo.save(topic);
+			return null;
+		});
+		
+		StudySession session = new StudySession(LocalDate.now().plusDays(1), 60, "una nota", new ArrayList<>(java.util.List.of(topic)));
+		transactionManager.doInSessionTransaction(repo -> {
+			repo.save(session);
+			return null;
+		});
+		
 		long sessionId = session.getId();
-		assertThat(sessionRepository.findById(sessionId)).isNotNull();
-		sessionRepository.delete(sessionId);
+		
+		StudySession retrievedSession = transactionManager.doInSessionTransaction(repo -> repo.findById(sessionId));
+		assertThat(retrievedSession).isNotNull();
+		
+		transactionManager.doInSessionTransaction(repo -> {
+			repo.delete(sessionId);
+			return null;
+		});
+		
 		IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> {
-			sessionRepository.findById(sessionId);
+			transactionManager.doInSessionTransaction(repo -> repo.findById(sessionId));
 		});
 		assertThat(e.getMessage()).isEqualTo("non esiste una session con tale id");
 	}

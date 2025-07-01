@@ -55,7 +55,6 @@ public class TopicAndSessionManager extends JFrame implements TopicViewCallback,
 	private JButton totalTimeButton;
 	private JButton percentageButton;
 	
-	
 	private transient TopicController topicController;
 	private transient StudySessionController sessionController;
 	
@@ -144,7 +143,6 @@ public class TopicAndSessionManager extends JFrame implements TopicViewCallback,
 		label.setFont(new Font(FONT, Font.BOLD, 23));
 		panel.add(label, BorderLayout.NORTH);
 
-		topicModel = new DefaultListModel<>();
 		topicList = new JList<>(topicModel);
 		topicList.setName("topicList");
 		topicList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -180,7 +178,6 @@ public class TopicAndSessionManager extends JFrame implements TopicViewCallback,
 		label.setFont(new Font(FONT, Font.BOLD, 23));
 		panel.add(label, BorderLayout.NORTH);
 
-		studySessionModel = new DefaultListModel<>();
 		sessionList = new JList<>(studySessionModel);
 		sessionList.setName("sessionList");
 		sessionList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -296,11 +293,11 @@ public class TopicAndSessionManager extends JFrame implements TopicViewCallback,
 		}
 	}
 	
-	TopicPanel getTopicPanel() {
+	public TopicPanel getTopicPanel() {
 		return this.topicPanel;
 	}
 	
-	SessionPanel getSessionPanel() {
+	public SessionPanel getSessionPanel() {
 		return this.sessionPanel;
 	}
 	

@@ -29,7 +29,6 @@ import org.mockito.MockitoAnnotations;
 import com.sessionbuilder.core.StudySession;
 import com.sessionbuilder.core.Topic;
 import com.sessionbuilder.core.TopicController;
-import com.sessionbuilder.swing.TopicAndSessionManager;
 
 
 @RunWith(GUITestRunner.class)

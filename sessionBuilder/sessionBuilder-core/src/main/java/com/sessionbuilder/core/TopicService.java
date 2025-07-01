@@ -1,6 +1,7 @@
 package com.sessionbuilder.core;
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.inject.Inject;
@@ -13,14 +14,24 @@ public class TopicService implements TopicServiceInterface {
 	private static final String TOPIC_EXCEPTION_MESSAGE = "il topic passato è null";
 
 	@Override
-	public Topic createTopic(String name, String description, int difficulty, List<StudySession> sessionList) {
-		return tm.doInTopicTransaction(repository -> {
-			Topic topic = new Topic(name, description, difficulty, sessionList);
-			if(repository.findByNameDescriptionAndDifficulty(name, description, difficulty) != null) 
-				throw new IllegalArgumentException("Esiste già un topic con questi valori");
-			repository.save(topic);
-			return topic;
-		});
+	public Topic createTopic(String name, String description, int difficulty, List<Long> sessionIds) {
+	    return tm.doInMultiRepositoryTransaction(context -> {
+	    	StudySessionRepositoryInterface sessionRepo = context.getSessionRepository();
+	    	TopicRepositoryInterface topicRepo = context.getTopicRepository();
+	        Topic newTopic = new Topic(name, description, difficulty, new ArrayList<>());
+	        for (Long sessionId : sessionIds) {
+	            StudySession managedSession = sessionRepo.findById(sessionId);
+	            if (managedSession == null) {
+	                throw new IllegalArgumentException("Sessione con ID " + sessionId + " non trovata.");
+	            }
+	            newTopic.addSession(managedSession);
+	        }
+	        if(topicRepo.findByNameDescriptionAndDifficulty(name, description, difficulty) != null)
+	            throw new IllegalArgumentException("Esiste già un topic con questi valori");
+	        
+	        topicRepo.save(newTopic);
+	        return newTopic;
+	    });
 	}
 
 	@Override

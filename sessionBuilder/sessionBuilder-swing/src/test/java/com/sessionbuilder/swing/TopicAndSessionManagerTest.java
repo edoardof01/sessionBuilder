@@ -27,9 +27,7 @@ import com.sessionbuilder.core.StudySession;
 import com.sessionbuilder.core.StudySessionController;
 import com.sessionbuilder.core.Topic;
 import com.sessionbuilder.core.TopicController;
-import com.sessionbuilder.swing.SessionPanel;
-import com.sessionbuilder.swing.TopicAndSessionManager;
-import com.sessionbuilder.swing.TopicPanel;
+
 
 @RunWith(GUITestRunner.class)
 public class TopicAndSessionManagerTest extends AssertJSwingJUnitTestCase {

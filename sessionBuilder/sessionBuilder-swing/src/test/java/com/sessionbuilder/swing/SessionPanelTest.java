@@ -31,7 +31,6 @@ import org.mockito.MockitoAnnotations;
 import com.sessionbuilder.core.StudySession;
 import com.sessionbuilder.core.StudySessionController;
 import com.sessionbuilder.core.Topic;
-import com.sessionbuilder.swing.TopicAndSessionManager;
 import com.toedter.calendar.JDateChooser;
 
 @RunWith(GUITestRunner.class)
@@ -302,7 +301,7 @@ public class SessionPanelTest extends AssertJSwingJUnitTestCase {
 		window.list("sessionPanelTopicList").selectItem(0);
 		robot().waitForIdle();
 		window.button(JButtonMatcher.withName("addSessionButton")).click();
-		verify(sessionController).handleCreateSession(newDate, Integer.parseInt(durationField.text()), noteField.text(), new ArrayList<>(List.of(topic)));
+		verify(sessionController).handleCreateSession(newDate, Integer.parseInt(durationField.text()), noteField.text(), new ArrayList<>(List.of(topic.getId())));
 	}
 	
 	@Test @GUITest

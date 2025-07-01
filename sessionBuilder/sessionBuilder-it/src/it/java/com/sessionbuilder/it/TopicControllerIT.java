@@ -1,4 +1,4 @@
-package com.sessionBuilder.it;
+package com.sessionbuilder.it;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -12,15 +12,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.Assert.assertThrows;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.sessionbuilder.core.EmfFactory;
 import com.sessionbuilder.core.StudySession;
 import com.sessionbuilder.core.StudySessionRepository;
 import com.sessionbuilder.core.StudySessionRepositoryInterface;
@@ -34,16 +40,20 @@ import com.sessionbuilder.core.TopicViewCallback;
 import com.sessionbuilder.core.TransactionManager;
 import com.sessionbuilder.core.TransactionManagerImpl;
 
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
+import jakarta.persistence.EntityTransaction;
 
+@RunWith(MockitoJUnitRunner.class)
 public class TopicControllerIT {
 
 	private EntityManagerFactory emf;
 	private TopicController topicController;
-	private StudySessionRepositoryInterface  sessionRepository;
+	private StudySessionRepositoryInterface sessionRepository;
+	@Mock
 	private TopicViewCallback viewCallback;
 	private TopicServiceInterface topicService;
+	private TransactionManager transactionManager;
 	
 	@SuppressWarnings("resource")
 	@ClassRule
@@ -55,6 +65,21 @@ public class TopicControllerIT {
 	@BeforeClass
 	public static void setUpContainer() {
 		postgres.start();
+	}
+	
+	private void cleanDatabase() {
+		EntityManager em = emf.createEntityManager();
+		EntityTransaction tx = em.getTransaction();
+		try {
+			tx.begin();
+			em.createNativeQuery("TRUNCATE TABLE topic_studysession CASCADE").executeUpdate();
+			em.createNativeQuery("TRUNCATE TABLE studysession CASCADE").executeUpdate();
+			em.createNativeQuery("TRUNCATE TABLE topic CASCADE").executeUpdate();
+			tx.commit();
+		} finally {
+			if (tx.isActive()) tx.rollback();
+			em.close();
+		}
 	}
 	
 	@Before
@@ -69,7 +94,8 @@ public class TopicControllerIT {
 		properties.put("hibernate.show_sql", "true");
 		properties.put("hibernate.format_sql", "true");
 		
-		emf = Persistence.createEntityManagerFactory("sessionbuilder-test", properties);
+		emf = EmfFactory.createEntityManagerFactory("sessionbuilder-test", properties);
+		cleanDatabase();
 		AbstractModule module = new AbstractModule() {
 			@Override
 			protected void configure() {
@@ -78,6 +104,7 @@ public class TopicControllerIT {
 				bind(StudySessionRepositoryInterface.class).to(StudySessionRepository.class);
 				bind(TransactionManager.class).to(TransactionManagerImpl.class);
 				bind(TopicServiceInterface.class).to(TopicService.class);
+				bind(TopicViewCallback.class).toInstance(viewCallback);
 			}
 		};
 		Injector injector = Guice.createInjector(module);
@@ -86,6 +113,7 @@ public class TopicControllerIT {
 		viewCallback = spy(TopicViewCallback.class);
 		topicController.setViewCallback(viewCallback);
 		topicService = injector.getInstance(TopicServiceInterface.class);
+		transactionManager = injector.getInstance(TransactionManager.class);
 	}
 	
 	@After
@@ -93,6 +121,7 @@ public class TopicControllerIT {
 		if (emf != null && emf.isOpen()) {
 			emf.close();
 		}
+		transactionManager.getEmHolder().remove();
 	}
 	
 	@Test
@@ -127,15 +156,22 @@ public class TopicControllerIT {
 		assertThat(topic.getId()).isPositive();
 		assertThat(topicService.getTopicById(topic.getId())).isEqualTo(topic);
 		topicController.handleDeleteTopic(topic.getId());
-		assertThat(topicService.getTopicById(topic.getId())).isNull();
+		long topicId = topic.getId();
+		IllegalArgumentException e = assertThrows(IllegalArgumentException.class, ()-> topicService.getTopicById(topicId));
+		assertThat(e.getMessage()).isEqualTo("non esiste un topic con tale id");
 		verify(viewCallback).onTopicRemoved(topic);
 		verify(viewCallback, never()).onTopicError(anyString());
 	}
 	
 	@Test
 	public void handleAddSessionToTopicIt() {
-		Topic topic = topicService.createTopic("chimica", "tavola periodica", 3, new ArrayList<>());
-		Topic topic2 = topicService.createTopic("biologia", "cetacei", 3, new ArrayList<>());
+		Topic topic = new Topic("chimica", "tavola periodica", 3, new ArrayList<>());
+		Topic topic2 = new Topic("biologia", "cetacei", 3, new ArrayList<>());
+		transactionManager.doInTopicTransaction(repo -> {
+			repo.save(topic);
+			repo.save(topic2);
+			return null;
+		});
 		assertThat(topic).isNotNull();
 		assertThat(topic.getId()).isPositive();
 		assertThat(topicService.getTopicById(topic.getId())).isEqualTo(topic);
@@ -143,8 +179,10 @@ public class TopicControllerIT {
 		assertThat(topic2.getId()).isPositive();
 		assertThat(topicService.getTopicById(topic2.getId())).isEqualTo(topic2);
 		StudySession session = new StudySession(LocalDate.now().plusDays(1), 60, "una nota", new ArrayList<>(List.of(topic)));
-		sessionRepository.save(session);
-		assertThat(sessionRepository.findById(session.getId())).isNotNull();
+		transactionManager.doInSessionTransaction(repo -> {
+			repo.save(session);
+			return null;
+		});
 		assertThat(session.getId()).isPositive();
 		topicController.handleAddSessionToTopic(topic2.getId(), session.getId());
 		assertThat(topicService.getTopicById(topic2.getId()).getSessionList()).contains(session);
@@ -153,30 +191,51 @@ public class TopicControllerIT {
 	
 	@Test
 	public void handleRemoveSessionFromTopicIt() {
-		Topic topic = topicService.createTopic("chimica", "tavola periodica", 3, new ArrayList<>());
+		Topic topic = new Topic("chimica", "tavola periodica", 3, new ArrayList<>());
+		Topic topic2 = new Topic("biologia", "cetacei", 3, new ArrayList<>());
+		transactionManager.doInTopicTransaction(repo -> {
+			repo.save(topic);
+			repo.save(topic2);
+			return null;
+		});
 		assertThat(topic).isNotNull();
 		assertThat(topic.getId()).isPositive();
 		assertThat(topicService.getTopicById(topic.getId())).isEqualTo(topic);
-		StudySession session = new StudySession(LocalDate.now().plusDays(1), 60, "una nota", new ArrayList<>(List.of(topic)));
-		sessionRepository.save(session);
-		assertThat(sessionRepository.findById(session.getId())).isNotNull();
-		assertThat(session.getId()).isPositive();
-		topicController.handleRemoveSessionFromTopic(topic.getId(), session.getId());
-		assertThat(topicService.getTopicById(topic.getId()).getSessionList()).doesNotContain(session);
+		StudySession managedSession = transactionManager.doInTopicTransaction(topicRepo -> {
+			Topic searchedTopic = topicRepo.findById(topic.getId());
+			Topic searchedTopic2 = topicRepo.findById(topic2.getId());
+			StudySession session = new StudySession(LocalDate.now().plusDays(1), 60, "una nota", new ArrayList<>(List.of(searchedTopic, searchedTopic2)));
+			sessionRepository.save(session);
+			topicRepo.update(searchedTopic);
+			topicRepo.update(searchedTopic2);
+			return session;
+		});
+		topicController.handleRemoveSessionFromTopic(topic.getId(), managedSession.getId());
+		assertThat(topicService.getTopicById(topic.getId()).getSessionList()).doesNotContain(managedSession);
 		assertThat(topicService.getTopicById(topic.getId()).getSessionList()).isEmpty();
 		verify(viewCallback, never()).onTopicError(anyString());
 	}
 	
 	@Test
 	public void handleTotalTimeIt() {
-		Topic topic = topicService.createTopic("chimica", "tavola periodica", 3, new ArrayList<>());
+		Topic topic = new Topic("chimica", "tavola periodica", 3, new ArrayList<>());
+		transactionManager.doInTopicTransaction(repo -> {
+			repo.save(topic);
+			return null;
+		});
 		assertThat(topic).isNotNull();
 		assertThat(topic.getId()).isPositive();
-		assertThat(topicService.getTopicById(topic.getId())).isEqualTo(topic);
-		StudySession session = new StudySession(LocalDate.now().plusDays(1), 60, "una nota", new ArrayList<>(List.of(topic)));
-		sessionRepository.save(session);
-		assertThat(sessionRepository.findById(session.getId())).isNotNull();
+		StudySession session = transactionManager.doInMultiRepositoryTransaction(context -> {
+			Topic managedTopic = context.getTopicRepository().findById(topic.getId());
+			StudySession newSession = new StudySession(LocalDate.now().plusDays(1), 60, "una nota", new ArrayList<>(List.of(managedTopic)));
+			context.getSessionRepository().save(newSession);
+			context.getTopicRepository().update(managedTopic);
+			return newSession;
+		});
 		assertThat(session.getId()).isPositive();
+		Topic topicWithAssociatedSessions = topicService.getTopicById(topic.getId());
+		assertThat(topicWithAssociatedSessions.getSessionList()).hasSize(1);
+		assertThat(topicWithAssociatedSessions.getSessionList().get(0).getDuration()).isEqualTo(60);
 		Integer time = topicController.handleTotalTime(topic.getId());
 		assertThat(time).isNotZero().isEqualTo(60);
 		verify(viewCallback).onTotalTimeCalculated(time);
@@ -184,19 +243,32 @@ public class TopicControllerIT {
 	
 	@Test
 	public void handlePercentageOfCompletion() {
-		Topic topic = topicService.createTopic("chimica", "tavola periodica", 3, new ArrayList<>());
+		Topic topic = new Topic("chimica", "tavola periodica", 3, new ArrayList<>());
+		transactionManager.doInTopicTransaction(repo -> {
+			repo.save(topic);
+			return null;
+		});
 		assertThat(topic).isNotNull();
 		assertThat(topic.getId()).isPositive();
-		assertThat(topicService.getTopicById(topic.getId())).isEqualTo(topic);
-		StudySession session = new StudySession(LocalDate.now().plusDays(1), 60, "una nota", new ArrayList<>(List.of(topic)));
-		sessionRepository.save(session);
-		assertThat(sessionRepository.findById(session.getId())).isNotNull();
-		assertThat(session.getId()).isPositive();
-		StudySession session2 = new StudySession(LocalDate.now().plusDays(2), 60, "un'altra nota", new ArrayList<>(List.of(topic)));
-		session2.complete();
-		sessionRepository.save(session2);
-		assertThat(sessionRepository.findById(session.getId())).isNotNull();
-		assertThat(session.getId()).isPositive();
+		StudySession session1 = transactionManager.doInMultiRepositoryTransaction(context -> {
+			Topic managedTopicForSession1 = context.getTopicRepository().findById(topic.getId());
+			StudySession newSession = new StudySession(LocalDate.now().plusDays(1), 60, "una nota", new ArrayList<>(List.of(managedTopicForSession1)));
+			context.getSessionRepository().save(newSession);
+			context.getTopicRepository().update(managedTopicForSession1); 
+			return newSession;
+		});
+		assertThat(session1.getId()).isPositive();
+		StudySession session2 = transactionManager.doInMultiRepositoryTransaction(context -> {
+			Topic managedTopicForSession2 = context.getTopicRepository().findById(topic.getId());
+			StudySession newSession2 = new StudySession(LocalDate.now().plusDays(2), 60, "un'altra nota", new ArrayList<>(List.of(managedTopicForSession2)));
+			newSession2.complete(); 
+			context.getSessionRepository().save(newSession2);
+			context.getTopicRepository().update(managedTopicForSession2); 
+			return newSession2;
+		});
+		assertThat(session2.getId()).isPositive();
+		Topic topicWithAssociatedSessions = topicService.getTopicById(topic.getId());
+		assertThat(topicWithAssociatedSessions.getSessionList()).hasSize(2);
 		Integer percentage = topicController.handlePercentageOfCompletion(topic.getId());
 		assertThat(percentage).isNotZero().isEqualTo(50);
 		verify(viewCallback).onPercentageCalculated(percentage);

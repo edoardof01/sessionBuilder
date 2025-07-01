@@ -1,4 +1,4 @@
-package com.sessionBuilder.it;
+package com.sessionbuilder.it;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.Assert.assertThrows;
@@ -18,7 +18,6 @@ import org.assertj.swing.fixture.FrameFixture;
 import org.assertj.swing.fixture.JButtonFixture;
 import org.assertj.swing.junit.runner.GUITestRunner;
 import org.assertj.swing.junit.testcase.AssertJSwingJUnitTestCase;
-
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -28,6 +27,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.sessionbuilder.core.EmfFactory;
 import com.sessionbuilder.core.SessionViewCallback;
 import com.sessionbuilder.core.StudySession;
 import com.sessionbuilder.core.StudySessionController;
@@ -46,8 +46,9 @@ import com.sessionbuilder.core.TransactionManager;
 import com.sessionbuilder.core.TransactionManagerImpl;
 import com.sessionbuilder.swing.TopicAndSessionManager;
 
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
+import jakarta.persistence.EntityTransaction;
 
 @RunWith(GUITestRunner.class)
 public class TopicAndSessionManagerIT extends AssertJSwingJUnitTestCase {
@@ -57,8 +58,7 @@ public class TopicAndSessionManagerIT extends AssertJSwingJUnitTestCase {
 	private EntityManagerFactory emf;
 	private TopicController topicController;
 	private StudySessionController sessionController;
-	private TopicRepositoryInterface topicRepository;
-	private StudySessionRepositoryInterface sessionRepository;
+	private TransactionManager transactionManager;
 	
 	@SuppressWarnings("resource")
 	@ClassRule
@@ -70,6 +70,21 @@ public class TopicAndSessionManagerIT extends AssertJSwingJUnitTestCase {
 	@BeforeClass
 	public static void setUpContainer() {
 		postgres.start();
+	}
+	
+	private void cleanDatabase() {
+		EntityManager em = emf.createEntityManager();
+		EntityTransaction tx = em.getTransaction();
+		try {
+			tx.begin();
+			em.createNativeQuery("TRUNCATE TABLE topic_studysession CASCADE").executeUpdate();
+			em.createNativeQuery("TRUNCATE TABLE studysession CASCADE").executeUpdate();
+			em.createNativeQuery("TRUNCATE TABLE topic CASCADE").executeUpdate();
+			tx.commit();
+		} finally {
+			if (tx.isActive()) tx.rollback();
+			em.close();
+		}
 	}
 	
 	@Override
@@ -84,7 +99,9 @@ public class TopicAndSessionManagerIT extends AssertJSwingJUnitTestCase {
 		properties.put("hibernate.show_sql", "true");
 		properties.put("hibernate.format_sql", "true");
 		
-		emf = Persistence.createEntityManagerFactory("sessionbuilder-test", properties);
+		emf = EmfFactory.createEntityManagerFactory("sessionbuilder-test", properties);
+		cleanDatabase();
+		
 		GuiActionRunner.execute(() -> {
 			managerView = new TopicAndSessionManager();
 		});
@@ -107,8 +124,9 @@ public class TopicAndSessionManagerIT extends AssertJSwingJUnitTestCase {
 		Injector injector = Guice.createInjector(module);
 		topicController = injector.getInstance(TopicController.class);
 		sessionController = injector.getInstance(StudySessionController.class);
-		topicRepository = injector.getInstance(TopicRepositoryInterface.class);
-		sessionRepository = injector.getInstance(StudySessionRepositoryInterface.class);
+		injector.getInstance(TopicRepositoryInterface.class);
+		injector.getInstance(StudySessionRepositoryInterface.class);
+		transactionManager = injector.getInstance(TransactionManager.class);
 		
 		GuiActionRunner.execute(() -> {
 			managerView.setTopicController(topicController);
@@ -144,7 +162,7 @@ public class TopicAndSessionManagerIT extends AssertJSwingJUnitTestCase {
 		String[] topicContents = window.list("topicList").contents();
 		assertThat(topicContents).hasSize(1);
 		assertThat(topicContents[0]).contains("Matematica");
-		Topic persistedTopic = topicRepository.findById(topic.getId());
+		Topic persistedTopic = transactionManager.doInTopicTransaction(repo -> repo.findById(topic.getId()));
 		assertThat(persistedTopic).isNotNull();
 		assertThat(persistedTopic.getName()).isEqualTo("Matematica");
 		assertThat(persistedTopic.getDescription()).isEqualTo("Algebra");
@@ -158,7 +176,7 @@ public class TopicAndSessionManagerIT extends AssertJSwingJUnitTestCase {
 		});
 		StudySession session = GuiActionRunner.execute(() -> {
 			StudySession s = sessionController.handleCreateSession(
-				LocalDate.now().plusDays(1), 90, "Sessione fisica", new ArrayList<>(List.of(topic)));
+				LocalDate.now().plusDays(1), 90, "Sessione fisica", new ArrayList<>(List.of(topic.getId())));
 			assertThat(s).isNotNull();
 			assertThat(s.getId()).isPositive();
 			return s;
@@ -169,11 +187,12 @@ public class TopicAndSessionManagerIT extends AssertJSwingJUnitTestCase {
 		String[] sessionContents = window.list("sessionList").contents();
 		assertThat(sessionContents).hasSize(1);
 		assertThat(sessionContents[0]).contains("Sessione fisica");
-		StudySession persistedSession = sessionRepository.findById(session.getId());
+		StudySession persistedSession = transactionManager.doInSessionTransaction(repo -> repo.findById(session.getId()));
 		assertThat(persistedSession).isNotNull();
 		assertThat(persistedSession.getNote()).isEqualTo("Sessione fisica");
 		assertThat(persistedSession.getDuration()).isEqualTo(90);
-		assertThat(persistedSession.getTopicList()).contains(topic);
+		Topic finalTopic = transactionManager.doInTopicTransaction(repo -> repo.findById(topic.getId()));
+		assertThat(persistedSession.getTopicList()).contains(finalTopic);
 	}
 
 	@Test
@@ -182,7 +201,7 @@ public class TopicAndSessionManagerIT extends AssertJSwingJUnitTestCase {
 			return topicController.handleCreateTopic("Storia", "Rinascimento", 2, new ArrayList<>());
 		});
 		long topicId = topic.getId();
-		Topic persistedBeforeDelete = topicRepository.findById(topicId);
+		Topic persistedBeforeDelete = transactionManager.doInTopicTransaction(repo -> repo.findById(topicId));
 		assertThat(persistedBeforeDelete).isNotNull();
 		window.list("topicList").selectItem(0);
 		JButtonFixture deleteButton = window.button(JButtonMatcher.withName("deleteTopicButton"));
@@ -192,7 +211,7 @@ public class TopicAndSessionManagerIT extends AssertJSwingJUnitTestCase {
 		window.list("topicList").requireItemCount(0);
 		window.label(JLabelMatcher.withName("errorMessageLabel")).requireText(" ");
 		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, 
-			() -> topicRepository.findById(topicId));
+			() -> transactionManager.doInTopicTransaction(repo -> repo.findById(topicId)));
 		assertThat(exception.getMessage()).isEqualTo("non esiste un topic con tale id");
 	}
 
@@ -203,10 +222,10 @@ public class TopicAndSessionManagerIT extends AssertJSwingJUnitTestCase {
 		});
 		StudySession session = GuiActionRunner.execute(() -> {
 			return sessionController.handleCreateSession(
-				LocalDate.now().plusDays(1), 120, "Sessione chimica", new ArrayList<>(List.of(topic)));
+				LocalDate.now().plusDays(1), 120, "Sessione chimica", new ArrayList<>(List.of(topic.getId())));
 		});
 		long sessionId = session.getId();
-		StudySession persistedBeforeDelete = sessionRepository.findById(sessionId);
+		StudySession persistedBeforeDelete = transactionManager.doInSessionTransaction(repo -> repo.findById(sessionId));
 		assertThat(persistedBeforeDelete).isNotNull();
 		window.list("sessionList").selectItem(0);
 		JButtonFixture deleteButton = window.button(JButtonMatcher.withName("deleteSessionButton"));
@@ -215,7 +234,7 @@ public class TopicAndSessionManagerIT extends AssertJSwingJUnitTestCase {
 		assertThat(managerView.getStudySessionModel().getSize()).isZero();
 		window.list("sessionList").requireItemCount(0);
 		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, 
-			() -> sessionRepository.findById(sessionId));
+			() -> transactionManager.doInSessionTransaction(repo -> repo.findById(sessionId)));
 		assertThat(exception.getMessage()).contains("non esiste una session con tale id");
 	}
 
@@ -226,10 +245,10 @@ public class TopicAndSessionManagerIT extends AssertJSwingJUnitTestCase {
 		});
 		StudySession session = GuiActionRunner.execute(() -> {
 			return sessionController.handleCreateSession(
-				LocalDate.now().plusDays(1), 60, "Sessione genetica", new ArrayList<>(List.of(topic)));
+				LocalDate.now().plusDays(1), 60, "Sessione genetica", new ArrayList<>(List.of(topic.getId())));
 		});
 		assertThat(session.isComplete()).isFalse();
-		StudySession persistedBeforeComplete = sessionRepository.findById(session.getId());
+		StudySession persistedBeforeComplete = transactionManager.doInSessionTransaction(repo -> repo.findById(session.getId()));
 		assertThat(persistedBeforeComplete.isComplete()).isFalse();
 		window.list("sessionList").selectItem(0);
 		JButtonFixture completeButton = window.button(JButtonMatcher.withName("completeSessionButton"));
@@ -239,7 +258,7 @@ public class TopicAndSessionManagerIT extends AssertJSwingJUnitTestCase {
 			return sessionController.handleGetSession(session.getId());
 		});
 		assertThat(updatedSession.isComplete()).isTrue();
-		StudySession persistedAfterComplete = sessionRepository.findById(session.getId());
+		StudySession persistedAfterComplete = transactionManager.doInSessionTransaction(repo -> repo.findById(session.getId()));
 		assertThat(persistedAfterComplete.isComplete()).isTrue();
 	}
 
@@ -250,11 +269,11 @@ public class TopicAndSessionManagerIT extends AssertJSwingJUnitTestCase {
 		});
 		GuiActionRunner.execute(() -> {
 			sessionController.handleCreateSession(
-				LocalDate.now().plusDays(1), 60, "Sessione 1", new ArrayList<>(List.of(topic)));
+				LocalDate.now().plusDays(1), 60, "Sessione 1", new ArrayList<>(List.of(topic.getId())));
 			sessionController.handleCreateSession(
-				LocalDate.now().plusDays(2), 90, "Sessione 2", new ArrayList<>(List.of(topic)));
+				LocalDate.now().plusDays(2), 90, "Sessione 2", new ArrayList<>(List.of(topic.getId())));
 		});
-		Topic persistedTopic = topicRepository.findById(topic.getId());
+		Topic persistedTopic = transactionManager.doInTopicTransaction(repo -> repo.findById(topic.getId()));
 		assertThat(persistedTopic.getSessionList()).hasSize(2);
 		assertThat(persistedTopic.totalTime()).isEqualTo(150);
 		window.list("topicList").selectItem(0);
@@ -270,25 +289,16 @@ public class TopicAndSessionManagerIT extends AssertJSwingJUnitTestCase {
 		Topic topic = GuiActionRunner.execute(() -> {
 			return topicController.handleCreateTopic("Arte", "Pittura", 4, new ArrayList<>());
 		});
-		StudySession session1 = GuiActionRunner.execute(() -> {
-			return sessionController.handleCreateSession(
-				LocalDate.now().plusDays(1), 60, "Sessione non completata", new ArrayList<>(List.of(topic)));
+		GuiActionRunner.execute(() -> {
+			sessionController.handleCreateSession(LocalDate.now().plusDays(1), 60, "Sessione non completata", new ArrayList<>(List.of(topic.getId())));
 		});
-		System.out.println(topic.toString());
-		System.out.println(sessionController.handleGetAllSessions().size());
-		StudySession session2 = GuiActionRunner.execute(() -> {
-			StudySession s = sessionController.handleCreateSession(
-				LocalDate.now().plusDays(2), 90, "Sessione completata", new ArrayList<>(List.of(topic)));
+		
+		GuiActionRunner.execute(() -> {
+			StudySession s = sessionController.handleCreateSession(LocalDate.now().plusDays(2), 90, "Sessione completata", new ArrayList<>(List.of(topic.getId())));
 			sessionController.handleCompleteSession(s.getId());
 			return s;
 		});
-		System.out.println(topic.toString());
-		System.out.println(sessionController.handleGetAllSessions().size());
-		assertThat(sessionRepository.findById(session1.getId())).isNotNull();
-		assertThat(sessionRepository.findById(session2.getId())).isNotNull();
-		Topic persistedTopic = topicRepository.findById(topic.getId());
-		System.out.println(persistedTopic.toString());
-		System.out.println(sessionController.handleGetAllSessions().size());
+		Topic persistedTopic = transactionManager.doInTopicTransaction(repo -> repo.findById(topic.getId()));
 		assertThat(persistedTopic.getSessionList()).hasSize(2);
 		assertThat(persistedTopic.percentageOfCompletion()).isEqualTo(50);
 		window.list("topicList").selectItem(0);
@@ -304,26 +314,38 @@ public class TopicAndSessionManagerIT extends AssertJSwingJUnitTestCase {
 		Topic topic = GuiActionRunner.execute(() -> {
 			return topicController.handleCreateTopic("Lingua", "Inglese", 2, new ArrayList<>());
 		});
-		StudySession session = GuiActionRunner.execute(() -> {
-			return sessionController.handleCreateSession(
-				LocalDate.now().plusDays(1), 45, "Lezione inglese", new ArrayList<>(List.of(topic)));
+		GuiActionRunner.execute(() -> {
+			sessionController.handleCreateSession(LocalDate.now().plusDays(1), 45, "Lezione inglese", new ArrayList<>(List.of(topic.getId())));
 		});
-		assertThat(topicRepository.findById(topic.getId())).isNotNull();
-		assertThat(sessionRepository.findById(session.getId())).isNotNull();
 		window.list("topicList").selectItem(0);
 		window.list("sessionList").selectItem(0);
-		window.button(JButtonMatcher.withName("deleteTopicButton")).requireEnabled();
-		window.button(JButtonMatcher.withName("deleteSessionButton")).requireEnabled();
-		window.button(JButtonMatcher.withName("completeSessionButton")).requireEnabled();
-		window.button(JButtonMatcher.withText("totalTime")).requireEnabled();
-		window.button(JButtonMatcher.withText("%Completion")).requireEnabled();
+		JButtonFixture deleteTopicButton = window.button(JButtonMatcher.withName("deleteTopicButton"));
+		deleteTopicButton.requireEnabled();
+		assertThat(deleteTopicButton.isEnabled()).isTrue();
+		JButtonFixture deleteSessionButton = window.button(JButtonMatcher.withName("deleteSessionButton"));
+		deleteSessionButton.requireEnabled();
+		assertThat(deleteSessionButton.isEnabled()).isTrue();
+		JButtonFixture completeSessionButton = window.button(JButtonMatcher.withName("completeSessionButton"));
+		completeSessionButton.requireEnabled();
+		assertThat(completeSessionButton.isEnabled()).isTrue();
+		JButtonFixture totalTimeButton = window.button(JButtonMatcher.withText("totalTime"));
+		totalTimeButton.requireEnabled();
+		assertThat(totalTimeButton.isEnabled()).isTrue();
+		JButtonFixture percentageButton = window.button(JButtonMatcher.withText("%Completion"));
+		percentageButton.requireEnabled();
+		assertThat(percentageButton.isEnabled()).isTrue();
 		window.list("topicList").clearSelection();
 		window.list("sessionList").clearSelection();
-		window.button(JButtonMatcher.withName("deleteTopicButton")).requireDisabled();
-		window.button(JButtonMatcher.withName("deleteSessionButton")).requireDisabled();
-		window.button(JButtonMatcher.withName("completeSessionButton")).requireDisabled();
-		window.button(JButtonMatcher.withText("totalTime")).requireDisabled();
-		window.button(JButtonMatcher.withText("%Completion")).requireDisabled();
+		deleteTopicButton.requireDisabled();
+		assertThat(deleteTopicButton.isEnabled()).isFalse();
+		deleteSessionButton.requireDisabled();
+		assertThat(deleteSessionButton.isEnabled()).isFalse();
+		completeSessionButton.requireDisabled();
+		assertThat(completeSessionButton.isEnabled()).isFalse();
+		totalTimeButton.requireDisabled();
+		assertThat(totalTimeButton.isEnabled()).isFalse();
+		percentageButton.requireDisabled();
+		assertThat(percentageButton.isEnabled()).isFalse();
 	}
 
 	@Test
@@ -334,46 +356,37 @@ public class TopicAndSessionManagerIT extends AssertJSwingJUnitTestCase {
 		Topic topic2 = GuiActionRunner.execute(() -> {
 			return topicController.handleCreateTopic("Database", "SQL", 4, new ArrayList<>());
 		});
-		long topic2Id = topic2.getId();
 		StudySession session1 = GuiActionRunner.execute(() -> {
-			return sessionController.handleCreateSession(
-				LocalDate.now().plusDays(1), 120, "Java basics", new ArrayList<>(List.of(topic1)));
+			return sessionController.handleCreateSession(LocalDate.now().plusDays(1), 120, "Java basics", new ArrayList<>(List.of(topic1.getId())));
 		});
-		long session1Id = session1.getId();
 		StudySession session2 = GuiActionRunner.execute(() -> {
-			return sessionController.handleCreateSession(
-				LocalDate.now().plusDays(2), 90, "SQL queries", new ArrayList<>(List.of(topic2)));
+			return sessionController.handleCreateSession(LocalDate.now().plusDays(2), 90, "SQL queries", new ArrayList<>(List.of(topic2.getId())));
 		});
 		assertThat(managerView.getTopicModel().getSize()).isEqualTo(2);
 		assertThat(managerView.getStudySessionModel().getSize()).isEqualTo(2);
-		assertThat(topicRepository.findById(topic1.getId())).isNotNull();
-		assertThat(topicRepository.findById(topic2.getId())).isNotNull();
-		assertThat(sessionRepository.findById(session1.getId())).isNotNull();
-		assertThat(sessionRepository.findById(session2.getId())).isNotNull();
+		
 		window.list("sessionList").selectItem(0);
 		window.button(JButtonMatcher.withName("completeSessionButton")).click();
-		StudySession completedSession = sessionRepository.findById(session1.getId());
-		assertThat(completedSession.isComplete()).isTrue();
+		assertThat(managerView.getStudySessionModel().getElementAt(0).isComplete()).isTrue();
 		window.list("topicList").selectItem(0);
 		window.button(JButtonMatcher.withText("totalTime")).click();
-		window.label(JLabelMatcher.withName("errorMessageLabel"))
-			.requireText("Tempo totale: 120 minuti");
+		window.label(JLabelMatcher.withName("errorMessageLabel")).requireText("Tempo totale: 120 minuti");
 		window.button(JButtonMatcher.withText("%Completion")).click();
-		window.label(JLabelMatcher.withName("errorMessageLabel"))
-			.requireText("Percentuale di completamento: 100%");
+		window.label(JLabelMatcher.withName("errorMessageLabel")).requireText("Percentuale di completamento: 100%");
 		window.list("topicList").selectItem(1);
 		window.button(JButtonMatcher.withName("deleteTopicButton")).click();
 		assertThat(managerView.getTopicModel().getSize()).isEqualTo(1);
 		assertThat(managerView.getTopicModel().getElementAt(0).getName()).isEqualTo("Informatica");
-		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, 
-			() -> topicRepository.findById(topic2Id));
-		assertThat(exception.getMessage()).isEqualTo("non esiste un topic con tale id");
+		assertThat(managerView.getStudySessionModel().getSize()).isEqualTo(2);
+		assertThat(managerView.getStudySessionModel().getElementAt(0)).isEqualTo(session1);
+		assertThat(managerView.getStudySessionModel().getElementAt(1)).isEqualTo(session2);
+		window.list("sessionList").selectItem(0);
+		window.button(JButtonMatcher.withName("deleteSessionButton")).click();
+		assertThat(managerView.getStudySessionModel().getSize()).isEqualTo(1);
+		assertThat(managerView.getStudySessionModel().getElementAt(0)).isEqualTo(session2);
 		window.list("sessionList").selectItem(0);
 		window.button(JButtonMatcher.withName("deleteSessionButton")).click();
 		assertThat(managerView.getStudySessionModel().getSize()).isZero();
-		IllegalArgumentException sessionException = assertThrows(IllegalArgumentException.class, 
-			() -> sessionRepository.findById(session1Id));
-		assertThat(sessionException.getMessage()).contains("la sessione cercata non esiste");
 	}
 
 	@Test
@@ -388,14 +401,14 @@ public class TopicAndSessionManagerIT extends AssertJSwingJUnitTestCase {
 			return topicController.handleCreateTopic("Test", "Test description", 1, new ArrayList<>());
 		});
 		assertThat(managerView.getTopicModel().contains(topic)).isTrue();
-		Topic persistedTopic = topicRepository.findById(topic.getId());
+		Topic persistedTopic = transactionManager.doInTopicTransaction(repo -> repo.findById(topic.getId()));
 		assertThat(persistedTopic.getName()).isEqualTo("Test");
 		StudySession session = GuiActionRunner.execute(() -> {
 			return sessionController.handleCreateSession(
-				LocalDate.now().plusDays(1), 30, "Test session", new ArrayList<>(List.of(topic)));
+				LocalDate.now().plusDays(1), 30, "Test session", new ArrayList<>(List.of(topic.getId())));
 		});
 		assertThat(managerView.getStudySessionModel().contains(session)).isTrue();
-		StudySession persistedSession = sessionRepository.findById(session.getId());
+		StudySession persistedSession = transactionManager.doInSessionTransaction(repo -> repo.findById(session.getId()));
 		assertThat(persistedSession.getNote()).isEqualTo("Test session");
 	}
 }

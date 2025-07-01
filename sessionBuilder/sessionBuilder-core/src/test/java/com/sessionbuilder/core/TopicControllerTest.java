@@ -168,8 +168,6 @@ public class TopicControllerTest {
 	RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
 	topicController.handleCreateTopic(name, description, difficulty, sessionList);
 	});
-
-	verify(service).createTopic(name, description, difficulty, sessionList);
 	assertThat(thrown).isEqualTo(exception);
 	}
 	

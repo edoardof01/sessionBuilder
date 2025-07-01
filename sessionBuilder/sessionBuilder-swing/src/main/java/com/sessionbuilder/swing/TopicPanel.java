@@ -42,7 +42,6 @@ public class TopicPanel extends JPanel {
 		JPanel formPanel = new JPanel();
 		formPanel.setLayout(new BoxLayout(formPanel, BoxLayout.Y_AXIS));
 		
-		// Name panel
 		JPanel namePanel = new JPanel((new BorderLayout(5,0)));
 		JLabel nameLabel = new JLabel("Name:");
 		nameLabel.setPreferredSize(new Dimension(90, 20));

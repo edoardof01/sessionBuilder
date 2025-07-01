@@ -38,7 +38,7 @@ public class StudySessionControllerTest {
 	private LocalDate date;
 	private int duration;
 	private String note;
-	private ArrayList<Topic> topics;
+	private ArrayList<Long> topicIds;
 	
 	private final long ids1 = 1L;
 	private final long idt1 = 2L;
@@ -53,7 +53,8 @@ public class StudySessionControllerTest {
 		topic1.setId(idt2);
 		topic = new Topic();
 		topic.setId(idt1);
-		topics = new ArrayList<>(List.of(topic));
+		new ArrayList<>(List.of(topic));
+		topicIds = new ArrayList<>(List.of(topic.getId()));
 		session = new StudySession(date, duration, note, new ArrayList<>(List.of(topic)));
 	}
 	
@@ -66,9 +67,9 @@ public class StudySessionControllerTest {
 	
 	@Test
 	public void testHandleCreateStudySessionSuccess() {
-		when(service.createSession(date, duration, note, topics)).thenReturn(session);
-		StudySession result = sessionController.handleCreateSession(date, duration, note, topics);
-		verify(service).createSession(date, duration, note, topics);
+		when(service.createSession(date, duration, note, topicIds)).thenReturn(session);
+		StudySession result = sessionController.handleCreateSession(date, duration, note, topicIds);
+		verify(service).createSession(date, duration, note, topicIds);
 		verify(viewCallback).onSessionAdded(session);
 		assertThat(result).isEqualTo(session);
 	}
@@ -76,11 +77,11 @@ public class StudySessionControllerTest {
 	@Test
 	public void testHandleCreateStudySessionWithException() {
 		RuntimeException exception = new RuntimeException("creation failed");
-		when(service.createSession(date, duration, note, topics)).thenThrow(exception);
+		when(service.createSession(date, duration, note, topicIds)).thenThrow(exception);
 		RuntimeException thrown = assertThrows(RuntimeException.class, ()->{
-			sessionController.handleCreateSession(date, duration, note, topics);
+			sessionController.handleCreateSession(date, duration, note, topicIds);
 		});
-		verify(service).createSession(date, duration, note, topics);
+		verify(service).createSession(date, duration, note, topicIds);
 		verify(viewCallback).onSessionError("Error: creation failed");
 		assertThat(thrown).isEqualTo(exception);
 	}
@@ -88,9 +89,9 @@ public class StudySessionControllerTest {
 	@Test 
 	public void testHandleCreateSessionWithNullCallBack() {
 		sessionController.setViewCallBack(null);
-		when(service.createSession(date, duration, note, topics)).thenReturn(session);
-		StudySession result = sessionController.handleCreateSession(date, duration, note, topics);
-		verify(service).createSession(date, duration, note, topics);
+		when(service.createSession(date, duration, note, topicIds)).thenReturn(session);
+		StudySession result = sessionController.handleCreateSession(date, duration, note, topicIds);
+		verify(service).createSession(date, duration, note, topicIds);
 		assertThat(result).isEqualTo(session);
 	}
 	
@@ -98,11 +99,11 @@ public class StudySessionControllerTest {
 	public void testHandleCreateSessionWithNullCallbackAndException() {
 	   sessionController.setViewCallBack(null);
 	   RuntimeException exception = new RuntimeException("creation failed");
-	   when(service.createSession(date, duration, note, topics)).thenThrow(exception);
+	   when(service.createSession(date, duration, note, topicIds)).thenThrow(exception);
 	   RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
-	   	sessionController.handleCreateSession(date, duration, note, topics);
+	   	sessionController.handleCreateSession(date, duration, note, topicIds);
 	   });
-	   verify(service).createSession(date, duration, note, topics);
+	   verify(service).createSession(date, duration, note, topicIds);
 	   assertThat(thrown).isEqualTo(exception);
 	}
 	

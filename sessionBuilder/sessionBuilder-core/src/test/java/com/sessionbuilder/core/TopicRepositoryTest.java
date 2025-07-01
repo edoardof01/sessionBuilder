@@ -46,10 +46,7 @@ public class TopicRepositoryTest {
 	public void setup() {
 		topic = new Topic();
 		topic.setId(id);
-		when(tm.doInTransaction(any())).thenAnswer(answer -> {
-			TransactionCode<?> code = answer.getArgument(0);
-			return code.apply(em);
-		});
+		when(tm.getCurrentEntityManager()).thenReturn(em);
 	}
 	
 	

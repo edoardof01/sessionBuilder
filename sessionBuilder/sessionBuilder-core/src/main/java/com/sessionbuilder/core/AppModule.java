@@ -4,7 +4,6 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
 import java.util.Map;
 
 public class AppModule extends AbstractModule {
@@ -29,6 +28,6 @@ public class AppModule extends AbstractModule {
 	@Provides
 	@Singleton
 	EntityManagerFactory provideEntityManagerFactory() {
-		return Persistence.createEntityManagerFactory(this.persistenceUnit, this.dbProperties);
+		return EmfFactory.createEntityManagerFactory(this.persistenceUnit, this.dbProperties);
 	}
 }

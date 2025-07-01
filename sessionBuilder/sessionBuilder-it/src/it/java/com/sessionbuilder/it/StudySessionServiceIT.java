@@ -1,4 +1,7 @@
-package com.sessionBuilder.it;
+package com.sessionbuilder.it;
+
+import static org.assertj.core.api.Assertions.*;
+import static org.junit.Assert.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -11,12 +14,11 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.testcontainers.containers.PostgreSQLContainer;
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.Assert.*;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.sessionbuilder.core.EmfFactory;
 import com.sessionbuilder.core.StudySession;
 import com.sessionbuilder.core.StudySessionInterface;
 import com.sessionbuilder.core.StudySessionRepository;
@@ -25,17 +27,21 @@ import com.sessionbuilder.core.StudySessionService;
 import com.sessionbuilder.core.Topic;
 import com.sessionbuilder.core.TopicRepository;
 import com.sessionbuilder.core.TopicRepositoryInterface;
+import com.sessionbuilder.core.TopicService;
+import com.sessionbuilder.core.TopicServiceInterface;
 import com.sessionbuilder.core.TransactionManager;
 import com.sessionbuilder.core.TransactionManagerImpl;
 
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
+import jakarta.persistence.EntityTransaction;
 
 public class StudySessionServiceIT {
 	
 	private EntityManagerFactory emf;
 	private StudySessionInterface sessionService;
-	private TopicRepositoryInterface topicRepository;
+	private TopicServiceInterface topicService;
+	private TransactionManager transactionManager;
 
 	@SuppressWarnings("resource")
 	@ClassRule
@@ -47,6 +53,21 @@ public class StudySessionServiceIT {
 	@BeforeClass
 	public static void setUpContainer() {
 		postgres.start();
+	}
+	
+	private void cleanDatabase() {
+		EntityManager em = emf.createEntityManager();
+		EntityTransaction tx = em.getTransaction();
+		try {
+			tx.begin();
+			em.createNativeQuery("TRUNCATE TABLE topic_studysession CASCADE").executeUpdate();
+			em.createNativeQuery("TRUNCATE TABLE studysession CASCADE").executeUpdate();
+			em.createNativeQuery("TRUNCATE TABLE topic CASCADE").executeUpdate();
+			tx.commit();
+		} finally {
+			if (tx.isActive()) tx.rollback();
+			em.close();
+		}
 	}
 	
 	@Before
@@ -61,20 +82,24 @@ public class StudySessionServiceIT {
 		properties.put("hibernate.show_sql", "true");
 		properties.put("hibernate.format_sql", "true");
 		
-		emf = Persistence.createEntityManagerFactory("sessionbuilder-test", properties);
+		emf = EmfFactory.createEntityManagerFactory("sessionbuilder-test", properties);
+		cleanDatabase();
 		AbstractModule module = new AbstractModule() {
 			@Override
 			protected void configure() {
 				bind(EntityManagerFactory.class).toInstance(emf);
 				bind(StudySessionRepositoryInterface.class).to(StudySessionRepository.class);
 				bind(TopicRepositoryInterface.class).to(TopicRepository.class);
+				bind(TopicServiceInterface.class).to(TopicService.class);
 				bind(TransactionManager.class).to(TransactionManagerImpl.class);
 				bind(StudySessionInterface.class).to(StudySessionService.class);
 			}
 		};
 		Injector injector = Guice.createInjector(module);
 		sessionService = injector.getInstance(StudySessionInterface.class);
-		topicRepository = injector.getInstance(TopicRepositoryInterface.class);
+		topicService = injector.getInstance(TopicServiceInterface.class);
+		injector.getInstance(TopicRepositoryInterface.class);
+		transactionManager = injector.getInstance(TransactionManager.class);
 	}
 	
 	@After
@@ -82,14 +107,18 @@ public class StudySessionServiceIT {
 		if (emf != null && emf.isOpen()) {
 			emf.close();
 		}
+		transactionManager.getEmHolder().remove();
 	}
 	
 	@Test
 	public void testCreateAndGetSessionIt() {
 		Topic topic = new Topic("Math", "Algebra", 3, new ArrayList<>());
-		topicRepository.save(topic);
+		transactionManager.doInTopicTransaction(repo -> {
+			repo.save(topic);
+			return null;
+		});
 		
-		StudySession createdSession = sessionService.createSession(LocalDate.now().plusDays(1), 60, "Test session", new ArrayList<>());
+		StudySession createdSession = sessionService.createSession(LocalDate.now().plusDays(1), 60, "Test session", new ArrayList<>(java.util.List.of(topic.getId())));
 		
 		long sessionId = createdSession.getId();
 		assertThat(sessionId).isPositive();
@@ -113,9 +142,12 @@ public class StudySessionServiceIT {
 	@Test
 	public void testCompleteSessionIt() {
 		Topic topic = new Topic("Physics", "Mechanics", 4, new ArrayList<>());
-		topicRepository.save(topic);
+		transactionManager.doInTopicTransaction(repo -> {
+			repo.save(topic);
+			return null;
+		});
 		
-		StudySession session = sessionService.createSession(LocalDate.now().plusDays(1), 90, "Physics session", new ArrayList<>());
+		StudySession session = sessionService.createSession(LocalDate.now().plusDays(1), 90, "Physics session", new ArrayList<>(java.util.List.of(topic.getId())));
 		long sessionId = session.getId();
 		
 		assertThat(session.isComplete()).isFalse();
@@ -129,54 +161,70 @@ public class StudySessionServiceIT {
 
 	@Test
 	public void testAddTopicToSessionIt() {
-		Topic topic = new Topic("Chemistry", "Organic Chemistry", 5, new ArrayList<>());
-		topicRepository.save(topic);
-		long topicId = topic.getId();
+		Topic topic1 = new Topic("Topic Iniziale", "Desc", 1, new ArrayList<>());
+		transactionManager.doInTopicTransaction(repo -> {
+			repo.save(topic1);
+			return null;
+		});
+
+		Topic topic2 = new Topic("Chemistry", "Organic Chemistry", 5, new ArrayList<>());
+		transactionManager.doInTopicTransaction(repo -> {
+			repo.save(topic2);
+			return null;
+		});
+		long topic2Id = topic2.getId();
 		
-		StudySession session = sessionService.createSession(LocalDate.now().plusDays(1), 120, "Chemistry session", new ArrayList<>());
+		StudySession session = sessionService.createSession(LocalDate.now().plusDays(1), 120, "Chemistry session", new ArrayList<>(java.util.List.of(topic1.getId())));
 		long sessionId = session.getId();
 		
-		sessionService.addTopic(sessionId, topicId);
+		sessionService.addTopic(sessionId, topic2Id);
 		
 		StudySession updatedSession = sessionService.getSessionById(sessionId);
-		assertThat(updatedSession.getTopicList()).hasSize(1);
-		assertThat(updatedSession.getTopicList().get(0).getName()).isEqualTo("Chemistry");
+		assertThat(updatedSession.getTopicList()).hasSize(2);
+		assertThat(updatedSession.getTopicList().stream().map(Topic::getName).anyMatch(name -> name.equals("Chemistry"))).isTrue();
 	}
 
 	
 	@Test
 	public void testRemoveTopicFromSessionIt() {
-		Topic topic = new Topic("History", "World War II", 4, new ArrayList<>());
-		topicRepository.save(topic);
-		long topicId = topic.getId();
+		Topic topic1 = topicService.createTopic("Topic Uno", "desc 1", 1, new ArrayList<>());
+		Topic topic2 = topicService.createTopic("Topic Due", "desc 2", 2, new ArrayList<>());
+		long topic1Id = topic1.getId();
 		
-		Topic topic2 = new Topic("Geography", "Europe", 2, new ArrayList<>());
-		topicRepository.save(topic2);
-		long topic2Id = topic2.getId();
-		
-		StudySession session = sessionService.createSession(LocalDate.now().plusDays(1), 90, "History session", new ArrayList<>());
+		StudySession session = new StudySession(LocalDate.now().plusDays(1), 90, "History session", new ArrayList<>());
+
+		transactionManager.doInMultiRepositoryTransaction(context -> {
+			Topic managedTopic1 = context.getTopicRepository().findById(topic1.getId());
+			Topic managedTopic2 = context.getTopicRepository().findById(topic2.getId());
+			
+			session.addTopic(managedTopic1);
+			session.addTopic(managedTopic2);
+			
+			context.getSessionRepository().save(session);
+			return null;
+		});
 		long sessionId = session.getId();
-		
-		sessionService.addTopic(sessionId, topicId);
-		sessionService.addTopic(sessionId, topic2Id);
 		
 		StudySession sessionWithTopics = sessionService.getSessionById(sessionId);
 		assertThat(sessionWithTopics.getTopicList()).hasSize(2);
 		
-		sessionService.removeTopic(sessionId, topicId);
+		sessionService.removeTopic(sessionId, topic1Id);
 		
 		StudySession sessionWithoutTopic = sessionService.getSessionById(sessionId);
 		assertThat(sessionWithoutTopic.getTopicList()).hasSize(1);
-		assertThat(sessionWithoutTopic.getTopicList().get(0).getName()).isEqualTo("Geography");
+		assertThat(sessionWithoutTopic.getTopicList().get(0).getName()).isEqualTo("Topic Due");
 	}
 
 	
 	@Test
 	public void testDeleteSessionIt() {
 		Topic topic = new Topic("Literature", "Shakespeare", 4, new ArrayList<>());
-		topicRepository.save(topic);
+		transactionManager.doInTopicTransaction(repo -> {
+			repo.save(topic);
+			return null;
+		});
 		
-		StudySession session = sessionService.createSession(LocalDate.now().plusDays(1), 75, "Literature session", new ArrayList<>());
+		StudySession session = sessionService.createSession(LocalDate.now().plusDays(1), 75, "Literature session", new ArrayList<>(java.util.List.of(topic.getId())));
 		long sessionId = session.getId();
 		
 		StudySession existingSession = sessionService.getSessionById(sessionId);

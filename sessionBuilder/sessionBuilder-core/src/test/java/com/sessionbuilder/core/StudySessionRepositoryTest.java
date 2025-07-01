@@ -44,10 +44,7 @@ public class StudySessionRepositoryTest {
 	
 	@Before
 	public void setup() {
-		when(tm.doInTransaction(any())).thenAnswer(answer -> {
-			TransactionCode<?> code = answer.getArgument(0);
-			return code.apply(em);
-		});
+		when(tm.getCurrentEntityManager()).thenReturn(em);
 		session = new StudySession();
 		session.setId(id);
 	}

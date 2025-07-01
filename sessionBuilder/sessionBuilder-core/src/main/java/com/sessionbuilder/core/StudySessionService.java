@@ -32,16 +32,24 @@ public class StudySessionService implements StudySessionInterface {
 	}
 
 	@Override
-	public StudySession createSession(LocalDate date, int duration, String note, List<Topic> topicList) {
+	public StudySession createSession(LocalDate date, int duration, String note, List<Long> topicIds) {
 		return tm.doInMultiRepositoryTransaction(context -> {
-			StudySession session = new StudySession(date, duration, note, topicList);
-			if(context.getSessionRepository().findByDateDurationAndNote(date, duration, note) != null) {
+			if (context.getSessionRepository().findByDateDurationAndNote(date, duration, note) != null) {
 				throw new IllegalArgumentException("esiste già una session con questi valori");
 			}
-			context.getSessionRepository().save(session);
-			for (Topic topic : topicList) {
-				context.getTopicRepository().update(topic);
+			
+			List<Topic> managedTopics = new ArrayList<>();
+			if (topicIds != null) {
+				for (Long topicId : topicIds) {
+					Topic managedTopic = context.getTopicRepository().findById(topicId);
+					managedTopics.add(managedTopic);
+				}
+			} else {
+				throw new IllegalArgumentException("la session deve avere almeno un topic");
 			}
+			StudySession session = new StudySession(date, duration, note, managedTopics);
+			context.getSessionRepository().save(session);
+			
 			return session;
 		});
 	}
@@ -53,9 +61,6 @@ public class StudySessionService implements StudySessionInterface {
 			if(session == null) throw new IllegalArgumentException(NULL_SESSION_MESSAGE);
 			session.complete();
 			context.getSessionRepository().update(session);
-			for (Topic topic : session.getTopicList()) {
-				context.getTopicRepository().update(topic);
-			}
 			return session;
 		});
 	}

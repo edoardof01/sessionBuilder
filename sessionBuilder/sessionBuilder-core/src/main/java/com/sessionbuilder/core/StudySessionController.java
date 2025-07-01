@@ -16,9 +16,9 @@ public class StudySessionController {
 	private static final String STRING_ERROR = "Error: ";
 	
 
-	public StudySession handleCreateSession(LocalDate date, int duration, String note, List<Topic> topics) {
+	public StudySession handleCreateSession(LocalDate date, int duration, String note, List<Long> topicIds) {
 		try {
-			StudySession session = service.createSession(date, duration, note, topics);
+			StudySession session = service.createSession(date, duration, note, topicIds);
 			if (viewCallBack != null) {
 				viewCallBack.onSessionAdded(session);
 			}
