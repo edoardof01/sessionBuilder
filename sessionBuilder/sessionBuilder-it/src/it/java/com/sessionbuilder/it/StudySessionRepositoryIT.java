@@ -40,9 +40,9 @@ public class StudySessionRepositoryIT {
 	@SuppressWarnings("resource")
 	@ClassRule
 	public static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15-alpine")
-			.withDatabaseName(System.getenv().getOrDefault("POSTGRES_TEST_DB", "test"))
-			.withUsername(System.getenv().getOrDefault("POSTGRES_TEST_USER", "test"))
-			.withPassword(System.getenv().getOrDefault("POSTGRES_TEST_PASSWORD", "test"));
+			.withDatabaseName(System.getenv().getOrDefault("POSTGRES_DB", "test"))
+			.withUsername(System.getenv().getOrDefault("POSTGRES_USER", "test"))
+			.withPassword(System.getenv().getOrDefault("POSTGRES_PASSWORD", "test"));
 	
 	@BeforeClass
 	public static void setUpContainer() {
