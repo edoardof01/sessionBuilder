@@ -61,9 +61,9 @@ public class SessionBuilderApplicatione2eIT extends AssertJSwingJUnitTestCase {
 	@SuppressWarnings("resource")
 	@ClassRule
 	public static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15-alpine")
-			.withDatabaseName("sessionbuilder_e2e")
-			.withUsername("test_user")
-			.withPassword("test_password")
+			.withDatabaseName(System.getenv().getOrDefault("POSTGRES_TEST_DB","sessionbuilder_e2e"))
+			.withUsername(System.getenv().getOrDefault("POSTGRES_TEST_USER","test_user"))
+			.withPassword(System.getenv().getOrDefault("POSTGRES_TEST_PASSWORD","test_password"))
 			.withExposedPorts(5432)
 			.waitingFor(Wait.forListeningPort());
 
