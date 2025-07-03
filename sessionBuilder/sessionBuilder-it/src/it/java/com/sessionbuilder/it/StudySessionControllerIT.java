@@ -23,6 +23,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.testcontainers.containers.PostgreSQLContainer;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Singleton;
 import com.sessionbuilder.core.EmfFactory;
 import com.sessionbuilder.core.SessionViewCallback;
 import com.sessionbuilder.core.StudySession;
@@ -99,10 +100,10 @@ public class StudySessionControllerIT {
 			@Override
 			protected void configure() {
 				bind(EntityManagerFactory.class).toInstance(emf);
-				bind(TopicRepositoryInterface.class).to(TopicRepository.class);
-				bind(StudySessionRepositoryInterface.class).to(StudySessionRepository.class);
-				bind(TransactionManager.class).to(TransactionManagerImpl.class);
-				bind(StudySessionInterface.class).to(StudySessionService.class);
+				bind(TopicRepositoryInterface.class).to(TopicRepository.class).in(Singleton.class);
+				bind(StudySessionRepositoryInterface.class).to(StudySessionRepository.class).in(Singleton.class);
+				bind(TransactionManager.class).to(TransactionManagerImpl.class).in(Singleton.class);
+				bind(StudySessionInterface.class).to(StudySessionService.class).in(Singleton.class);
 				bind(SessionViewCallback.class).toInstance(viewCallback);
 			}
 		};

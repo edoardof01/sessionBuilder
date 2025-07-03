@@ -115,7 +115,7 @@ public class Topic {
 
 	void decreaseMasteryLevel(int points) {
 		if(points < 0) throw new IllegalArgumentException("il valore dei punti da rimuovere deve essere positivo");
-		if(masteryLevel < points) masteryLevel = 0; //NOPIT
+		if(masteryLevel < points) masteryLevel = 0;
 		else this.masteryLevel -= points;
 	}
 	

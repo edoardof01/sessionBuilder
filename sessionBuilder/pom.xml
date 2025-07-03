@@ -125,7 +125,8 @@
 						<configuration>
 							<excludes>
 								<exclude>**.*Test.class</exclude>
-								<exclude>**.SessionBuilderApplication.class</exclude>
+								<exclude>com/sessionbuilder/swing/SessionBuilderApplication.class</exclude>
+								<exclude>com/sessionbuilder/swing/SessionBuilderApplication.java</exclude>
 								<exclude>**/*$*.class</exclude>
 								<exclude>**.*IT.class</exclude>
 							</excludes>
@@ -141,7 +142,6 @@
 						</targetClasses>
 						<excludedClasses>
 							<param>**.*Test</param>
-							<param>**.AppModule.class</param>
 						</excludedClasses>
 						<targetTests>
 							<param>com.sessionbuilder.core.*Test</param>

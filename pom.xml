@@ -13,11 +13,13 @@
 	<properties>
 		<sonar.version>5.0.0.4389</sonar.version>
 		<sonar.coverage.exclusions>**/SessionBuilderApplication.java</sonar.coverage.exclusions>
-		<sonar.issue.ignore.multicriteria>e11,e12</sonar.issue.ignore.multicriteria>
+		<sonar.issue.ignore.multicriteria>e11,e12,e13</sonar.issue.ignore.multicriteria>
 		<sonar.issue.ignore.multicriteria.e11.ruleKey>javaarchitecture:S7027</sonar.issue.ignore.multicriteria.e11.ruleKey>
 		<sonar.issue.ignore.multicriteria.e11.resourceKey>**/*</sonar.issue.ignore.multicriteria.e11.resourceKey>
 		<sonar.issue.ignore.multicriteria.e12.ruleKey>java:S120</sonar.issue.ignore.multicriteria.e12.ruleKey>
 		<sonar.issue.ignore.multicriteria.e12.resourceKey>**/*</sonar.issue.ignore.multicriteria.e12.resourceKey>
+		<sonar.issue.ignore.multicriteria.e13.ruleKey>java:S1118</sonar.issue.ignore.multicriteria.e13.ruleKey>
+		<sonar.issue.ignore.multicriteria.e13.resourceKey>${project.basedir}/sessionBuilder/sessionBuilder-core/src/main/java/com/sessionbuilder/core/EmfFactory.java</sonar.issue.ignore.multicriteria.e13.resourceKey>
 	</properties>
 
 	<build>

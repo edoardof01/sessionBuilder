@@ -77,9 +77,9 @@ public class TopicRepositoryIT {
 			@Override
 			protected void configure() {
 				bind(EntityManagerFactory.class).toInstance(emf);
-				bind(StudySessionRepositoryInterface.class).to(StudySessionRepository.class);
-				bind(TopicRepositoryInterface.class).to(TopicRepository.class);
-				bind(TransactionManager.class).to(TransactionManagerImpl.class);
+				bind(StudySessionRepositoryInterface.class).to(StudySessionRepository.class).in(Singleton.class);
+				bind(TopicRepositoryInterface.class).to(TopicRepository.class).in(Singleton.class);
+				bind(TransactionManager.class).to(TransactionManagerImpl.class).in(Singleton.class);
 			}
 		};
 		Injector injector = Guice.createInjector(module);

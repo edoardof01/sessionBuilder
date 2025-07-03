@@ -16,6 +16,7 @@ import static org.junit.Assert.*;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Singleton;
 import com.sessionbuilder.core.EmfFactory;
 import com.sessionbuilder.core.StudySession;
 import com.sessionbuilder.core.StudySessionRepository;
@@ -91,10 +92,10 @@ public class TopicServiceIT {
 			@Override
 			protected void configure() {
 				bind(EntityManagerFactory.class).toInstance(emf);
-				bind(StudySessionRepositoryInterface.class).to(StudySessionRepository.class);
-				bind(TopicRepositoryInterface.class).to(TopicRepository.class);
-				bind(TransactionManager.class).to(TransactionManagerImpl.class);
-				bind(TopicServiceInterface.class).to(TopicService.class);
+				bind(StudySessionRepositoryInterface.class).to(StudySessionRepository.class).in(Singleton.class);
+				bind(TopicRepositoryInterface.class).to(TopicRepository.class).in(Singleton.class);
+				bind(TransactionManager.class).to(TransactionManagerImpl.class).in(Singleton.class);
+				bind(TopicServiceInterface.class).to(TopicService.class).in(Singleton.class);
 			}
 		};
 		Injector injector = Guice.createInjector(module);
