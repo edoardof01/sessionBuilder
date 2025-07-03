@@ -89,14 +89,6 @@
 							<goal>build</goal>
 						</goals>
 					</execution>
-					<execution>
-						<id>docker-verify</id>
-						<phase>verify</phase>
-						<goals>
-							<goal>start</goal>
-							<goal>stop</goal>
-						</goals>
-					</execution>
 				</executions>
 			</plugin>
  		</plugins>

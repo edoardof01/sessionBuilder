@@ -116,6 +116,18 @@ public class TopicTest {
 	}
 	
 	@Test
+	public void testCalculateTotalTimeWithNoSession() {
+		topic2.setSessions(new ArrayList<>());
+		assertThat(topic2.totalTime()).isZero();
+	}
+	
+	@Test
+	public void testCalculateTotalTimeWIthOneSession() {
+		topic2.setSessions(new ArrayList<>(List.of(fullSession1)));
+		assertThat(topic2.totalTime()).isEqualTo(60);
+	}
+	
+	@Test
 	public void testCalculateTotalTimePerTopicSuccess() {
 		assertThat(topic2.totalTime()).isEqualTo(180);
 	}

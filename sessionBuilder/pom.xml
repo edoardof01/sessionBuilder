@@ -188,6 +188,14 @@
 								<goal>integration-test</goal>
 								<goal>verify</goal>
 							</goals>
+								<configuration>
+									<includes>
+										<include>**/*IT.java</include>
+									</includes>
+									<excludes>
+										<exclude>**/*e2eIT.java</exclude>
+									</excludes>
+								</configuration>
 						</execution>
 						<execution>
 							<id>e2e-tests</id>
