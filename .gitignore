@@ -1,9 +1,6 @@
 # Maven
 **/target/
 
-#docker-compose
-**/.env
-
 #backup files
 *~ 
 
