@@ -11,9 +11,9 @@ services:
       - DISPLAY=${DISPLAY:-:0}
       - DB_HOST=postgresdb
       - DB_PORT=5432
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=sessionbuilder
+      - POSTGRES_USER=sessionbuilder
+      - POSTGRES_PASSWORD=sessionbuilder
       - APP_ENVIRONMENT=production
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
