@@ -58,13 +58,10 @@ public class StudySessionControllerIT {
 			.withDatabaseName(System.getenv().getOrDefault("POSTGRES_DB", "test"))
 			.withUsername(System.getenv().getOrDefault("POSTGRES_USER", "test"))
 			.withPassword(System.getenv().getOrDefault("POSTGRES_PASSWORD", "test"));
-	
 	@BeforeClass
 	public static void setUpContainer() {
 		postgres.start();
 	}
-	
-	
 	private void cleanDatabase() {
 		EntityManager em = emf.createEntityManager();
 		EntityTransaction tx = em.getTransaction();
@@ -79,7 +76,6 @@ public class StudySessionControllerIT {
 			em.close();
 		}
 	}
-	
 	@Before
 	public void onSetup() {
 		Map<String, String> properties = new HashMap<>();
@@ -91,11 +87,8 @@ public class StudySessionControllerIT {
 		properties.put("hibernate.hbm2ddl.auto", "create-drop");
 		properties.put("hibernate.show_sql", "true");
 		properties.put("hibernate.format_sql", "true");
-		
 		emf = EmfFactory.createEntityManagerFactory("sessionbuilder-test", properties);
-		
 		cleanDatabase();
-		
 		AbstractModule module = new AbstractModule() {
 			@Override
 			protected void configure() {
