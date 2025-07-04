@@ -1,7 +1,6 @@
 version: '2'
 services:
   sessionbuilder-app:
-    build: .
     image: edoardofanciu/sessionbuilder-app:latest
     networks:
       - my-network
