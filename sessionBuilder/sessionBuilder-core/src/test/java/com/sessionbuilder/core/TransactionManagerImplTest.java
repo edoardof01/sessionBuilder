@@ -49,6 +49,7 @@ public class TransactionManagerImplTest {
 		transactionManager.getEmHolder().remove();
 	}
 	
+	
 	@Test
 	public void testDoInTransactionSuccess() {
 		String expectedResult = "test result";
@@ -56,7 +57,7 @@ public class TransactionManagerImplTest {
 		TransactionCode<String> code = mock(TransactionCode.class);
 		when(code.apply(em)).thenReturn(expectedResult);
 		String result = transactionManager.doInTransaction(code);
-	
+
 		verify(transaction).begin();
 		verify(code).apply(em);
 		verify(transaction).commit();
@@ -257,86 +258,86 @@ public class TransactionManagerImplTest {
 	
 	@Test
 	public void testGetCurrentEntityManagerWhenThreadLocalIsNull() {
-	    IllegalStateException thrown = assertThrows(IllegalStateException.class, () -> {
-	        transactionManager.getCurrentEntityManager();
-	    });
-	    assertThat(thrown.getMessage()).contains("EntityManager non trovato");
+		IllegalStateException thrown = assertThrows(IllegalStateException.class, () -> {
+			transactionManager.getCurrentEntityManager();
+		});
+		assertThat(thrown.getMessage()).contains("EntityManager non trovato");
 	}
 
 	@Test
 	public void testGetCurrentEntityManagerWhenThreadLocalHasValue() {
-	    transactionManager.getEmHolder().set(em);
-	    EntityManager result = transactionManager.getCurrentEntityManager();
-	    assertThat(result).isEqualTo(em);
+		transactionManager.getEmHolder().set(em);
+		EntityManager result = transactionManager.getCurrentEntityManager();
+		assertThat(result).isEqualTo(em);
 	}
 
 	@Test
 	public void testDoInTransactionWhenEntityManagerAlreadyExists() {
-	    transactionManager.getEmHolder().set(em);
-	    String expectedResult = "existing em result";
-	    @SuppressWarnings("unchecked")
-	    TransactionCode<String> code = mock(TransactionCode.class);
-	    when(code.apply(em)).thenReturn(expectedResult);
-	    String result = transactionManager.doInTransaction(code);
-	    verify(transaction, never()).begin();
-	    verify(code).apply(em);
-	    verify(transaction, never()).commit();
-	    verify(em, never()).close();
-	    assertThat(result).isEqualTo(expectedResult);
+		transactionManager.getEmHolder().set(em);
+		String expectedResult = "existing em result";
+		@SuppressWarnings("unchecked")
+		TransactionCode<String> code = mock(TransactionCode.class);
+		when(code.apply(em)).thenReturn(expectedResult);
+		String result = transactionManager.doInTransaction(code);
+		verify(transaction, never()).begin();
+		verify(code).apply(em);
+		verify(transaction, never()).commit();
+		verify(em, never()).close();
+		assertThat(result).isEqualTo(expectedResult);
 	}
 
 	@Test
 	public void testDoInTopicTransactionWhenEntityManagerAlreadyExists() {
-	    transactionManager.getEmHolder().set(em);
-	    String expectedResult = "existing em topic result";
-	    @SuppressWarnings("unchecked")
-	    TopicTransactionCode<String> code = mock(TopicTransactionCode.class);
-	    when(code.apply(topicRepository)).thenReturn(expectedResult);
-	    String result = transactionManager.doInTopicTransaction(code);
-	    verify(transaction, never()).begin();
-	    verify(code).apply(topicRepository);
-	    verify(transaction, never()).commit();
-	    verify(em, never()).close();
-	    assertThat(result).isEqualTo(expectedResult);
+		transactionManager.getEmHolder().set(em);
+		String expectedResult = "existing em topic result";
+		@SuppressWarnings("unchecked")
+		TopicTransactionCode<String> code = mock(TopicTransactionCode.class);
+		when(code.apply(topicRepository)).thenReturn(expectedResult);
+		String result = transactionManager.doInTopicTransaction(code);
+		verify(transaction, never()).begin();
+		verify(code).apply(topicRepository);
+		verify(transaction, never()).commit();
+		verify(em, never()).close();
+		assertThat(result).isEqualTo(expectedResult);
 	}
 
 	@Test
 	public void testDoInSessionTransactionWhenEntityManagerAlreadyExists() {
-	    transactionManager.getEmHolder().set(em);
-	    String expectedResult = "existing em session result";
-	    @SuppressWarnings("unchecked")
-	    StudySessionTransactionCode<String> code = mock(StudySessionTransactionCode.class);
-	    when(code.apply(sessionRepository)).thenReturn(expectedResult);
-	    String result = transactionManager.doInSessionTransaction(code);
-	    verify(transaction, never()).begin();
-	    verify(code).apply(sessionRepository);
-	    verify(transaction, never()).commit();
-	    verify(em, never()).close();
-	    assertThat(result).isEqualTo(expectedResult);
+		transactionManager.getEmHolder().set(em);
+		String expectedResult = "existing em session result";
+		@SuppressWarnings("unchecked")
+		StudySessionTransactionCode<String> code = mock(StudySessionTransactionCode.class);
+		when(code.apply(sessionRepository)).thenReturn(expectedResult);
+		String result = transactionManager.doInSessionTransaction(code);
+		verify(transaction, never()).begin();
+		verify(code).apply(sessionRepository);
+		verify(transaction, never()).commit();
+		verify(em, never()).close();
+		assertThat(result).isEqualTo(expectedResult);
 	}
 
 	@Test
 	public void testDoInMultiRepositoryTransactionWhenEntityManagerAlreadyExists() {
-	    transactionManager.getEmHolder().set(em);
-	    String expectedResult = "existing em multi result";
-	    @SuppressWarnings("unchecked")
-	    MultiRepositoryTransactionCode<String> code = mock(MultiRepositoryTransactionCode.class);
-	    when(code.apply(any(RepositoryContext.class))).thenReturn(expectedResult);
-	    String result = transactionManager.doInMultiRepositoryTransaction(code);
-	    verify(transaction, never()).begin();
-	    verify(code).apply(any(RepositoryContext.class));
-	    verify(transaction, never()).commit();
-	    verify(em, never()).close();
-	    assertThat(result).isEqualTo(expectedResult);
+		transactionManager.getEmHolder().set(em);
+		String expectedResult = "existing em multi result";
+		@SuppressWarnings("unchecked")
+		MultiRepositoryTransactionCode<String> code = mock(MultiRepositoryTransactionCode.class);
+		when(code.apply(any(RepositoryContext.class))).thenReturn(expectedResult);
+		String result = transactionManager.doInMultiRepositoryTransaction(code);
+		verify(transaction, never()).begin();
+		verify(code).apply(any(RepositoryContext.class));
+		verify(transaction, never()).commit();
+		verify(em, never()).close();
+		assertThat(result).isEqualTo(expectedResult);
 	}
 
 	@Test
 	public void testDoInMultiRepositoryTransactionMissingEmHolderRemove() {
-	    @SuppressWarnings("unchecked")
-	    MultiRepositoryTransactionCode<String> code = mock(MultiRepositoryTransactionCode.class);
-	    when(code.apply(any(RepositoryContext.class))).thenReturn("result");
-	    transactionManager.doInMultiRepositoryTransaction(code);
-	    assertThat(transactionManager.getEmHolder().get()).isNull();
+		@SuppressWarnings("unchecked")
+		MultiRepositoryTransactionCode<String> code = mock(MultiRepositoryTransactionCode.class);
+		when(code.apply(any(RepositoryContext.class))).thenReturn("result");
+		transactionManager.doInMultiRepositoryTransaction(code);
+		assertThat(transactionManager.getEmHolder().get()).isNull();
 	}
 	
 	@Test

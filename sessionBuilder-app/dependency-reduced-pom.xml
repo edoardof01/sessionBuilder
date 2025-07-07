@@ -20,7 +20,7 @@
               <createDependencyReducedPom>true</createDependencyReducedPom>
               <transformers>
                 <transformer>
-                  <mainClass>com.sessionBuilder.swing.SessionBuilderApplication</mainClass>
+                  <mainClass>com.sessionbuilder.swing.SessionBuilderApplication</mainClass>
                 </transformer>
                 <transformer />
               </transformers>
