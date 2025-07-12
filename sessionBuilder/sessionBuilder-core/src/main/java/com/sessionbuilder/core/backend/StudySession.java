@@ -126,7 +126,7 @@ public class StudySession {
 		this.duration = duration;
 	}
 	
-	public void setTopics (ArrayList<Topic> topics) {
+	public void setTopics (List<Topic> topics) {
 		this.topicList = topics;
 	}
 	
