@@ -21,9 +21,9 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import com.sessionbuilder.core.StudySession;
-import com.sessionbuilder.core.Topic;
-import com.sessionbuilder.core.TopicController;
+import com.sessionbuilder.core.backend.StudySession;
+import com.sessionbuilder.core.backend.Topic;
+import com.sessionbuilder.core.backend.TopicController;
 
 public class TopicPanel extends JPanel {
 	

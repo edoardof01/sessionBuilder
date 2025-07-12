@@ -26,9 +26,9 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
-import com.sessionbuilder.core.StudySession;
-import com.sessionbuilder.core.StudySessionController;
-import com.sessionbuilder.core.Topic;
+import com.sessionbuilder.core.backend.StudySession;
+import com.sessionbuilder.core.backend.StudySessionController;
+import com.sessionbuilder.core.backend.Topic;
 import com.toedter.calendar.JDateChooser;
 
 public class SessionPanel extends JPanel {

@@ -33,12 +33,12 @@ jobs:
           path: |
             ~/.m2
             ~/.sonar/cache
-          key: ${{ runner.os }}-m2-jdk-${{ matrix.java }}-${{ hashFiles('**/pom.xml') }}
+          key: ${{ runner.os }}-m2-jdk-${{ matrix.java }}-${{ hashFiles('**/pom.xml', '**/*.yml') }}
           restore-keys: ${{ runner.os }}-m2-
 
       - name: Build with Maven
         run: >
-          xvfb-run mvn -B clean install ${{ matrix.additional-maven-args }}
+          xvfb-run mvn install ${{ matrix.additional-maven-args }}
           -Dcoveralls.repoToken=${{ secrets.COVERALLS_TOKEN }}
         env:
           POSTGRES_DB: ${{ secrets.POSTGRES_TEST_DB }}

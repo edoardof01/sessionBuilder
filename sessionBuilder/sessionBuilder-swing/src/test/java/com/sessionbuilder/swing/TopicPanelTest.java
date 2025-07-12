@@ -26,9 +26,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import com.sessionbuilder.core.StudySession;
-import com.sessionbuilder.core.Topic;
-import com.sessionbuilder.core.TopicController;
+import com.sessionbuilder.core.backend.StudySession;
+import com.sessionbuilder.core.backend.Topic;
+import com.sessionbuilder.core.backend.TopicController;
 
 
 @RunWith(GUITestRunner.class)

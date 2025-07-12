@@ -14,12 +14,12 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 
-import com.sessionbuilder.core.SessionViewCallback;
-import com.sessionbuilder.core.StudySession;
-import com.sessionbuilder.core.StudySessionController;
-import com.sessionbuilder.core.Topic;
-import com.sessionbuilder.core.TopicController;
-import com.sessionbuilder.core.TopicViewCallback;
+import com.sessionbuilder.core.backend.SessionViewCallback;
+import com.sessionbuilder.core.backend.StudySession;
+import com.sessionbuilder.core.backend.StudySessionController;
+import com.sessionbuilder.core.backend.Topic;
+import com.sessionbuilder.core.backend.TopicController;
+import com.sessionbuilder.core.backend.TopicViewCallback;
 
 import javax.swing.JSplitPane;
 import javax.swing.ListSelectionModel;

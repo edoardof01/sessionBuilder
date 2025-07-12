@@ -28,9 +28,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import com.sessionbuilder.core.StudySession;
-import com.sessionbuilder.core.StudySessionController;
-import com.sessionbuilder.core.Topic;
+import com.sessionbuilder.core.backend.StudySession;
+import com.sessionbuilder.core.backend.StudySessionController;
+import com.sessionbuilder.core.backend.Topic;
 import com.toedter.calendar.JDateChooser;
 
 @RunWith(GUITestRunner.class)

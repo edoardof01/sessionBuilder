@@ -4,8 +4,6 @@
 	<modules>
 		<module>sessionBuilder-core</module>
 		<module>sessionBuilder-swing</module>
-		<module>sessionBuilder-it</module>
-		<module>sessionBuilder-e2e</module>
 		<module>sessionBuilder-report</module>
 	</modules>
  

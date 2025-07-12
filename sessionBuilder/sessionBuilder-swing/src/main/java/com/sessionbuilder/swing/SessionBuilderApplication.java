@@ -11,7 +11,11 @@ import org.apache.logging.log4j.Logger;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.sessionbuilder.core.*;
+import com.sessionbuilder.core.backend.SessionViewCallback;
+import com.sessionbuilder.core.backend.StudySessionController;
+import com.sessionbuilder.core.backend.TopicController;
+import com.sessionbuilder.core.backend.TopicViewCallback;
+import com.sessionbuilder.core.utils.AppModule;
 
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
