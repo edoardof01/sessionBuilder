@@ -11,6 +11,7 @@
 	</modules>
 
 	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<sonar.version>5.0.0.4389</sonar.version>
 		<sonar.coverage.exclusions>**/SessionBuilderApplication.java</sonar.coverage.exclusions>
 		<sonar.issue.ignore.multicriteria>e11,e12</sonar.issue.ignore.multicriteria>
