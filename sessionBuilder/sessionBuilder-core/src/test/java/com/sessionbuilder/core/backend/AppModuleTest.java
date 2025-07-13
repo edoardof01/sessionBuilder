@@ -2,22 +2,27 @@ package com.sessionbuilder.core.backend;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.times;
+
 import java.util.Collections;
 import java.util.Map;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
-import org.mockito.Mockito;
+
 import org.mockito.junit.MockitoJUnitRunner;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import com.sessionbuilder.core.utils.AppModule;
-
+import com.sessionbuilder.core.utils.EmfFactory;
 import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
+
 
 @RunWith(MockitoJUnitRunner.class)
 public class AppModuleTest {
@@ -120,18 +125,18 @@ public class AppModuleTest {
 		String expectedPersistenceUnit = "my-persistence-unit";
 		Map<String, String> expectedProperties = Collections.singletonMap("key", "value");
 
-		try (MockedStatic<Persistence> mockedPersistence = Mockito.mockStatic(Persistence.class)) {
-			mockedPersistence
-				.when(() -> Persistence.createEntityManagerFactory(expectedPersistenceUnit, expectedProperties))
-				.thenReturn(mockEmf);
-
+		try (MockedStatic<EmfFactory> mockedEmfFactory = mockStatic(EmfFactory.class)) {
+            mockedEmfFactory
+                .when(() -> EmfFactory.createEntityManagerFactory(eq(expectedPersistenceUnit), anyMap()))
+                .thenReturn(mockEmf);
+            
 			AppModule module = new AppModule(expectedPersistenceUnit, expectedProperties);
 			Injector injector = Guice.createInjector(module);
 
 			EntityManagerFactory emfInstance1 = injector.getInstance(EntityManagerFactory.class);
 			EntityManagerFactory emfInstance2 = injector.getInstance(EntityManagerFactory.class);
 			
-			mockedPersistence.verify(() -> Persistence.createEntityManagerFactory(expectedPersistenceUnit, expectedProperties));
+			mockedEmfFactory.verify(() -> EmfFactory.createEntityManagerFactory(eq(expectedPersistenceUnit), eq(expectedProperties)), times(1));
 
 			assertNotNull(emfInstance1);
 			assertSame("L'EntityManagerFactory dovrebbe essere un singleton", emfInstance1, emfInstance2);
