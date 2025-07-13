@@ -55,8 +55,6 @@ public class TopicControllerIT extends BaseBackendIntegrationTest {
 	protected void onSetup() {
 		topicController = injector.getInstance(TopicController.class);
 		sessionRepository = injector.getInstance(StudySessionRepositoryInterface.class);
-		// Mantiene il comportamento originale: il mock @Mock viene sovrascritto
-		// da uno spy della classe, e poi passato al controller tramite setter.
 		viewCallback = spy(TopicViewCallback.class);
 		topicController.setViewCallback(viewCallback);
 		topicService = injector.getInstance(TopicServiceInterface.class);

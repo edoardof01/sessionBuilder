@@ -150,11 +150,11 @@ public class TopicTest {
 
 	@Test
 	public void testCalculatePercentageOfTopicCompletionWithAllSessionsCompleted() {
-	StudySession session3 = new StudySession(LocalDate.now().plusDays(1), 60, "nota 1", new ArrayList<>(List.of(topic3)));
-	session3.complete();
-	StudySession session4 = new StudySession(LocalDate.now().plusDays(2), 90, "nota 2", new ArrayList<>(List.of(topic3)));
-	session4.complete();
-	assertThat(topic3.percentageOfCompletion()).isEqualTo(100);
+		StudySession session3 = new StudySession(LocalDate.now().plusDays(1), 60, "nota 1", new ArrayList<>(List.of(topic3)));
+		session3.complete();
+		StudySession session4 = new StudySession(LocalDate.now().plusDays(2), 90, "nota 2", new ArrayList<>(List.of(topic3)));
+		session4.complete();
+		assertThat(topic3.percentageOfCompletion()).isEqualTo(100);
 	}
 	
 	@Test

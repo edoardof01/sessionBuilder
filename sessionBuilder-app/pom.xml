@@ -17,6 +17,8 @@
 	</dependencyManagement>
 
 	<properties>
+		<compiler.version>3.13.0</compiler.version>
+		<java.version>17</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<docker.version>0.45.1</docker.version>
 		<shade.version>3.5.0</shade.version>
@@ -35,6 +37,15 @@
 
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${compiler.version}</version>
+				<configuration>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
