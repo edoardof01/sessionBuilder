@@ -1,26 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <persistence xmlns="https://jakarta.ee/xml/ns/persistence"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence
-		https://jakarta.ee/xml/ns/persistence/persistence_3_1.xsd"
-	version="3.1">
+	xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_2.xsd" version="3.2">
 
 	<persistence-unit name="sessionbuilder-test">
 		<provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
-		<class>com.sessionBuilder.core.Topic</class>
-		<class>com.sessionBuilder.core.StudySession</class>
-		
+		<class>com.sessionbuilder.core.backend.Topic</class>
+		<class>com.sessionbuilder.core.backend.StudySession</class>
+
 		<properties>
 			<property name="jakarta.persistence.jdbc.driver" value="org.postgresql.Driver"/>
 			<property name="jakarta.persistence.jdbc.url" value="jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${POSTGRES_DB:test}"/>
 			<property name="jakarta.persistence.jdbc.user" value="${POSTGRES_USER:test}"/>
 			<property name="jakarta.persistence.jdbc.password" value="${POSTGRES_PASSWORD:test}"/>
-			
 			<property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
 			<property name="hibernate.hbm2ddl.auto" value="create-drop"/>
 			<property name="hibernate.show_sql" value="true"/>
 			<property name="hibernate.format_sql" value="true"/>
-			
 			<property name="hibernate.connection.pool_size" value="5"/>
 			<property name="hibernate.cache.use_second_level_cache" value="false"/>
 			<property name="hibernate.cache.use_query_cache" value="false"/>
@@ -29,42 +25,38 @@
 
 	<persistence-unit name="sessionbuilder-prod">
 		<provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
-		<class>com.sessionBuilder.core.Topic</class>
-		<class>com.sessionBuilder.core.StudySession</class>
-		
+		<class>com.sessionbuilder.core.backend.Topic</class>
+		<class>com.sessionbuilder.core.backend.StudySession</class>
+
 		<properties>
 			<property name="jakarta.persistence.jdbc.driver" value="org.postgresql.Driver"/>
 			<property name="jakarta.persistence.jdbc.url" value="jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${POSTGRES_DB:sessionbuilder}"/>
 			<property name="jakarta.persistence.jdbc.user" value="${POSTGRES_USER:sessionbuilder}"/>
 			<property name="jakarta.persistence.jdbc.password" value="${POSTGRES_PASSWORD:sessionbuilder}"/>
-			
 			<property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
 			<property name="hibernate.hbm2ddl.auto" value="update"/>
 			<property name="hibernate.show_sql" value="false"/>
 			<property name="hibernate.format_sql" value="false"/>
-			
 			<property name="hibernate.connection.pool_size" value="10"/>
 			<property name="hibernate.cache.use_second_level_cache" value="false"/>
 			<property name="hibernate.cache.use_query_cache" value="false"/>
 		</properties>
 	</persistence-unit>
-	
+
 	<persistence-unit name="sessionbuilder-e2e">
 		<provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
-		<class>com.sessionBuilder.core.Topic</class>
-		<class>com.sessionBuilder.core.StudySession</class>
+		<class>com.sessionbuilder.core.backend.Topic</class>
+		<class>com.sessionbuilder.core.backend.StudySession</class>
 
 		<properties>
 			<property name="jakarta.persistence.jdbc.driver" value="org.postgresql.Driver"/>
 			<property name="jakarta.persistence.jdbc.url" value="jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${POSTGRES_DB:sessionbuilder_e2e}"/>
 			<property name="jakarta.persistence.jdbc.user" value="${POSTGRES_USER:test_e2e}"/>
 			<property name="jakarta.persistence.jdbc.password" value="${POSTGRES_PASSWORD:test_e2e}"/>
-
 			<property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
 			<property name="hibernate.hbm2ddl.auto" value="update"/>
 			<property name="hibernate.show_sql" value="true"/>
 			<property name="hibernate.format_sql" value="true"/>
-
 			<property name="hibernate.connection.pool_size" value="5"/>
 			<property name="hibernate.cache.use_second_level_cache" value="false"/>
 			<property name="hibernate.cache.use_query_cache" value="false"/>

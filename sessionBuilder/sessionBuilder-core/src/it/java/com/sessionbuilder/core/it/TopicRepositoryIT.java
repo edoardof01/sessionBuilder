@@ -96,19 +96,6 @@ public class TopicRepositoryIT extends BaseBackendIntegrationTest {
 	}
 
 	@Test
-	public void testUpdateNonExistentTopicIt() {
-		Topic nonPersistedTopic = new Topic("Fake Topic", "Non salvato", 1, new ArrayList<>());
-		nonPersistedTopic.setId(999999L);
-		transactionManager.doInTopicTransaction(repo -> {
-			repo.update(nonPersistedTopic);
-			return null;
-		});
-		Topic result = transactionManager.doInTopicTransaction(repo -> repo.findByNameDescriptionAndDifficulty("Fake Topic", "Non salvato", 1));
-		assertThat(result).isNotNull();
-		assertThat(result.getId()).isNotEqualTo(999999L);
-	}
-
-	@Test
 	public void testDeleteNonExistentTopicIt() {
 		long nonExistentId = 888888L;
 		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,

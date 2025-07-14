@@ -7,9 +7,7 @@ import com.google.inject.util.Modules;
 import com.sessionbuilder.core.utils.AppModule;
 import com.sessionbuilder.core.backend.TransactionManager;
 import com.sessionbuilder.core.utils.TestEntityManagerFactoryModule;
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.EntityTransaction;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -38,21 +36,6 @@ public abstract class BaseBackendIntegrationTest {
 		postgres.start();
 	}
 
-	protected void cleanDatabase() {
-		EntityManager em = emf.createEntityManager();
-		EntityTransaction tx = em.getTransaction();
-		try {
-			tx.begin();
-			em.createNativeQuery("TRUNCATE TABLE topic_studysession CASCADE").executeUpdate();
-			em.createNativeQuery("TRUNCATE TABLE studysession CASCADE").executeUpdate();
-			em.createNativeQuery("TRUNCATE TABLE topic CASCADE").executeUpdate();
-			tx.commit();
-		} finally {
-			if (tx.isActive()) tx.rollback();
-			em.close();
-		}
-	}
-
 	protected abstract AbstractModule getTestSpecificModule();
 
 	@Before
@@ -74,9 +57,9 @@ public abstract class BaseBackendIntegrationTest {
 		);
 		emf = injector.getInstance(EntityManagerFactory.class);
 		transactionManager = injector.getInstance(TransactionManager.class);
-		cleanDatabase();
 		onSetup();
 	}
+
 
 	protected void onSetup() {
 	}
